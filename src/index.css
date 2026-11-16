@@ -1,0 +1,263 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --color-bg-canvas: #eef4fb;
+    --color-primary-text: #1e293b;
+    --color-muted-text: #64748b;
+  }
+
+  .dark {
+    --color-bg-canvas: #0b1220;
+    --color-primary-text: #f1f5f9;
+    --color-muted-text: #94a3b8;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100dvh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    background-color: var(--color-bg-canvas);
+    color: var(--color-primary-text);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.font-mono-tabular {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Windows 11 Aurora + Liquid Glass Multi-layer Wallpaper */
+.aurora-mesh {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background-color: #edf4fc;
+  background-image:
+    radial-gradient(circle at 14% 20%, rgba(125, 211, 252, 0.58) 0%, transparent 45%),
+    radial-gradient(circle at 84% 16%, rgba(196, 181, 253, 0.52) 0%, transparent 44%),
+    radial-gradient(circle at 48% 52%, rgba(167, 243, 208, 0.34) 0%, transparent 50%),
+    radial-gradient(circle at 86% 80%, rgba(251, 207, 232, 0.54) 0%, transparent 46%),
+    radial-gradient(circle at 20% 82%, rgba(186, 230, 253, 0.55) 0%, transparent 46%),
+    linear-gradient(135deg, #f5f9ff 0%, #eff6ff 40%, #f5f3ff 75%, #fdf2f8 100%);
+}
+
+.dark .aurora-mesh {
+  background-color: #0b1220;
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(14, 165, 233, 0.25) 0%, transparent 45%),
+    radial-gradient(circle at 82% 18%, rgba(139, 92, 246, 0.24) 0%, transparent 45%),
+    radial-gradient(circle at 50% 60%, rgba(16, 185, 129, 0.14) 0%, transparent 50%),
+    radial-gradient(circle at 84% 82%, rgba(236, 72, 153, 0.16) 0%, transparent 45%),
+    linear-gradient(135deg, #0b1220 0%, #0f172a 55%, #171533 100%);
+}
+
+/* Liquid Glass Surface */
+.liquid-glass-panel {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(255, 255, 255, 0.48) 50%,
+    rgba(240, 248, 255, 0.56) 100%
+  );
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 12px 32px -10px rgba(30, 58, 110, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.dark .liquid-glass-panel {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.76) 0%,
+    rgba(15, 23, 42, 0.68) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 16px 36px -12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Windows 11 Acrylic & Mica materials */
+.win11-acrylic {
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(28px) saturate(175%);
+  -webkit-backdrop-filter: blur(28px) saturate(175%);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 20px 48px -12px rgba(15, 35, 80, 0.18),
+    0 4px 12px rgba(30, 64, 175, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.dark .win11-acrylic {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 24px 52px -12px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.win11-taskbar {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(32px) saturate(185%);
+  -webkit-backdrop-filter: blur(32px) saturate(185%);
+  border-top: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 -6px 24px -4px rgba(15, 35, 80, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.dark .win11-taskbar {
+  background: rgba(15, 23, 42, 0.84);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -8px 28px -4px rgba(0, 0, 0, 0.5);
+}
+
+.win11-window {
+  box-shadow:
+    0 20px 50px -12px rgba(15, 35, 80, 0.2),
+    0 6px 20px -4px rgba(30, 64, 175, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.win11-window-active {
+  box-shadow:
+    0 28px 68px -14px rgba(15, 35, 80, 0.28),
+    0 10px 28px -6px rgba(37, 99, 235, 0.18),
+    0 0 0 1px rgba(56, 189, 248, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.dark .win11-window-active {
+  box-shadow:
+    0 28px 70px -14px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(56, 189, 248, 0.4);
+}
+
+.win11-snap-preview {
+  background: rgba(56, 189, 248, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid rgba(56, 189, 248, 0.72);
+  box-shadow:
+    0 0 30px rgba(56, 189, 248, 0.24),
+    inset 0 0 20px rgba(255, 255, 255, 0.35);
+  transition: all 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.deep-glass {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+}
+
+.dark .deep-glass {
+  background: rgba(15, 23, 42, 0.92);
+}
+
+.select-none-during-drag {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Liquid Glass Pill Navigation */
+.glass-pill-tray {
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(18px) saturate(165%);
+  -webkit-backdrop-filter: blur(18px) saturate(165%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 6px 20px -8px rgba(15, 35, 80, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.dark .glass-pill-tray {
+  background: rgba(15, 23, 42, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow:
+    0 8px 22px -8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-pill-tab {
+  color: #475569;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-pill-tab:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+}
+.dark .glass-pill-tab {
+  color: #94a3b8;
+}
+.dark .glass-pill-tab:hover {
+  color: #f8fafc;
+  background: rgba(51, 65, 85, 0.55);
+}
+
+.glass-pill-tab-active {
+  background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+  color: #ffffff;
+  box-shadow:
+    0 6px 16px -4px rgba(14, 165, 233, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.dark .glass-pill-tab-active {
+  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+  color: #ffffff;
+  box-shadow:
+    0 6px 18px -4px rgba(56, 189, 248, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Custom Scrollbar inside App Windows only */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
