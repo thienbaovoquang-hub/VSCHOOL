@@ -2,6 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ===== Zero-Read Static Validators (Evaluate Before DB Lookups) =====
     function isSignedIn() {
       return request.auth != null;
     }
@@ -22,34 +23,61 @@ service cloud.firestore {
       return (val is int || val is float) && val >= minVal && val <= maxVal;
     }
 
-    function userDocExists() {
-      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    function hasValidSchoolId(data) {
+      return !('schoolId' in data) || (data.schoolId is string && data.schoolId.size() >= 1 && data.schoolId.size() <= 64);
     }
 
-    function userDocData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    function hasValidVersion(data) {
+      return !('version' in data) || (data.version is int && data.version >= 1 && data.version <= 1000000);
     }
 
-    function getUserRole() {
-      return userDocExists() ? userDocData().role : 'student';
+    function hasValidBaseMetadata(data) {
+      return hasValidSchoolId(data) && hasValidVersion(data);
     }
 
-    function isUserActive() {
-      return !userDocExists() || userDocData().get('status', 'active') == 'active';
+    function isValidRole(role) {
+      return role in [
+        'admin',
+        'principal',
+        'homeroom_teacher',
+        'subject_teacher',
+        'librarian',
+        'counselor',
+        'staff',
+        'student'
+      ];
     }
 
-    function hasRole(roleName) {
-      return isSignedIn() && isUserActive() && (
-        getUserRole() == roleName ||
-        (userDocExists() && userDocData().get('secondaryRoles', []).hasAny([roleName]))
-      );
+    function normalizedSchoolId(data) {
+      return !('schoolId' in data) || data.schoolId == null || data.schoolId == ''
+        ? 'schoolhub_main'
+        : data.schoolId;
     }
 
-    function hasAnyRole(roles) {
-      return isSignedIn() && isUserActive() && (
-        getUserRole() in roles ||
-        (userDocExists() && userDocData().get('secondaryRoles', []).hasAny(roles))
-      );
+    function normalizedStatus(data) {
+      return !('status' in data) || data.status == null || data.status == ''
+        ? 'active'
+        : data.status;
+    }
+
+    function normalizedSecondaryRoles(data) {
+      return !('secondaryRoles' in data) || data.secondaryRoles == null
+        ? []
+        : data.secondaryRoles;
+    }
+
+    function isValidUserPayload(data, userId) {
+      return (!('id' in data) || data.id == userId) &&
+        isValidString(data.displayName, 1, 100) &&
+        isValidOptionalString(data.get('email', null), 200) &&
+        isValidOptionalString(data.get('avatarUrl', null), 2000) &&
+        isValidOptionalString(data.get('phone', null), 40) &&
+        'role' in data &&
+        isValidRole(data.role) &&
+        normalizedStatus(data) in ['active', 'locked', 'disabled'] &&
+        normalizedSecondaryRoles(data) is list &&
+        normalizedSecondaryRoles(data).size() <= 7 &&
+        (!('preDevRole' in data) || data.preDevRole == null || isValidRole(data.preDevRole));
     }
 
     function hasVerifiedEmail() {
@@ -61,6 +89,7 @@ service cloud.firestore {
 
     function isPrimaryAdminEmail() {
       return hasVerifiedEmail() && (
+        request.auth.token.email.lower() == 'nguyenthithanhtruc10112018@gmail.com' ||
         request.auth.token.email.lower() == 'thienbaovoquang@gmail.com' ||
         request.auth.token.email.lower() == 'nguyenvandung14102010@gmail.com' ||
         request.auth.token.email.lower() == 'nguyenvandung19112010@gmail.com' ||
@@ -68,15 +97,56 @@ service cloud.firestore {
       );
     }
 
-    function isAdmin() {
-      return isSignedIn() && isUserActive() && (
-        isPrimaryAdminEmail() ||
-        hasRole('admin')
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ===== Cached Identity & Multi-Tenant Helpers =====
+    function userDocExists() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userDocData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isUserDocActive(uData) {
+      return uData.get('status', 'active') == 'active' ||
+        uData.get('status', 'active') == null ||
+        uData.get('status', 'active') == '';
+    }
+
+    function isUserActive() {
+      return isSignedIn() && (
+        (userDocExists() && isUserDocActive(userDocData())) ||
+        (!userDocExists() && isPrimaryAdminEmail())
       );
     }
 
+    function hasRole(roleName) {
+      return isSignedIn() && userDocExists() &&
+        isUserDocActive(userDocData()) && (
+          userDocData().get('role', 'student') == roleName ||
+          (userDocData().get('secondaryRoles', []) is list &&
+            userDocData().get('secondaryRoles', []).hasAny([roleName]))
+        );
+    }
+
+    function hasAnyRole(roles) {
+      return isSignedIn() && userDocExists() &&
+        isUserDocActive(userDocData()) && (
+          userDocData().get('role', 'student') in roles ||
+          (userDocData().get('secondaryRoles', []) is list &&
+            userDocData().get('secondaryRoles', []).hasAny(roles))
+        );
+    }
+
+    function isAdmin() {
+      return (isPrimaryAdminEmail() && (!userDocExists() || isUserDocActive(userDocData()))) ||
+        hasRole('admin');
+    }
+
     // Backend/Console-controlled Development Admin Mode flag (unmodifiable from browser/client SDKs).
-    // Configure appConfig/runtime { DEVELOPMENT_ADMIN_MODE: false } via Firebase Console/Admin SDK or flip default below when launching RBAC production.
     function isDevelopmentAdminMode() {
       return exists(/databases/$(database)/documents/appConfig/runtime)
         ? get(/databases/$(database)/documents/appConfig/runtime).data.get('DEVELOPMENT_ADMIN_MODE', true) == true
@@ -85,6 +155,10 @@ service cloud.firestore {
 
     function isPrincipal() {
       return hasRole('principal');
+    }
+
+    function isLeadership() {
+      return isAdmin() || hasRole('principal');
     }
 
     function isTeacher() {
@@ -108,15 +182,31 @@ service cloud.firestore {
     }
 
     function isSchoolStaff() {
-      return hasAnyRole(['admin', 'principal', 'homeroom_teacher', 'subject_teacher', 'librarian', 'counselor', 'staff']);
+      return isAdmin() || hasAnyRole(['principal', 'homeroom_teacher', 'subject_teacher', 'librarian', 'counselor', 'staff']);
     }
 
-    function isUser(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    function isEducatorOrLeader() {
+      return isAdmin() || hasAnyRole(['principal', 'homeroom_teacher', 'subject_teacher']);
+    }
+
+    function isLibrarianOrAdmin() {
+      return isAdmin() || hasRole('librarian');
+    }
+
+    function isLibraryStaff() {
+      return isAdmin() || hasAnyRole(['principal', 'librarian']);
+    }
+
+    function isOperationsStaff() {
+      return isAdmin() || hasAnyRole(['principal', 'homeroom_teacher', 'subject_teacher', 'librarian', 'staff']);
     }
 
     function getUserSchoolId() {
-      return userDocExists() ? userDocData().get('schoolId', 'schoolhub_main') : 'schoolhub_main';
+      return userDocExists() &&
+        userDocData().get('schoolId', '') is string &&
+        userDocData().get('schoolId', '') != ''
+        ? userDocData().get('schoolId', 'schoolhub_main')
+        : 'schoolhub_main';
     }
 
     function isDefaultSchool() {
@@ -124,7 +214,7 @@ service cloud.firestore {
     }
 
     function sameSchool(data) {
-      return data == null || !('schoolId' in data) || data.schoolId == getUserSchoolId();
+      return data == null || !('schoolId' in data) || data.schoolId == null || data.schoolId == '' || data.schoolId == getUserSchoolId();
     }
 
     function canListSchool() {
@@ -135,25 +225,17 @@ service cloud.firestore {
       return !('schoolId' in request.resource.data) || request.resource.data.schoolId == getUserSchoolId();
     }
 
-    function hasValidSchoolId(data) {
-      return !('schoolId' in data) || (data.schoolId is string && data.schoolId.size() >= 1 && data.schoolId.size() <= 64);
-    }
-
-    function hasValidVersion(data) {
-      return !('version' in data) || (data.version is int && data.version >= 1 && data.version <= 1000000);
-    }
-
     function expectedInviteId() {
       let rawId = 'INV_' + request.auth.token.email.lower().replace('[^a-z0-9._-]', '_');
       return rawId.size() > 128 ? rawId[0:128] : rawId;
     }
 
     function hasClaimableInvite() {
+      let invPath = /databases/$(database)/documents/userInvites/$(expectedInviteId());
       return hasVerifiedEmail() &&
-        exists(/databases/$(database)/documents/userInvites/$(expectedInviteId())) &&
-        (get(/databases/$(database)/documents/userInvites/$(expectedInviteId())).data.get('claimedByUid', '') == '' ||
-         get(/databases/$(database)/documents/userInvites/$(expectedInviteId())).data.get('claimedByUid', null) == null) &&
-        get(/databases/$(database)/documents/userInvites/$(expectedInviteId())).data.get('emailLower', '') == request.auth.token.email.lower();
+        exists(invPath) &&
+        (get(invPath).data.get('claimedByUid', '') in ['', null, request.auth.uid]) &&
+        get(invPath).data.get('emailLower', '') == request.auth.token.email.lower();
     }
 
     function claimableInviteData() {
@@ -171,77 +253,84 @@ service cloud.firestore {
       allow list, create, update, delete: if false;
     }
 
-    // Users collection (PII protected; role, secondaryRoles, schoolId & status cannot be escalated by self unless DEVELOPMENT_ADMIN_MODE is active)
+    // Users collection (PII protected; role, secondaryRoles, schoolId & status locked from escalation)
     match /users/{userId} {
-      allow get: if isUser(userId) || ((isAdmin() || isPrincipal() || isSchoolStaff()) && sameSchool(resource.data));
-      allow list: if (isAdmin() || isPrincipal() || isSchoolStaff()) && canListSchool();
+      allow get: if isUser(userId) || (isValidId(userId) && isSchoolStaff() && (resource == null || sameSchool(resource.data)));
+      allow list: if isSchoolStaff() && canListSchool();
       allow create: if isValidId(userId) &&
-        hasValidSchoolId(request.resource.data) &&
-        hasValidVersion(request.resource.data) && (
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidUserPayload(request.resource.data, userId) && (
           isAdmin() ||
           (isUser(userId) && isPrimaryAdminEmail() &&
             request.resource.data.role == 'admin' &&
-            request.resource.data.get('status', 'active') == 'active' &&
-            isValidString(request.resource.data.displayName, 1, 100)) ||
+            normalizedStatus(request.resource.data) == 'active') ||
           (isUser(userId) && hasVerifiedEmail() && isDevelopmentAdminMode() &&
             request.resource.data.role == 'admin' &&
-            request.resource.data.get('status', 'active') == 'active' &&
-            isValidString(request.resource.data.displayName, 1, 100)) ||
+            normalizedStatus(request.resource.data) == 'active') ||
           (isUser(userId) && hasClaimableInvite() &&
             request.resource.data.role == claimableInviteData().role &&
-            request.resource.data.get('schoolId', 'schoolhub_main') == claimableInviteData().get('schoolId', 'schoolhub_main') &&
-            request.resource.data.get('status', 'active') == claimableInviteData().get('status', 'active') &&
-            isValidString(request.resource.data.displayName, 1, 100)) ||
+            normalizedSchoolId(request.resource.data) == normalizedSchoolId(claimableInviteData()) &&
+            normalizedStatus(request.resource.data) == normalizedStatus(claimableInviteData()) &&
+            normalizedSecondaryRoles(request.resource.data) == normalizedSecondaryRoles(claimableInviteData())) ||
           (isUser(userId) && hasVerifiedEmail() &&
             request.resource.data.role == 'student' &&
-            request.resource.data.get('secondaryRoles', []).size() == 0 &&
-            request.resource.data.get('status', 'active') == 'active' &&
-            isValidString(request.resource.data.displayName, 1, 100))
+            normalizedSecondaryRoles(request.resource.data).size() == 0 &&
+            normalizedStatus(request.resource.data) == 'active')
         );
       allow update: if isValidId(userId) &&
-        hasValidSchoolId(request.resource.data) &&
-        hasValidVersion(request.resource.data) && (
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidUserPayload(request.resource.data, userId) && (
           isAdmin() ||
           (isUser(userId) && isPrimaryAdminEmail() &&
             request.resource.data.role == 'admin' &&
-            request.resource.data.get('status', 'active') == 'active') ||
+            normalizedStatus(request.resource.data) == 'active') ||
           (isUser(userId) && hasVerifiedEmail() && isDevelopmentAdminMode() &&
             request.resource.data.role == 'admin' &&
-            request.resource.data.get('status', 'active') == 'active' &&
-            isValidString(request.resource.data.displayName, 1, 100)) ||
+            normalizedStatus(request.resource.data) == 'active') ||
           (isUser(userId) && hasClaimableInvite() &&
             request.resource.data.role == claimableInviteData().role &&
-            request.resource.data.get('schoolId', 'schoolhub_main') == claimableInviteData().get('schoolId', 'schoolhub_main') &&
-            request.resource.data.get('status', 'active') == claimableInviteData().get('status', 'active')) ||
+            normalizedSchoolId(request.resource.data) == normalizedSchoolId(claimableInviteData()) &&
+            normalizedStatus(request.resource.data) == normalizedStatus(claimableInviteData()) &&
+            normalizedSecondaryRoles(request.resource.data) == normalizedSecondaryRoles(claimableInviteData())) ||
           (isUser(userId) && isUserActive() &&
-            request.resource.data.role == resource.data.role &&
-            request.resource.data.get('schoolId', 'schoolhub_main') == resource.data.get('schoolId', 'schoolhub_main') &&
-            request.resource.data.get('secondaryRoles', []) == resource.data.get('secondaryRoles', []) &&
-            request.resource.data.get('status', 'active') == resource.data.get('status', 'active') &&
-            isValidString(request.resource.data.displayName, 1, 100))
+            (isValidRole(resource.data.get('role', ''))
+              ? request.resource.data.role == resource.data.role
+              : request.resource.data.role == 'student') &&
+            normalizedSchoolId(request.resource.data) == normalizedSchoolId(resource.data) &&
+            normalizedSecondaryRoles(request.resource.data) == normalizedSecondaryRoles(resource.data) &&
+            normalizedStatus(request.resource.data) == normalizedStatus(resource.data) &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'displayName', 'avatarUrl', 'photoURL', 'phone', 'email',
+              'schoolId', 'version', 'status', 'role', 'updatedAt', 'updatedBy', 'createdAt', 'createdBy'
+            ]))
         );
-      allow delete: if isValidId(userId) && isAdmin() && sameSchool(resource.data);
+      allow delete: if isValidId(userId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     // Pre-provisioned account invites indexed by INV_<normalized_email>
     match /userInvites/{inviteId} {
       allow get: if isValidId(inviteId) && (
-        ((isAdmin() || isPrincipal()) && sameSchool(resource.data)) ||
-        (hasVerifiedEmail() && inviteId == expectedInviteId())
+        (hasVerifiedEmail() && inviteId == expectedInviteId()) ||
+        (isLeadership() && (resource == null || sameSchool(resource.data)))
       );
-      allow list: if (isAdmin() || isPrincipal()) && canListSchool();
-      allow create: if isValidId(inviteId) && isAdmin() &&
-        incomingSameSchool() &&
-        hasValidSchoolId(request.resource.data) &&
+      allow list: if isLeadership() && canListSchool();
+      allow create: if isValidId(inviteId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.email, 3, 200) &&
         isValidString(request.resource.data.emailLower, 3, 200) &&
         isValidString(request.resource.data.displayName, 1, 100) &&
-        request.resource.data.role in ['admin', 'principal', 'homeroom_teacher', 'subject_teacher', 'librarian', 'counselor', 'staff', 'student'] &&
-        request.resource.data.status in ['active', 'locked', 'disabled'];
-      allow update: if isValidId(inviteId) && hasValidSchoolId(request.resource.data) && (
-        (isAdmin() && incomingSameSchool() &&
-          isValidString(request.resource.data.email, 3, 200) &&
-          isValidString(request.resource.data.displayName, 1, 100)) ||
+        isValidRole(request.resource.data.role) &&
+        request.resource.data.status in ['active', 'locked', 'disabled'] &&
+        normalizedSecondaryRoles(request.resource.data) is list &&
+        normalizedSecondaryRoles(request.resource.data).size() <= 7 &&
+        isAdmin() && incomingSameSchool();
+      allow update: if isValidId(inviteId) && hasValidBaseMetadata(request.resource.data) && (
+        (isValidString(request.resource.data.email, 3, 200) &&
+          isValidString(request.resource.data.displayName, 1, 100) &&
+          isValidRole(request.resource.data.role) &&
+          normalizedSecondaryRoles(request.resource.data) is list &&
+          normalizedSecondaryRoles(request.resource.data).size() <= 7 &&
+          isAdmin() && incomingSameSchool()) ||
         (hasVerifiedEmail() &&
           inviteId == expectedInviteId() &&
           resource.data.get('emailLower', '') == request.auth.token.email.lower() &&
@@ -249,587 +338,928 @@ service cloud.firestore {
           request.resource.data.claimedByUid == request.auth.uid &&
           request.resource.data.role == resource.data.role &&
           request.resource.data.emailLower == resource.data.emailLower &&
-          request.resource.data.get('schoolId', 'schoolhub_main') == resource.data.get('schoolId', 'schoolhub_main') &&
+          normalizedSchoolId(request.resource.data) == normalizedSchoolId(resource.data) &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedByUid', 'claimedAt', 'updatedAt', 'updatedBy']))
       );
-      allow delete: if isValidId(inviteId) && isAdmin() && sameSchool(resource.data);
+      allow delete: if isValidId(inviteId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     // Shared cloud reference datasets for Analytics & AI
     match /externalDatasets/{datasetId} {
-      allow get: if isSignedIn() && isUserActive() && sameSchool(resource.data);
-      allow list: if isSignedIn() && isUserActive() && canListSchool();
+      allow get: if isValidId(datasetId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
       allow create, update: if isValidId(datasetId) &&
-        (isAdmin() || isPrincipal() || isTeacher() || isLibrarian() || isFacilityStaff()) &&
-        incomingSameSchool() &&
-        hasValidSchoolId(request.resource.data) &&
-        hasValidVersion(request.resource.data) &&
-        isValidString(request.resource.data.title, 1, 200);
-      allow delete: if isValidId(datasetId) && (isAdmin() || isPrincipal()) && sameSchool(resource.data);
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.get('name', request.resource.data.get('title', '')), 1, 200) &&
+        isOperationsStaff() &&
+        incomingSameSchool();
+      allow delete: if isValidId(datasetId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     // Student Profiles
     match /studentProfiles/{studentId} {
-      allow get: if isSignedIn() && isUserActive() && sameSchool(resource.data) && (
-        isAdmin() || isPrincipal() || isTeacher() || isLibrarian() || isCounselor() ||
-        studentId == request.auth.uid || (resource != null && resource.data.id == request.auth.uid)
+      allow get: if isValidId(studentId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        studentId == request.auth.uid || (resource != null && resource.data.id == request.auth.uid) ||
+        isAdmin() || hasAnyRole(['principal', 'homeroom_teacher', 'subject_teacher', 'librarian', 'counselor'])
       );
-      allow list: if isSignedIn() && isUserActive() && canListSchool() && (
-        isAdmin() || isPrincipal() || isTeacher() || isLibrarian() || isCounselor() ||
-        resource.data.id == request.auth.uid
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.id == request.auth.uid ||
+        isAdmin() || hasAnyRole(['principal', 'homeroom_teacher', 'subject_teacher', 'librarian', 'counselor'])
       );
-      allow create, update: if isValidId(studentId) && (isAdmin() || isPrincipal() || isHomeroomTeacher()) &&
-        incomingSameSchool() &&
+      allow create, update: if isValidId(studentId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.studentCode, 2, 32) &&
-        isValidString(request.resource.data.fullName, 1, 100);
-      allow delete: if isAdmin() && sameSchool(resource.data);
+        isValidString(request.resource.data.fullName, 1, 100) &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher'])) &&
+        incomingSameSchool();
+      allow delete: if isValidId(studentId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     // Teacher & Staff Profiles (teacherCode removed; identified by id/fullName/email)
     match /teacherProfiles/{teacherId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(teacherId) && (isAdmin() || isPrincipal()) &&
-        isValidString(request.resource.data.fullName, 1, 100);
-      allow delete: if isAdmin();
+      allow get: if isValidId(teacherId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(teacherId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.fullName, 1, 100) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(teacherId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /staffMembers/{staffId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(staffId) && (isAdmin() || isPrincipal()) &&
-        isValidString(request.resource.data.fullName, 1, 100);
-      allow delete: if isAdmin();
+      allow get: if isValidId(staffId) && isSchoolStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isSchoolStaff() && canListSchool();
+      allow create, update: if isValidId(staffId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.fullName, 1, 100) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(staffId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /academicYears/{yearId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update, delete: if isValidId(yearId) && (isAdmin() || isPrincipal());
+      allow get: if isValidId(yearId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(yearId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.name, 2, 64) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(yearId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /classes/{classId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(classId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(classId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(classId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.code, 1, 32) &&
-        isValidString(request.resource.data.name, 1, 100);
-      allow delete: if isAdmin();
+        isValidString(request.resource.data.name, 1, 100) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(classId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /timetable/{entryId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(entryId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(entryId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(entryId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidNumberRange(request.resource.data.dayOfWeek, 2, 7) &&
         isValidNumberRange(request.resource.data.period, 1, 10) &&
-        isValidString(request.resource.data.subject, 1, 100);
-      allow delete: if isAdmin() || isPrincipal();
+        isValidString(request.resource.data.subject, 1, 100) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(entryId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /assignments/{assignmentId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(assignmentId) && (isAdmin() || isPrincipal() || isTeacher()) &&
-        isValidString(request.resource.data.title, 1, 200);
-      allow delete: if isAdmin() || isPrincipal() || isTeacher();
+      allow get: if isValidId(assignmentId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(assignmentId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.title, 1, 200) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(assignmentId) && isEducatorOrLeader() && (resource == null || sameSchool(resource.data));
     }
 
     match /assignmentSubmissions/{submissionId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isTeacher() || resource.data.studentId == request.auth.uid
+      allow get: if isValidId(submissionId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) ||
+        isEducatorOrLeader()
       );
-      allow create: if isValidId(submissionId) && isSignedIn() && isUserActive() &&
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid ||
+        isEducatorOrLeader()
+      );
+      allow create: if isValidId(submissionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.content, 1, 4000) &&
+        isUserActive() &&
         request.resource.data.studentId == request.auth.uid &&
-        isValidString(request.resource.data.content, 1, 4000);
-      allow update: if isValidId(submissionId) && (isAdmin() || isPrincipal() || isTeacher());
-      allow delete: if isAdmin();
+        incomingSameSchool();
+      allow update: if isValidId(submissionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.studentId == resource.data.studentId &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(submissionId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /learningMaterials/{materialId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(materialId) && (isAdmin() || isPrincipal() || isTeacher()) &&
-        isValidString(request.resource.data.title, 1, 200);
-      allow delete: if isAdmin() || isPrincipal() || isTeacher();
+      allow get: if isValidId(materialId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(materialId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.title, 1, 200) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(materialId) && isEducatorOrLeader() && (resource == null || sameSchool(resource.data));
     }
 
     // Library catalog, physical copies, transactions, reservations, renewals, history & audits
     match /books/{bookId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(bookId) && (isAdmin() || isLibrarian()) &&
+      allow get: if isValidId(bookId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(bookId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.title, 1, 200) &&
         isValidNumberRange(request.resource.data.totalCopies, 0, 10000) &&
-        isValidNumberRange(request.resource.data.availableCopies, 0, 10000);
-      allow delete: if isAdmin() || isLibrarian();
+        isValidNumberRange(request.resource.data.availableCopies, 0, 10000) &&
+        isLibrarianOrAdmin() && incomingSameSchool();
+      allow delete: if isValidId(bookId) && isLibrarianOrAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /bookCopies/{copyId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(copyId) && (isAdmin() || isLibrarian()) &&
+      allow get: if isValidId(copyId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(copyId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.bookId, 1, 128) &&
-        isValidString(request.resource.data.copyBarcode, 1, 64);
-      allow delete: if isAdmin() || isLibrarian();
+        isValidString(request.resource.data.copyBarcode, 1, 64) &&
+        isLibrarianOrAdmin() && incomingSameSchool();
+      allow delete: if isValidId(copyId) && isLibrarianOrAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /borrowTransactions/{transactionId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isLibrarian() || resource.data.studentId == request.auth.uid
+      allow get: if isValidId(transactionId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) ||
+        isLibraryStaff()
       );
-      allow create, update: if isValidId(transactionId) && (isAdmin() || isLibrarian()) &&
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid ||
+        isLibraryStaff()
+      );
+      allow create: if isValidId(transactionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.studentId, 1, 128) &&
-        isValidString(request.resource.data.bookId, 1, 128);
-      allow delete: if isAdmin();
+        isValidString(request.resource.data.bookId, 1, 128) &&
+        request.resource.data.status in ['borrowed', 'returned', 'overdue', 'lost'] &&
+        isLibrarianOrAdmin() && incomingSameSchool();
+      allow update: if isValidId(transactionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.studentId == resource.data.studentId &&
+        request.resource.data.bookId == resource.data.bookId &&
+        request.resource.data.status in ['borrowed', 'returned', 'overdue', 'lost'] &&
+        isLibrarianOrAdmin() && incomingSameSchool();
+      allow delete: if isValidId(transactionId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /bookReservations/{reservationId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isLibrarian() || resource.data.studentId == request.auth.uid
+      allow get: if isValidId(reservationId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) ||
+        isLibraryStaff()
       );
-      allow create: if isValidId(reservationId) && isSignedIn() && isUserActive() && (
-        isAdmin() || isLibrarian() || request.resource.data.studentId == request.auth.uid
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid ||
+        isLibraryStaff()
       );
-      allow update: if isValidId(reservationId) && (
-        isAdmin() || isLibrarian() || resource.data.studentId == request.auth.uid
-      );
-      allow delete: if isAdmin() || isLibrarian();
+      allow create: if isValidId(reservationId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.bookId, 1, 128) &&
+        isValidString(request.resource.data.studentId, 1, 128) &&
+        request.resource.data.status in ['pending', 'ready', 'fulfilled', 'cancelled', 'expired'] &&
+        isUserActive() && incomingSameSchool() && (
+          isLibrarianOrAdmin() ||
+          (request.resource.data.studentId == request.auth.uid && request.resource.data.status == 'pending')
+        );
+      allow update: if isValidId(reservationId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.studentId == resource.data.studentId &&
+        request.resource.data.bookId == resource.data.bookId &&
+        request.resource.data.status in ['pending', 'ready', 'fulfilled', 'cancelled', 'expired'] &&
+        isUserActive() && incomingSameSchool() && (
+          isLibrarianOrAdmin() ||
+          (resource.data.studentId == request.auth.uid && request.resource.data.status == 'cancelled')
+        );
+      allow delete: if isValidId(reservationId) && isLibrarianOrAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /libraryRenewalRequests/{requestId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isLibrarian() || resource.data.borrowerId == request.auth.uid
+      allow get: if isValidId(requestId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.borrowerId == request.auth.uid) ||
+        isLibraryStaff()
       );
-      allow create: if isValidId(requestId) && isSignedIn() && isUserActive() &&
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.borrowerId == request.auth.uid ||
+        isLibraryStaff()
+      );
+      allow create: if isValidId(requestId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.transactionId, 1, 128) &&
         isValidString(request.resource.data.reason, 2, 1000) &&
         request.resource.data.status == 'pending' &&
-        (isAdmin() || isLibrarian() || request.resource.data.borrowerId == request.auth.uid);
-      allow update: if isValidId(requestId) && (isAdmin() || isLibrarian()) &&
-        request.resource.data.status in ['pending', 'approved', 'rejected'];
-      allow delete: if isAdmin();
+        isUserActive() && incomingSameSchool() &&
+        (isLibrarianOrAdmin() || request.resource.data.borrowerId == request.auth.uid);
+      allow update: if isValidId(requestId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.borrowerId == resource.data.borrowerId &&
+        request.resource.data.transactionId == resource.data.transactionId &&
+        request.resource.data.status in ['pending', 'approved', 'rejected'] &&
+        isLibrarianOrAdmin() && incomingSameSchool();
+      allow delete: if isValidId(requestId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /libraryTransactionHistory/{entryId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isLibrarian()
-      );
-      allow create: if isValidId(entryId) && (isAdmin() || isLibrarian() || isPrincipal()) &&
+      allow get: if isValidId(entryId) && isLibraryStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isLibraryStaff() && canListSchool();
+      allow create: if isValidId(entryId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.transactionId, 1, 128) &&
         isValidString(request.resource.data.reason, 2, 1000) &&
-        request.resource.data.actionType in ['borrow', 'return', 'renew_approved', 'due_date_edited', 'marked_overdue'];
+        request.resource.data.actionType in ['borrow', 'return', 'renew_approved', 'due_date_edited', 'marked_overdue'] &&
+        isLibraryStaff() && incomingSameSchool();
       allow update, delete: if false;
     }
 
     match /inventoryAudits/{auditId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal() || isLibrarian());
-      allow create, update: if isValidId(auditId) && (isAdmin() || isLibrarian());
-      allow delete: if isAdmin();
+      allow get: if isValidId(auditId) && isLibraryStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isLibraryStaff() && canListSchool();
+      allow create, update: if isValidId(auditId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.auditCode, 1, 64) &&
+        isValidString(request.resource.data.date, 4, 32) &&
+        isValidString(request.resource.data.conductedBy, 1, 120) &&
+        request.resource.data.status in ['in_progress', 'completed'] &&
+        isLibrarianOrAdmin() && incomingSameSchool();
+      allow delete: if isValidId(auditId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     // Surveys & Responses
     match /surveys/{surveyId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(surveyId) && (isAdmin() || isPrincipal() || isTeacher() || isCounselor()) &&
-        isValidString(request.resource.data.title, 1, 200);
-      allow delete: if isAdmin();
+      allow get: if isValidId(surveyId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(surveyId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.title, 1, 200) &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher', 'subject_teacher', 'counselor'])) &&
+        incomingSameSchool();
+      allow delete: if isValidId(surveyId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /surveyResponses/{responseId} {
-      allow get: if isSignedIn() && isUserActive() && sameSchool(resource.data) && (
-        isAdmin() || isPrincipal() || isCounselor() || (resource != null && resource.data.studentId == request.auth.uid)
+      allow get: if isValidId(responseId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) ||
+        isAdmin() || hasAnyRole(['principal', 'counselor'])
       );
-      allow list: if isSignedIn() && isUserActive() && canListSchool() && (
-        isAdmin() || isPrincipal() || isCounselor() || resource.data.studentId == request.auth.uid
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid ||
+        isAdmin() || hasAnyRole(['principal', 'counselor'])
       );
-      allow create: if isValidId(responseId) && isSignedIn() && isUserActive() &&
-        incomingSameSchool() &&
+      allow create: if isValidId(responseId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isUserActive() && incomingSameSchool() &&
         (request.resource.data.studentId == request.auth.uid || request.resource.data.studentId == 'ANONYMOUS');
       allow update, delete: if false;
     }
 
     // Feedback Reports
     match /feedbackReports/{reportId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isFacilityStaff() || resource.data.studentId == request.auth.uid
+      allow get: if isValidId(reportId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) ||
+        isAdmin() || hasAnyRole(['principal', 'staff'])
       );
-      allow create: if isValidId(reportId) && isSignedIn() && isUserActive() &&
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid ||
+        isAdmin() || hasAnyRole(['principal', 'staff'])
+      );
+      allow create: if isValidId(reportId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.title, 1, 200) &&
         isValidString(request.resource.data.content, 1, 4000) &&
-        (isAdmin() || isPrincipal() || request.resource.data.studentId == request.auth.uid || request.resource.data.isAnonymous == true);
-      allow update: if isValidId(reportId) && (isAdmin() || isPrincipal() || isFacilityStaff());
-      allow delete: if isAdmin();
+        isUserActive() && incomingSameSchool() &&
+        (request.resource.data.studentId == request.auth.uid || request.resource.data.isAnonymous == true || isLeadership());
+      allow update: if isValidId(reportId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        (isAdmin() || hasAnyRole(['principal', 'staff'])) && incomingSameSchool();
+      allow delete: if isValidId(reportId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
-    // Counseling Requests - STRICTLY CONFIDENTIAL (Admin/Principal/Teachers have NO access unless explicitly holding counselor role)
+    // Counseling Requests - STRICTLY CONFIDENTIAL (Admin/Principal/Teachers have NO access unless holding counselor role)
     match /counselingRequests/{requestId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isCounselor() || resource.data.studentId == request.auth.uid
+      allow get: if isValidId(requestId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) || isCounselor()
       );
-      allow create: if isValidId(requestId) && isSignedIn() && isUserActive() &&
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid || isCounselor()
+      );
+      allow create: if isValidId(requestId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         request.resource.data.studentId == request.auth.uid &&
-        isValidString(request.resource.data.topic, 1, 250);
-      allow update: if isValidId(requestId) && isSignedIn() && isUserActive() && (
-        isCounselor() ||
-        (resource.data.studentId == request.auth.uid && request.resource.data.studentId == resource.data.studentId)
+        request.resource.data.status == 'pending' &&
+        isValidString(request.resource.data.topic, 1, 250) &&
+        isValidOptionalString(request.resource.data.get('notes', null), 2000) &&
+        isUserActive() && incomingSameSchool();
+      allow update: if isValidId(requestId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.studentId == resource.data.studentId &&
+        isUserActive() && incomingSameSchool() && (
+          isCounselor() ||
+          (resource.data.studentId == request.auth.uid &&
+            request.resource.data.status in ['pending', 'cancelled'] &&
+            isValidString(request.resource.data.topic, 1, 250) &&
+            isValidOptionalString(request.resource.data.get('notes', null), 2000) &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['topic', 'notes', 'preferredDate', 'preferredTimeSlot', 'type', 'status', 'version', 'updatedAt', 'updatedBy', 'schoolId']))
+        );
+      allow delete: if isValidId(requestId) && (resource == null || sameSchool(resource.data)) && (
+        isCounselor() || (isUserActive() && resource != null && resource.data.studentId == request.auth.uid)
       );
-      allow delete: if isCounselor() || (isSignedIn() && resource.data.studentId == request.auth.uid);
     }
 
     // Student Leave Requests & Technical Support Tickets
     match /leaveRequests/{requestId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isHomeroomTeacher() || resource.data.studentId == request.auth.uid
+      allow get: if isValidId(requestId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) ||
+        isAdmin() || hasAnyRole(['principal', 'homeroom_teacher'])
       );
-      allow create: if isValidId(requestId) && isSignedIn() && isUserActive() &&
-        (isAdmin() || isPrincipal() || request.resource.data.studentId == request.auth.uid) &&
-        isValidString(request.resource.data.reason, 1, 1000);
-      allow update: if isValidId(requestId) && (isAdmin() || isPrincipal() || isHomeroomTeacher());
-      allow delete: if isAdmin();
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid ||
+        isAdmin() || hasAnyRole(['principal', 'homeroom_teacher'])
+      );
+      allow create: if isValidId(requestId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.reason, 1, 1000) &&
+        isUserActive() && incomingSameSchool() &&
+        (isLeadership() || (request.resource.data.studentId == request.auth.uid && request.resource.data.status == 'pending'));
+      allow update: if isValidId(requestId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.studentId == resource.data.studentId &&
+        request.resource.data.status in ['pending', 'approved', 'rejected'] &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher'])) && incomingSameSchool();
+      allow delete: if isValidId(requestId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /supportTickets/{ticketId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isFacilityStaff() || resource.data.requesterId == request.auth.uid
+      allow get: if isValidId(ticketId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.requesterId == request.auth.uid) ||
+        isAdmin() || hasAnyRole(['principal', 'staff'])
       );
-      allow create: if isValidId(ticketId) && isSignedIn() && isUserActive() &&
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.requesterId == request.auth.uid ||
+        isAdmin() || hasAnyRole(['principal', 'staff'])
+      );
+      allow create: if isValidId(ticketId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         request.resource.data.requesterId == request.auth.uid &&
-        isValidString(request.resource.data.title, 1, 200);
-      allow update: if isValidId(ticketId) && (isAdmin() || isPrincipal() || isFacilityStaff());
-      allow delete: if isAdmin();
+        isValidString(request.resource.data.title, 1, 200) &&
+        isUserActive() && incomingSameSchool();
+      allow update: if isValidId(ticketId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.requesterId == resource.data.requesterId &&
+        (isAdmin() || hasAnyRole(['principal', 'staff'])) && incomingSameSchool();
+      allow delete: if isValidId(ticketId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     // Announcements & School Events
     match /announcements/{announcementId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(announcementId) && (isAdmin() || isPrincipal() || isTeacher() || isLibrarian()) &&
+      allow get: if isValidId(announcementId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(announcementId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.title, 1, 200) &&
-        isValidString(request.resource.data.content, 1, 8000);
-      allow delete: if isAdmin() || isPrincipal();
+        isValidString(request.resource.data.content, 1, 8000) &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher', 'subject_teacher', 'librarian'])) &&
+        incomingSameSchool();
+      allow delete: if isValidId(announcementId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /schoolEvents/{eventId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(eventId) && isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isTeacher() ||
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registeredUserIds'])
-      );
-      allow delete: if isAdmin() || isPrincipal();
+      allow get: if isValidId(eventId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create: if isValidId(eventId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.title, 1, 200) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow update: if isValidId(eventId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isUserActive() && incomingSameSchool() && (
+          (isEducatorOrLeader() && isValidString(request.resource.data.title, 1, 200)) ||
+          (resource != null &&
+            request.resource.data.registeredUserIds is list &&
+            request.resource.data.registeredUserIds.size() <= 5000 &&
+            (request.resource.data.registeredUserIds.size() == 0 || request.resource.data.registeredUserIds[0] is string) &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registeredUserIds', 'version', 'updatedAt', 'updatedBy', 'schoolId']))
+        );
+      allow delete: if isValidId(eventId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     // Attendance Records
     match /attendanceRecords/{recordId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isTeacher() || resource.data.studentId == request.auth.uid
+      allow get: if isValidId(recordId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) ||
+        isEducatorOrLeader()
       );
-      allow create, update: if isValidId(recordId) && (isAdmin() || isPrincipal() || isTeacher()) &&
-        request.resource.data.status in ['present', 'absent_excused', 'absent_unexcused', 'late'];
-      allow delete: if isAdmin();
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid ||
+        isEducatorOrLeader()
+      );
+      allow create: if isValidId(recordId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.studentId, 1, 128) &&
+        isValidString(request.resource.data.date, 4, 32) &&
+        request.resource.data.status in ['present', 'absent_excused', 'absent_unexcused', 'late'] &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow update: if isValidId(recordId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.studentId == resource.data.studentId &&
+        request.resource.data.status in ['present', 'absent_excused', 'absent_unexcused', 'late'] &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(recordId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     // Academic Records
     match /academicRecords/{recordId} {
-      allow get: if isSignedIn() && isUserActive() && sameSchool(resource.data) && (
-        isAdmin() || isPrincipal() || isTeacher() ||
+      allow get: if isValidId(recordId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        isEducatorOrLeader() ||
         (resource != null && resource.data.studentId == request.auth.uid && resource.data.get('status', 'published') != 'draft')
       );
-      allow list: if isSignedIn() && isUserActive() && canListSchool() && (
-        isAdmin() || isPrincipal() || isTeacher() ||
+      allow list: if isUserActive() && canListSchool() && (
+        isEducatorOrLeader() ||
         (resource.data.studentId == request.auth.uid && resource.data.status == 'published')
       );
-      allow create, update: if isValidId(recordId) && (isAdmin() || isPrincipal() || isTeacher()) &&
-        incomingSameSchool() &&
+      allow create: if isValidId(recordId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidNumberRange(request.resource.data.scoreMidterm, 0, 10) &&
         isValidNumberRange(request.resource.data.scoreFinal, 0, 10) &&
-        isValidNumberRange(request.resource.data.averageScore, 0, 10);
-      allow delete: if isAdmin() && sameSchool(resource.data);
+        isValidNumberRange(request.resource.data.averageScore, 0, 10) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow update: if isValidId(recordId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.studentId == resource.data.studentId &&
+        isValidNumberRange(request.resource.data.scoreMidterm, 0, 10) &&
+        isValidNumberRange(request.resource.data.scoreFinal, 0, 10) &&
+        isValidNumberRange(request.resource.data.averageScore, 0, 10) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(recordId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     // Rooms, Facilities & Maintenance
     match /rooms/{roomId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(roomId) && (isAdmin() || isPrincipal() || isFacilityStaff()) &&
+      allow get: if isValidId(roomId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(roomId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.code, 1, 32) &&
-        isValidString(request.resource.data.name, 1, 100);
-      allow delete: if isAdmin();
+        isValidString(request.resource.data.name, 1, 100) &&
+        (isAdmin() || hasAnyRole(['principal', 'staff'])) && incomingSameSchool();
+      allow delete: if isValidId(roomId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /facilities/{assetId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(assetId) && (isAdmin() || isPrincipal() || isFacilityStaff()) &&
-        isValidString(request.resource.data.name, 1, 150);
-      allow delete: if isAdmin();
+      allow get: if isValidId(assetId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(assetId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.name, 1, 150) &&
+        (isAdmin() || hasAnyRole(['principal', 'staff'])) && incomingSameSchool();
+      allow delete: if isValidId(assetId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /maintenanceRequests/{requestId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create: if isValidId(requestId) && isSignedIn() && isUserActive() &&
+      allow get: if isValidId(requestId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create: if isValidId(requestId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.assetName, 1, 150) &&
-        isValidString(request.resource.data.roomLocation, 1, 100);
-      allow update: if isValidId(requestId) && (isAdmin() || isPrincipal() || isFacilityStaff());
-      allow delete: if isAdmin();
+        isValidString(request.resource.data.roomLocation, 1, 100) &&
+        isUserActive() && incomingSameSchool();
+      allow update: if isValidId(requestId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        (isAdmin() || hasAnyRole(['principal', 'staff'])) && incomingSameSchool();
+      allow delete: if isValidId(requestId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /classPlacements/{placementId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(placementId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(placementId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(placementId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.studentCode, 2, 32) &&
         isValidString(request.resource.data.className, 1, 64) &&
-        isValidString(request.resource.data.academicYear, 4, 32);
-      allow delete: if isAdmin();
+        isValidString(request.resource.data.academicYear, 4, 32) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(placementId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /teachingAssignments/{assignmentId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(assignmentId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(assignmentId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(assignmentId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.teacherName, 1, 100) &&
         isValidString(request.resource.data.className, 1, 64) &&
-        isValidString(request.resource.data.subject, 1, 100);
-      allow delete: if isAdmin();
+        isValidString(request.resource.data.subject, 1, 100) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(assignmentId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     // Rules, Emulation, Appeals, Periods, Snapshots & Competitions
     match /ruleDocuments/{documentId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create: if isValidId(documentId) && (isAdmin() || isPrincipal() || isHomeroomTeacher()) &&
+      allow get: if isValidId(documentId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create: if isValidId(documentId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.title, 1, 200) &&
         isValidString(request.resource.data.fileName, 1, 260) &&
-        request.resource.data.status in ['draft', 'approved', 'archived'];
-      allow update: if isValidId(documentId) && (isAdmin() || isPrincipal()) &&
+        request.resource.data.status in ['draft', 'approved', 'archived'] &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher'])) && incomingSameSchool();
+      allow update: if isValidId(documentId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.title, 1, 200) &&
-        request.resource.data.status in ['draft', 'approved', 'archived'];
-      allow delete: if isAdmin() || isPrincipal();
+        request.resource.data.status in ['draft', 'approved', 'archived'] &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(documentId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /ruleVersions/{versionId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(versionId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(versionId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(versionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.title, 1, 200) &&
-        request.resource.data.status in ['draft', 'approved', 'archived'];
-      allow delete: if isAdmin();
+        request.resource.data.status in ['draft', 'approved', 'archived'] &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(versionId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /ruleCategories/{categoryId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(categoryId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(categoryId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(categoryId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.code, 1, 64) &&
         isValidString(request.resource.data.name, 1, 120) &&
-        request.resource.data.status in ['active', 'inactive'];
-      allow delete: if isAdmin();
+        request.resource.data.status in ['active', 'inactive'] &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(categoryId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /ruleCriteria/{criterionId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create: if isValidId(criterionId) && (isAdmin() || isPrincipal() || isHomeroomTeacher()) &&
+      allow get: if isValidId(criterionId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create: if isValidId(criterionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.code, 1, 64) &&
         isValidString(request.resource.data.name, 1, 200) &&
         request.resource.data.type in ['violation', 'achievement'] &&
-        request.resource.data.status in ['draft', 'active', 'inactive'];
-      allow update: if isValidId(criterionId) && (isAdmin() || isPrincipal()) &&
+        request.resource.data.status in ['draft', 'active', 'inactive'] &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher'])) && incomingSameSchool();
+      allow update: if isValidId(criterionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.name, 1, 200) &&
-        request.resource.data.status in ['draft', 'active', 'inactive'];
-      allow delete: if isAdmin();
+        request.resource.data.status in ['draft', 'active', 'inactive'] &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(criterionId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /emulationRecords/{recordId} {
-      allow get: if isSignedIn() && isUserActive() && sameSchool(resource.data) && (
-        isSchoolStaff() || (resource != null && resource.data.studentId == request.auth.uid)
+      allow get: if isValidId(recordId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.get('studentId', '') == request.auth.uid) || isSchoolStaff()
       );
-      allow list: if isSignedIn() && isUserActive() && canListSchool() && (
-        isSchoolStaff() || resource.data.studentId == request.auth.uid
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid || isSchoolStaff()
       );
-      allow create: if isValidId(recordId) && (isAdmin() || isPrincipal() || isTeacher() || isFacilityStaff()) &&
+      allow create: if isValidId(recordId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.recordCode, 1, 64) &&
         isValidString(request.resource.data.criterionId, 1, 128) &&
         request.resource.data.targetType in ['individual', 'class', 'group'] &&
         request.resource.data.type in ['violation', 'achievement'] &&
         isValidNumberRange(request.resource.data.pointsApplied, -1000, 1000) &&
-        request.resource.data.status in ['draft', 'pending_verification', 'verified', 'pending_approval', 'recorded', 'insufficient_evidence', 'cancelled'];
-      allow update: if isValidId(recordId) && (isAdmin() || isPrincipal() || isHomeroomTeacher()) &&
+        request.resource.data.status in ['draft', 'pending_verification', 'verified', 'pending_approval', 'recorded', 'insufficient_evidence', 'cancelled'] &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher', 'subject_teacher', 'staff'])) && incomingSameSchool();
+      allow update: if isValidId(recordId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidNumberRange(request.resource.data.pointsApplied, -1000, 1000) &&
-        request.resource.data.status in ['draft', 'pending_verification', 'verified', 'pending_approval', 'recorded', 'insufficient_evidence', 'cancelled'];
-      allow delete: if isAdmin();
+        request.resource.data.status in ['draft', 'pending_verification', 'verified', 'pending_approval', 'recorded', 'insufficient_evidence', 'cancelled'] &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher'])) && incomingSameSchool();
+      allow delete: if isValidId(recordId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /emulationAppeals/{appealId} {
-      allow read: if isSignedIn() && isUserActive() && (
-        isAdmin() || isPrincipal() || isTeacher() || resource.data.studentId == request.auth.uid
+      allow get: if isValidId(appealId) && isUserActive() && (resource == null || sameSchool(resource.data)) && (
+        (resource != null && resource.data.studentId == request.auth.uid) ||
+        isEducatorOrLeader()
       );
-      allow create: if isValidId(appealId) && isSignedIn() && isUserActive() &&
+      allow list: if isUserActive() && canListSchool() && (
+        resource.data.studentId == request.auth.uid ||
+        isEducatorOrLeader()
+      );
+      allow create: if isValidId(appealId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.recordId, 1, 128) &&
         isValidString(request.resource.data.reason, 2, 2000) &&
         request.resource.data.status == 'submitted' &&
-        (isAdmin() || isPrincipal() || request.resource.data.studentId == request.auth.uid);
-      allow update: if isValidId(appealId) && (isAdmin() || isPrincipal() || isHomeroomTeacher()) &&
-        request.resource.data.status in ['submitted', 'reviewing', 'need_info', 'accepted', 'rejected'];
-      allow delete: if isAdmin();
+        isUserActive() && incomingSameSchool() &&
+        (isLeadership() || request.resource.data.studentId == request.auth.uid);
+      allow update: if isValidId(appealId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.studentId == resource.data.studentId &&
+        request.resource.data.status in ['submitted', 'reviewing', 'need_info', 'accepted', 'rejected'] &&
+        (isAdmin() || hasAnyRole(['principal', 'homeroom_teacher'])) && incomingSameSchool();
+      allow delete: if isValidId(appealId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /emulationPeriods/{periodId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(periodId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(periodId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(periodId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.name, 1, 150) &&
-        request.resource.data.status in ['open', 'closed', 'locked'];
-      allow delete: if isAdmin();
+        request.resource.data.status in ['open', 'closed', 'locked'] &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(periodId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /emulationSnapshots/{snapshotId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create: if isValidId(snapshotId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(snapshotId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create: if isValidId(snapshotId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.periodId, 1, 128) &&
-        isValidString(request.resource.data.periodName, 1, 150);
+        isValidString(request.resource.data.periodName, 1, 150) &&
+        isLeadership() && incomingSameSchool();
       allow update: if false;
-      allow delete: if isAdmin();
+      allow delete: if isValidId(snapshotId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /emulationTitleConfigs/{configId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update, delete: if isValidId(configId) && (isAdmin() || isPrincipal());
+      allow get: if isValidId(configId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(configId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.name, 1, 120) &&
+        request.resource.data.targetScope in ['student', 'class'] &&
+        isValidNumberRange(request.resource.data.minScore, -10000, 100000) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(configId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /competitions/{competitionId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(competitionId) && (isAdmin() || isPrincipal() || isTeacher()) &&
+      allow get: if isValidId(competitionId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(competitionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.code, 1, 64) &&
         isValidString(request.resource.data.name, 1, 200) &&
         request.resource.data.transferMode in ['standalone', 'transfer_on_close', 'direct_sync', 'ratio_transfer'] &&
-        request.resource.data.status in ['upcoming', 'ongoing', 'closed', 'archived'];
-      allow delete: if isAdmin() || isPrincipal();
+        request.resource.data.status in ['upcoming', 'ongoing', 'closed', 'archived'] &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(competitionId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /competitionCriteria/{criterionId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update, delete: if isValidId(criterionId) && (isAdmin() || isPrincipal() || isTeacher());
+      allow get: if isValidId(criterionId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(criterionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.competitionId, 1, 128) &&
+        isValidString(request.resource.data.name, 1, 150) &&
+        isValidNumberRange(request.resource.data.maxPoints, 0, 10000) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(criterionId) && isEducatorOrLeader() && (resource == null || sameSchool(resource.data));
     }
 
     match /competitionParticipants/{participantId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(participantId) && (isAdmin() || isPrincipal() || isTeacher()) &&
+      allow get: if isValidId(participantId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(participantId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.competitionId, 1, 128) &&
-        isValidString(request.resource.data.targetName, 1, 150);
-      allow delete: if isAdmin() || isPrincipal();
+        isValidString(request.resource.data.targetName, 1, 150) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(participantId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /competitionScores/{scoreId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update: if isValidId(scoreId) && (isAdmin() || isPrincipal() || isTeacher()) &&
-        isValidNumberRange(request.resource.data.score, 0, 10000);
-      allow delete: if isAdmin() || isPrincipal();
+      allow get: if isValidId(scoreId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(scoreId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidNumberRange(request.resource.data.score, 0, 10000) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(scoreId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /competitionAwards/{awardId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update, delete: if isValidId(awardId) && (isAdmin() || isPrincipal() || isTeacher());
+      allow get: if isValidId(awardId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(awardId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.competitionId, 1, 128) &&
+        isValidString(request.resource.data.awardTitle, 1, 120) &&
+        isValidNumberRange(request.resource.data.rank, 1, 1000) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(awardId) && isEducatorOrLeader() && (resource == null || sameSchool(resource.data));
     }
 
     match /scoreTransferRecords/{transferId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal() || isTeacher());
-      allow create: if isValidId(transferId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(transferId) && isEducatorOrLeader() && (resource == null || sameSchool(resource.data));
+      allow list: if isEducatorOrLeader() && canListSchool();
+      allow create: if isValidId(transferId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.sourceId, 1, 200) &&
         isValidString(request.resource.data.emulationRecordId, 1, 128) &&
-        request.resource.data.syncStatus == 'synced';
-      allow update: if isValidId(transferId) && (isAdmin() || isPrincipal()) &&
+        request.resource.data.syncStatus == 'synced' &&
+        isLeadership() && incomingSameSchool();
+      allow update: if isValidId(transferId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         request.resource.data.sourceId == resource.data.sourceId &&
-        request.resource.data.syncStatus in ['synced', 'reverted'];
+        request.resource.data.syncStatus in ['synced', 'reverted'] &&
+        isLeadership() && incomingSameSchool();
       allow delete: if false;
     }
 
     // Audit Logs, Import/Export History & System Settings
     match /auditLogs/{logId} {
-      allow read: if isAdmin() || isPrincipal();
-      allow create: if isValidId(logId) && isSignedIn() && isUserActive();
+      allow get: if isValidId(logId) && isLeadership() && (resource == null || sameSchool(resource.data));
+      allow list: if isLeadership() && canListSchool();
+      allow create: if isValidId(logId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.action, 1, 200) &&
+        isValidString(request.resource.data.actorName, 1, 120) &&
+        isValidString(request.resource.data.target, 1, 500) &&
+        isValidOptionalString(request.resource.data.get('detail', null), 2000) &&
+        isUserActive() && incomingSameSchool();
       allow update, delete: if false;
     }
 
     match /importHistory/{historyId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal() || isLibrarian() || isTeacher() || isFacilityStaff());
-      allow create: if isValidId(historyId) && isSignedIn() && isUserActive() &&
-        (isAdmin() || isPrincipal() || isLibrarian() || isTeacher() || isFacilityStaff()) &&
+      allow get: if isValidId(historyId) && isOperationsStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isOperationsStaff() && canListSchool();
+      allow create: if isValidId(historyId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.moduleKey, 1, 64) &&
-        isValidString(request.resource.data.fileName, 1, 260);
+        isValidString(request.resource.data.fileName, 1, 260) &&
+        isOperationsStaff() && incomingSameSchool();
       allow update, delete: if false;
     }
 
     match /exportHistory/{historyId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal() || isLibrarian() || isTeacher() || isFacilityStaff());
-      allow create: if isValidId(historyId) && isSignedIn() && isUserActive() &&
+      allow get: if isValidId(historyId) && isOperationsStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isOperationsStaff() && canListSchool();
+      allow create: if isValidId(historyId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.moduleKey, 1, 64) &&
-        isValidString(request.resource.data.fileName, 1, 260);
+        isValidString(request.resource.data.fileName, 1, 260) &&
+        isOperationsStaff() && incomingSameSchool();
       allow update, delete: if false;
     }
 
     match /systemSettings/{settingId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create: if isValidId(settingId) && (
-        isAdmin() ||
-        (isPrincipal() && !('customPermissions' in request.resource.data))
-      );
-      allow update: if isValidId(settingId) && (
-        isAdmin() ||
-        (isPrincipal() && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['customPermissions']))
-      );
+      allow get: if isValidId(settingId) && isUserActive() && (settingId == 'global' || resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create: if isValidId(settingId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        incomingSameSchool() && (
+          isAdmin() ||
+          (isPrincipal() && !('customPermissions' in request.resource.data))
+        );
+      allow update: if isValidId(settingId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        incomingSameSchool() && (
+          isAdmin() ||
+          (isPrincipal() && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['customPermissions']))
+        );
       allow delete: if false;
     }
 
     // Google Workspace Sync & Export Collections
     match /googleSyncSources/{sourceId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal() || isTeacher() || isLibrarian() || isFacilityStaff());
-      allow create, update: if isValidId(sourceId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(sourceId) && isOperationsStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isOperationsStaff() && canListSchool();
+      allow create, update: if isValidId(sourceId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.fileId, 1, 200) &&
         isValidString(request.resource.data.fileName, 1, 260) &&
         request.resource.data.fileType in ['google_sheet', 'google_doc'] &&
         isValidString(request.resource.data.targetModule, 1, 64) &&
         request.resource.data.syncMode in ['realtime', 'scheduled', 'manual'] &&
         request.resource.data.syncDirection in ['sheets_to_schoolhub', 'schoolhub_to_sheets', 'bidirectional'] &&
-        request.resource.data.paused is bool;
-      allow delete: if isValidId(sourceId) && (isAdmin() || isPrincipal());
+        request.resource.data.paused is bool &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(sourceId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
 
     match /googleSyncHistory/{historyId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal() || isTeacher() || isLibrarian() || isFacilityStaff());
-      allow create: if isValidId(historyId) && isSignedIn() && isUserActive() &&
-        (isAdmin() || isPrincipal() || isTeacher() || isLibrarian() || isFacilityStaff()) &&
+      allow get: if isValidId(historyId) && isOperationsStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isOperationsStaff() && canListSchool();
+      allow create: if isValidId(historyId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.sourceId, 1, 128) &&
         isValidString(request.resource.data.fileId, 1, 200) &&
         isValidString(request.resource.data.fileName, 1, 260) &&
         request.resource.data.fileType in ['google_sheet', 'google_doc'] &&
-        request.resource.data.status in ['success', 'partial', 'failed', 'needs_approval'];
+        request.resource.data.status in ['success', 'partial', 'failed', 'needs_approval'] &&
+        isOperationsStaff() && incomingSameSchool();
       allow update, delete: if false;
     }
 
     match /googleDataChangeLogs/{logId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal() || isTeacher() || isLibrarian());
-      allow create: if isValidId(logId) && isSignedIn() && isUserActive() &&
-        (isAdmin() || isPrincipal() || isTeacher() || isLibrarian() || isFacilityStaff()) &&
+      allow get: if isValidId(logId) && isOperationsStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isOperationsStaff() && canListSchool();
+      allow create: if isValidId(logId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.sourceId, 1, 128) &&
         isValidString(request.resource.data.fileName, 1, 260) &&
-        isValidString(request.resource.data.recordKey, 1, 200);
+        isValidString(request.resource.data.recordKey, 1, 200) &&
+        isOperationsStaff() && incomingSameSchool();
       allow update, delete: if false;
     }
 
     match /googleSyncConflicts/{conflictId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal());
-      allow create, update: if isValidId(conflictId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(conflictId) && isLeadership() && (resource == null || sameSchool(resource.data));
+      allow list: if isLeadership() && canListSchool();
+      allow create, update: if isValidId(conflictId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.sourceId, 1, 128) &&
         isValidString(request.resource.data.recordKey, 1, 200) &&
-        request.resource.data.status in ['pending', 'resolved_schoolhub', 'resolved_sheet', 'resolved_custom', 'ignored'];
-      allow delete: if isAdmin();
+        request.resource.data.status in ['pending', 'resolved_schoolhub', 'resolved_sheet', 'resolved_custom', 'ignored'] &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(conflictId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /googlePendingDeletions/{deletionId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal());
-      allow create, update: if isValidId(deletionId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(deletionId) && isLeadership() && (resource == null || sameSchool(resource.data));
+      allow list: if isLeadership() && canListSchool();
+      allow create, update: if isValidId(deletionId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.sourceId, 1, 128) &&
         isValidString(request.resource.data.recordKey, 1, 200) &&
-        request.resource.data.status in ['pending_review', 'kept_in_schoolhub', 'deleted'];
-      allow delete: if isAdmin();
+        request.resource.data.status in ['pending_review', 'kept_in_schoolhub', 'deleted'] &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(deletionId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /googleDocProposals/{proposalId} {
-      allow read: if isSignedIn() && isUserActive() && (isAdmin() || isPrincipal() || isTeacher());
-      allow create, update: if isValidId(proposalId) && (isAdmin() || isPrincipal()) &&
+      allow get: if isValidId(proposalId) && isEducatorOrLeader() && (resource == null || sameSchool(resource.data));
+      allow list: if isEducatorOrLeader() && canListSchool();
+      allow create, update: if isValidId(proposalId) &&
+        hasValidBaseMetadata(request.resource.data) &&
         isValidString(request.resource.data.sourceId, 1, 128) &&
         isValidString(request.resource.data.fileId, 1, 200) &&
         isValidString(request.resource.data.fileName, 1, 260) &&
-        request.resource.data.status in ['draft', 'approved', 'rejected'];
-      allow delete: if isAdmin();
+        request.resource.data.status in ['draft', 'approved', 'rejected'] &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(proposalId) && isAdmin() && (resource == null || sameSchool(resource.data));
     }
 
     match /googleReportTemplates/{templateId} {
-      allow read: if isSignedIn() && isUserActive();
-      allow create, update, delete: if isValidId(templateId) && (isAdmin() || isPrincipal());
+      allow get: if isValidId(templateId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(templateId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidString(request.resource.data.name, 1, 180) &&
+        request.resource.data.fileType in ['google_sheet', 'google_doc'] &&
+        isValidString(request.resource.data.targetScope, 1, 40) &&
+        isLeadership() && incomingSameSchool();
+      allow delete: if isValidId(templateId) && isLeadership() && (resource == null || sameSchool(resource.data));
+    }
+
+    // Per-module Unified Data Source Configurations (Excel OR Google Sheets per group; Admin-only write, no secret tokens)
+    match /dataSourceConfigs/{configId} {
+      allow get: if isValidId(configId) && isSchoolStaff() && (resource == null || sameSchool(resource.data));
+      allow list: if isSchoolStaff() && canListSchool();
+      allow create, update: if isValidId(configId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        request.resource.data.groupKey in ['students', 'staff', 'learning', 'books', 'facilities'] &&
+        request.resource.data.activeMethod in ['excel', 'google_sheets'] &&
+        isValidString(request.resource.data.sourceName, 1, 260) &&
+        request.resource.data.syncMode in ['immediate', 'scheduled', 'manual'] &&
+        request.resource.data.status in ['unconfigured', 'connected', 'syncing', 'synced', 'error', 'reauth_required'] &&
+        !('accessToken' in request.resource.data) &&
+        !('refreshToken' in request.resource.data) &&
+        !('clientSecret' in request.resource.data) &&
+        isAdmin() && incomingSameSchool();
+      allow delete: if isValidId(configId) && isAdmin() && (resource == null || sameSchool(resource.data));
+    }
+
+    // Afternoon timetable & activity schedule
+    match /afternoonSchedules/{entryId} {
+      allow get: if isValidId(entryId) && isUserActive() && (resource == null || sameSchool(resource.data));
+      allow list: if isUserActive() && canListSchool();
+      allow create, update: if isValidId(entryId) &&
+        hasValidBaseMetadata(request.resource.data) &&
+        isValidNumberRange(request.resource.data.dayOfWeek, 2, 7) &&
+        isValidString(request.resource.data.startTime, 1, 20) &&
+        isValidString(request.resource.data.endTime, 1, 20) &&
+        isValidString(request.resource.data.activity, 1, 260) &&
+        isEducatorOrLeader() && incomingSameSchool();
+      allow delete: if isValidId(entryId) && isLeadership() && (resource == null || sameSchool(resource.data));
     }
   }
 }

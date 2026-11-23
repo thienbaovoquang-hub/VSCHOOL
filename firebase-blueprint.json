@@ -5,19 +5,31 @@
       "description": "System user account representation",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
         "displayName": { "type": "string", "maxLength": 100 },
         "role": { "type": "string", "enum": ["admin", "principal", "homeroom_teacher", "subject_teacher", "librarian", "counselor", "staff", "student"] },
         "preDevRole": { "type": "string", "enum": ["admin", "principal", "homeroom_teacher", "subject_teacher", "librarian", "counselor", "staff", "student"], "description": "Original role preserved before DEVELOPMENT_ADMIN_MODE temporary elevation" },
-        "secondaryRoles": { "type": "array", "description": "Optional additional RBAC roles assigned to user" },
+        "secondaryRoles": { "type": "array", "description": "Optional additional RBAC roles assigned to user (max 7)" },
         "status": { "type": "string", "enum": ["active", "locked", "disabled"] },
-        "linkedProfileId": { "type": "string" },
+        "linkedProfileId": { "type": "string", "maxLength": 128 },
+        "assignedClasses": { "type": "array" },
+        "assignedSubjects": { "type": "array" },
+        "permissionsOverride": { "type": "object" },
+        "avatarUrl": { "type": "string", "maxLength": 2000 },
         "rfidCardId": { "type": "string", "maxLength": 64 },
+        "studentCode": { "type": "string", "maxLength": 32 },
+        "teacherCode": { "type": "string", "maxLength": 32 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "className": { "type": "string", "maxLength": 64 },
+        "grade": { "type": "number" },
+        "phone": { "type": "string", "maxLength": 40 },
         "schoolId": { "type": "string", "maxLength": 64 },
         "version": { "type": "number" },
         "createdAt": { "type": "string" },
-        "updatedAt": { "type": "string" }
+        "updatedAt": { "type": "string" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "updatedBy": { "type": "string", "maxLength": 128 }
       },
       "required": ["id", "email", "displayName", "role"]
     },
@@ -714,6 +726,41 @@
         "targetScope": { "type": "string", "maxLength": 40 }
       },
       "required": ["id", "name", "fileType", "targetScope"]
+    },
+    "DataSourceConfig": {
+      "title": "DataSourceConfig",
+      "description": "Per-module unified Excel or Google Sheets data source configuration (one active method per group)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "groupKey": { "type": "string", "enum": ["students", "staff", "learning", "books", "facilities"] },
+        "activeMethod": { "type": "string", "enum": ["excel", "google_sheets"] },
+        "sourceName": { "type": "string", "maxLength": 260 },
+        "spreadsheetId": { "type": "string", "maxLength": 200 },
+        "spreadsheetUrl": { "type": "string", "maxLength": 400 },
+        "syncMode": { "type": "string", "enum": ["immediate", "scheduled", "manual"] },
+        "syncIntervalMinutes": { "type": "number" },
+        "status": { "type": "string", "enum": ["unconfigured", "connected", "syncing", "synced", "error", "reauth_required"] }
+      },
+      "required": ["id", "groupKey", "activeMethod", "sourceName", "syncMode", "status"]
+    },
+    "AfternoonScheduleEntry": {
+      "title": "AfternoonScheduleEntry",
+      "description": "Afternoon timetable and school activity schedule entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "academicYear": { "type": "string", "maxLength": 40 },
+        "date": { "type": "string", "maxLength": 32 },
+        "dayOfWeek": { "type": "number" },
+        "className": { "type": "string", "maxLength": 64 },
+        "startTime": { "type": "string", "maxLength": 20 },
+        "endTime": { "type": "string", "maxLength": 20 },
+        "activity": { "type": "string", "maxLength": 260 },
+        "location": { "type": "string", "maxLength": 120 },
+        "coordinator": { "type": "string", "maxLength": 120 }
+      },
+      "required": ["id", "dayOfWeek", "startTime", "endTime", "activity"]
     }
   },
   "firestore": {
@@ -777,6 +824,8 @@
     "/googleSyncConflicts/{conflictId}": { "schema": "GoogleSyncConflict", "description": "Detected two-way sync conflicts awaiting resolution" },
     "/googlePendingDeletions/{deletionId}": { "schema": "GooglePendingDeletion", "description": "Records removed in Google Sheet flagged for review" },
     "/googleDocProposals/{proposalId}": { "schema": "GoogleDocProposal", "description": "Google Docs revision AI draft proposals requiring approval" },
-    "/googleReportTemplates/{templateId}": { "schema": "GoogleReportTemplate", "description": "Templates for exporting reports to Google Docs and Sheets" }
+    "/googleReportTemplates/{templateId}": { "schema": "GoogleReportTemplate", "description": "Templates for exporting reports to Google Docs and Sheets" },
+    "/dataSourceConfigs/{configId}": { "schema": "DataSourceConfig", "description": "Per-group unified Excel or Google Sheets data source configuration" },
+    "/afternoonSchedules/{entryId}": { "schema": "AfternoonScheduleEntry", "description": "Afternoon school schedule entries" }
   }
 }
