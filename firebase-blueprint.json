@@ -1,0 +1,831 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user account representation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["admin", "principal", "homeroom_teacher", "subject_teacher", "librarian", "counselor", "staff", "student"] },
+        "preDevRole": { "type": "string", "enum": ["admin", "principal", "homeroom_teacher", "subject_teacher", "librarian", "counselor", "staff", "student"], "description": "Original role preserved before DEVELOPMENT_ADMIN_MODE temporary elevation" },
+        "secondaryRoles": { "type": "array", "description": "Optional additional RBAC roles assigned to user (max 7)" },
+        "status": { "type": "string", "enum": ["active", "locked", "disabled"] },
+        "linkedProfileId": { "type": "string", "maxLength": 128 },
+        "assignedClasses": { "type": "array" },
+        "assignedSubjects": { "type": "array" },
+        "permissionsOverride": { "type": "object" },
+        "avatarUrl": { "type": "string", "maxLength": 2000 },
+        "rfidCardId": { "type": "string", "maxLength": 64 },
+        "studentCode": { "type": "string", "maxLength": 32 },
+        "teacherCode": { "type": "string", "maxLength": 32 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "className": { "type": "string", "maxLength": 64 },
+        "grade": { "type": "number" },
+        "phone": { "type": "string", "maxLength": 40 },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "version": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "updatedBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "email", "displayName", "role"]
+    },
+    "AppRuntimeConfig": {
+      "title": "AppRuntimeConfig",
+      "description": "Server/Console-controlled runtime feature flag document (immutable from browser SDKs)",
+      "type": "object",
+      "properties": {
+        "DEVELOPMENT_ADMIN_MODE": { "type": "boolean", "description": "When true, authenticated accounts default to active admin access during development" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["DEVELOPMENT_ADMIN_MODE"]
+    },
+    "UserInvite": {
+      "title": "UserInvite",
+      "description": "Email-indexed pre-provisioned user account invite for multi-account role binding on first Google Sign-In",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "emailLower": { "type": "string", "maxLength": 200 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["admin", "principal", "homeroom_teacher", "subject_teacher", "librarian", "counselor", "staff", "student"] },
+        "secondaryRoles": { "type": "array" },
+        "status": { "type": "string", "enum": ["active", "locked", "disabled"] },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "claimedByUid": { "type": "string", "maxLength": 128 },
+        "claimedAt": { "type": "string" }
+      },
+      "required": ["id", "email", "emailLower", "displayName", "role", "status"]
+    },
+    "ExternalDataset": {
+      "title": "ExternalDataset",
+      "description": "Shared cloud reference dataset imported into SchoolHub Analytics & AI",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "code": { "type": "string", "maxLength": 64 },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 100 },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "version": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title"]
+    },
+    "StudentProfile": {
+      "title": "StudentProfile",
+      "description": "Student academic and identity profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentCode": { "type": "string", "maxLength": 32 },
+        "fullName": { "type": "string", "maxLength": 100 },
+        "classId": { "type": "string" },
+        "className": { "type": "string" },
+        "grade": { "type": "number" },
+        "rfidCardId": { "type": "string" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "version": { "type": "number" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "studentCode", "fullName", "className", "grade"]
+    },
+    "TeacherProfile": {
+      "title": "TeacherProfile",
+      "description": "Teacher professional profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string", "maxLength": 100 },
+        "subject": { "type": "string" },
+        "email": { "type": "string" },
+        "isHomeroom": { "type": "boolean" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "fullName", "subject"]
+    },
+    "StaffMember": {
+      "title": "StaffMember",
+      "description": "Administrative and support staff member",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "staffCode": { "type": "string" },
+        "fullName": { "type": "string" },
+        "department": { "type": "string" },
+        "position": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "staffCode", "fullName", "department"]
+    },
+    "SchoolClass": {
+      "title": "SchoolClass",
+      "description": "High school class registry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "grade": { "type": "number" },
+        "academicYear": { "type": "string" },
+        "room": { "type": "string" }
+      },
+      "required": ["id", "code", "name", "grade"]
+    },
+    "TimetableEntry": {
+      "title": "TimetableEntry",
+      "description": "Class weekly schedule period slot",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "classId": { "type": "string" },
+        "dayOfWeek": { "type": "number" },
+        "period": { "type": "number" },
+        "subject": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "room": { "type": "string" }
+      },
+      "required": ["id", "classId", "dayOfWeek", "period", "subject"]
+    },
+    "Book": {
+      "title": "Book",
+      "description": "Library book title metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "isbn": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "author": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string" },
+        "totalCopies": { "type": "number" },
+        "availableCopies": { "type": "number" }
+      },
+      "required": ["id", "title", "author", "category"]
+    },
+    "BookCopy": {
+      "title": "BookCopy",
+      "description": "Physical copy of a library book with barcode/RFID",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "bookId": { "type": "string" },
+        "copyBarcode": { "type": "string" },
+        "rfidTag": { "type": "string" },
+        "status": { "type": "string", "enum": ["available", "borrowed", "reserved", "overdue", "damaged", "lost", "maintenance"] },
+        "condition": { "type": "string" }
+      },
+      "required": ["id", "bookId", "copyBarcode", "status"]
+    },
+    "BorrowTransaction": {
+      "title": "BorrowTransaction",
+      "description": "Library loan transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "transactionCode": { "type": "string" },
+        "studentId": { "type": "string" },
+        "bookId": { "type": "string" },
+        "copyBarcode": { "type": "string" },
+        "borrowDate": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["borrowed", "returned", "overdue", "lost"] }
+      },
+      "required": ["id", "transactionCode", "studentId", "bookId", "borrowDate", "dueDate", "status"]
+    },
+    "Survey": {
+      "title": "Survey",
+      "description": "School opinion survey form",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "status": { "type": "string", "enum": ["active", "closed", "draft"] }
+      },
+      "required": ["id", "title", "status"]
+    },
+    "FeedbackReport": {
+      "title": "FeedbackReport",
+      "description": "Student suggestion, feedback or violation report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "reportCode": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string" },
+        "content": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "reportCode", "title", "category", "content", "status"]
+    },
+    "CounselingRequest": {
+      "title": "CounselingRequest",
+      "description": "Confidential school counseling appointment booking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "requestCode": { "type": "string" },
+        "type": { "type": "string", "enum": ["psychological", "academic", "career"] },
+        "studentId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"] }
+      },
+      "required": ["id", "requestCode", "type", "studentId", "status"]
+    },
+    "StudentLeaveRequest": {
+      "title": "StudentLeaveRequest",
+      "description": "Student leave or administrative request",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "requestCode": { "type": "string" },
+        "studentId": { "type": "string" },
+        "className": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] }
+      },
+      "required": ["id", "requestCode", "studentId", "status"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "Technical and RFID helpdesk ticket",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ticketCode": { "type": "string" },
+        "title": { "type": "string" },
+        "requesterId": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "in_progress", "resolved", "closed"] }
+      },
+      "required": ["id", "ticketCode", "title", "requesterId", "status"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "School-wide and targeted announcement",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "content": { "type": "string" },
+        "publishedAt": { "type": "string" }
+      },
+      "required": ["id", "title", "content", "publishedAt"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Student daily attendance log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "classId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "status": { "type": "string", "enum": ["present", "absent_excused", "absent_unexcused", "late"] }
+      },
+      "required": ["id", "date", "classId", "studentId", "status"]
+    },
+    "AcademicRecord": {
+      "title": "AcademicRecord",
+      "description": "Student subject grade report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "semester": { "type": "string" },
+        "averageScore": { "type": "number" }
+      },
+      "required": ["id", "studentId", "subjectId", "semester"]
+    },
+    "SchoolRoom": {
+      "title": "SchoolRoom",
+      "description": "Physical school classroom or lab registry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "code", "name", "status"]
+    },
+    "FacilityAsset": {
+      "title": "FacilityAsset",
+      "description": "School equipment and facility inventory asset",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "roomLocation": { "type": "string" },
+        "condition": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "code", "name", "roomLocation"]
+    },
+    "MaintenanceRequest": {
+      "title": "MaintenanceRequest",
+      "description": "Facility repair and incident ticket",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "requestCode": { "type": "string" },
+        "assetName": { "type": "string" },
+        "roomLocation": { "type": "string" },
+        "status": { "type": "string", "enum": ["reported", "assigned", "in_repair", "completed"] }
+      },
+      "required": ["id", "requestCode", "assetName", "roomLocation", "status"]
+    },
+    "ClassPlacement": {
+      "title": "ClassPlacement",
+      "description": "Student class placement and transfer history across academic years",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentCode": { "type": "string" },
+        "className": { "type": "string" },
+        "academicYear": { "type": "string" },
+        "placementType": { "type": "string" }
+      },
+      "required": ["id", "studentCode", "className", "academicYear"]
+    },
+    "TeachingAssignment": {
+      "title": "TeachingAssignment",
+      "description": "Teacher assignment to class and subject per academic year",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "teacherName": { "type": "string", "maxLength": 100 },
+        "className": { "type": "string" },
+        "subject": { "type": "string" },
+        "academicYear": { "type": "string" },
+        "semester": { "type": "string" }
+      },
+      "required": ["id", "teacherName", "className", "subject", "academicYear"]
+    },
+    "ImportHistory": {
+      "title": "ImportHistory",
+      "description": "Excel and CSV bulk import audit log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "moduleKey": { "type": "string" },
+        "fileName": { "type": "string" },
+        "totalRows": { "type": "number" },
+        "successCount": { "type": "number" },
+        "failedCount": { "type": "number" },
+        "actorName": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "moduleKey", "fileName", "timestamp"]
+    },
+    "ExportHistory": {
+      "title": "ExportHistory",
+      "description": "Excel and CSV data export audit log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "moduleKey": { "type": "string" },
+        "format": { "type": "string", "enum": ["xlsx", "csv"] },
+        "rowCount": { "type": "number" },
+        "fileName": { "type": "string" },
+        "actorName": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "moduleKey", "format", "fileName", "timestamp"]
+    },
+    "LibraryRenewalRequest": {
+      "title": "LibraryRenewalRequest",
+      "description": "Borrower renewal request requiring librarian approval",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "transactionId": { "type": "string" },
+        "borrowerId": { "type": "string" },
+        "requestedDueDate": { "type": "string" },
+        "reason": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] }
+      },
+      "required": ["id", "transactionId", "borrowerId", "requestedDueDate", "reason", "status"]
+    },
+    "LibraryTransactionHistoryEntry": {
+      "title": "LibraryTransactionHistoryEntry",
+      "description": "Immutable library due-date and renewal audit log entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "transactionId": { "type": "string" },
+        "actionType": { "type": "string", "enum": ["borrow", "return", "renew_approved", "due_date_edited", "marked_overdue"] },
+        "changedBy": { "type": "string", "maxLength": 100 },
+        "changedAt": { "type": "string" },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["id", "transactionId", "actionType", "changedBy", "changedAt", "reason"]
+    },
+    "RuleDocument": {
+      "title": "RuleDocument",
+      "description": "Uploaded school rule document and extracted text",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "academicYear": { "type": "string" },
+        "fileName": { "type": "string", "maxLength": 260 },
+        "status": { "type": "string", "enum": ["draft", "approved", "archived"] }
+      },
+      "required": ["id", "title", "academicYear", "fileName", "status"]
+    },
+    "RuleVersion": {
+      "title": "RuleVersion",
+      "description": "Snapshot version metadata of a rule document",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "documentId": { "type": "string" },
+        "versionNumber": { "type": "number" },
+        "title": { "type": "string", "maxLength": 200 },
+        "status": { "type": "string", "enum": ["draft", "approved", "archived"] }
+      },
+      "required": ["id", "documentId", "versionNumber", "title", "status"]
+    },
+    "RuleCategory": {
+      "title": "RuleCategory",
+      "description": "Rule criterion group category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 120 },
+        "status": { "type": "string", "enum": ["active", "inactive"] }
+      },
+      "required": ["id", "code", "name", "status"]
+    },
+    "RuleCriterion": {
+      "title": "RuleCriterion",
+      "description": "Structured violation or achievement rule criterion",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string", "maxLength": 64 },
+        "categoryId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 200 },
+        "type": { "type": "string", "enum": ["violation", "achievement"] },
+        "pointsSpecified": { "type": "boolean" },
+        "targetScope": { "type": "string", "enum": ["individual", "class", "group"] },
+        "status": { "type": "string", "enum": ["draft", "active", "inactive"] }
+      },
+      "required": ["id", "code", "categoryId", "name", "type", "targetScope", "status"]
+    },
+    "EmulationRecord": {
+      "title": "EmulationRecord",
+      "description": "Emulation violation or achievement event log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "recordCode": { "type": "string", "maxLength": 64 },
+        "targetType": { "type": "string", "enum": ["individual", "class", "group"] },
+        "criterionId": { "type": "string" },
+        "type": { "type": "string", "enum": ["violation", "achievement"] },
+        "pointsApplied": { "type": "number" },
+        "occurredAt": { "type": "string" },
+        "reporterId": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "pending_verification", "verified", "pending_approval", "recorded", "insufficient_evidence", "cancelled"] }
+      },
+      "required": ["id", "recordCode", "targetType", "criterionId", "type", "pointsApplied", "occurredAt", "reporterId", "status"]
+    },
+    "EmulationAppeal": {
+      "title": "EmulationAppeal",
+      "description": "Student appeal against an emulation record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "recordId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "reason": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["submitted", "reviewing", "need_info", "accepted", "rejected"] }
+      },
+      "required": ["id", "recordId", "studentId", "reason", "status"]
+    },
+    "EmulationPeriod": {
+      "title": "EmulationPeriod",
+      "description": "Emulation scoring cycle period",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 150 },
+        "academicYear": { "type": "string" },
+        "cycleType": { "type": "string", "enum": ["week", "month", "semester", "year"] },
+        "status": { "type": "string", "enum": ["open", "closed", "locked"] }
+      },
+      "required": ["id", "name", "academicYear", "cycleType", "status"]
+    },
+    "EmulationSnapshot": {
+      "title": "EmulationSnapshot",
+      "description": "Immutable closed-period emulation ranking snapshot",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "periodId": { "type": "string" },
+        "periodName": { "type": "string", "maxLength": 150 },
+        "createdAt": { "type": "string" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["id", "periodId", "periodName", "createdAt", "createdBy"]
+    },
+    "EmulationTitleConfig": {
+      "title": "EmulationTitleConfig",
+      "description": "Emulation honor title threshold definition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 120 },
+        "targetScope": { "type": "string", "enum": ["student", "class"] },
+        "minScore": { "type": "number" }
+      },
+      "required": ["id", "name", "targetScope", "minScore"]
+    },
+    "Competition": {
+      "title": "Competition",
+      "description": "School competition or campaign event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 200 },
+        "transferMode": { "type": "string", "enum": ["standalone", "transfer_on_close", "direct_sync", "ratio_transfer"] },
+        "status": { "type": "string", "enum": ["upcoming", "ongoing", "closed", "archived"] }
+      },
+      "required": ["id", "code", "name", "transferMode", "status"]
+    },
+    "CompetitionCriterion": {
+      "title": "CompetitionCriterion",
+      "description": "Scoring criterion inside a competition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "competitionId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 150 },
+        "maxPoints": { "type": "number" }
+      },
+      "required": ["id", "competitionId", "name", "maxPoints"]
+    },
+    "CompetitionParticipant": {
+      "title": "CompetitionParticipant",
+      "description": "Registered participant in a competition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "competitionId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["student", "class", "group"] },
+        "targetId": { "type": "string" },
+        "targetName": { "type": "string", "maxLength": 150 },
+        "status": { "type": "string", "enum": ["active", "withdrawn"] }
+      },
+      "required": ["id", "competitionId", "targetType", "targetId", "targetName", "status"]
+    },
+    "CompetitionScore": {
+      "title": "CompetitionScore",
+      "description": "Criterion score recorded for a competition participant",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "competitionId": { "type": "string" },
+        "participantId": { "type": "string" },
+        "criterionId": { "type": "string" },
+        "score": { "type": "number" }
+      },
+      "required": ["id", "competitionId", "participantId", "criterionId", "score"]
+    },
+    "CompetitionAward": {
+      "title": "CompetitionAward",
+      "description": "Award granted in a competition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "competitionId": { "type": "string" },
+        "participantId": { "type": "string" },
+        "awardTitle": { "type": "string", "maxLength": 120 },
+        "rank": { "type": "number" }
+      },
+      "required": ["id", "competitionId", "participantId", "awardTitle", "rank"]
+    },
+    "ScoreTransferRecord": {
+      "title": "ScoreTransferRecord",
+      "description": "Idempotent anti-double-count transfer record from competition to emulation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sourceId": { "type": "string", "maxLength": 200 },
+        "competitionId": { "type": "string" },
+        "participantId": { "type": "string" },
+        "emulationRecordId": { "type": "string" },
+        "pointsTransferred": { "type": "number" },
+        "syncStatus": { "type": "string", "enum": ["synced", "reverted"] }
+      },
+      "required": ["id", "sourceId", "competitionId", "participantId", "emulationRecordId", "pointsTransferred", "syncStatus"]
+    },
+    "GoogleSyncSource": {
+      "title": "GoogleSyncSource",
+      "description": "Linked Google Sheet or Google Doc sync configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "fileId": { "type": "string", "maxLength": 200 },
+        "fileName": { "type": "string", "maxLength": 260 },
+        "fileType": { "type": "string", "enum": ["google_sheet", "google_doc"] },
+        "targetModule": { "type": "string", "maxLength": 64 },
+        "syncMode": { "type": "string", "enum": ["realtime", "scheduled", "manual"] },
+        "syncDirection": { "type": "string", "enum": ["sheets_to_schoolhub", "schoolhub_to_sheets", "bidirectional"] },
+        "status": { "type": "string", "maxLength": 32 },
+        "paused": { "type": "boolean" },
+        "linkedBy": { "type": "string", "maxLength": 150 }
+      },
+      "required": ["id", "fileId", "fileName", "fileType", "targetModule", "syncMode", "syncDirection", "status", "paused", "linkedBy"]
+    },
+    "GoogleSyncHistoryItem": {
+      "title": "GoogleSyncHistoryItem",
+      "description": "Immutable Google Workspace sync execution log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "fileId": { "type": "string", "maxLength": 200 },
+        "fileName": { "type": "string", "maxLength": 260 },
+        "fileType": { "type": "string", "enum": ["google_sheet", "google_doc"] },
+        "targetModule": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["success", "partial", "failed", "needs_approval"] },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "sourceId", "fileId", "fileName", "fileType", "targetModule", "status"]
+    },
+    "GoogleDataChangeLog": {
+      "title": "GoogleDataChangeLog",
+      "description": "Field-level data change audit record from Google Workspace sync or export",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "fileName": { "type": "string", "maxLength": 260 },
+        "moduleKey": { "type": "string", "maxLength": 64 },
+        "recordKey": { "type": "string", "maxLength": 200 },
+        "changeType": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "sourceId", "fileName", "moduleKey", "recordKey", "changeType"]
+    },
+    "GoogleSyncConflict": {
+      "title": "GoogleSyncConflict",
+      "description": "Two-way sync conflict awaiting admin/principal review",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "moduleKey": { "type": "string", "maxLength": 64 },
+        "recordKey": { "type": "string", "maxLength": 200 },
+        "status": { "type": "string", "enum": ["pending", "resolved_schoolhub", "resolved_sheet", "resolved_custom", "ignored"] }
+      },
+      "required": ["id", "sourceId", "moduleKey", "recordKey", "status"]
+    },
+    "GooglePendingDeletion": {
+      "title": "GooglePendingDeletion",
+      "description": "Record removed from linked Google Sheet awaiting deletion confirmation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "moduleKey": { "type": "string", "maxLength": 64 },
+        "recordKey": { "type": "string", "maxLength": 200 },
+        "status": { "type": "string", "enum": ["pending_review", "kept_in_schoolhub", "deleted"] }
+      },
+      "required": ["id", "sourceId", "moduleKey", "recordKey", "status"]
+    },
+    "GoogleDocProposal": {
+      "title": "GoogleDocProposal",
+      "description": "Draft rule/content proposal generated from Google Doc revision changes requiring human approval",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "fileId": { "type": "string", "maxLength": 200 },
+        "fileName": { "type": "string", "maxLength": 260 },
+        "status": { "type": "string", "enum": ["draft", "approved", "rejected"] }
+      },
+      "required": ["id", "sourceId", "fileId", "fileName", "status"]
+    },
+    "GoogleReportTemplate": {
+      "title": "GoogleReportTemplate",
+      "description": "Google Docs and Sheets export template with SchoolHub placeholders",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 180 },
+        "fileType": { "type": "string", "enum": ["google_sheet", "google_doc"] },
+        "targetScope": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "name", "fileType", "targetScope"]
+    },
+    "DataSourceConfig": {
+      "title": "DataSourceConfig",
+      "description": "Per-module unified Excel or Google Sheets data source configuration (one active method per group)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "groupKey": { "type": "string", "enum": ["students", "staff", "learning", "books", "facilities"] },
+        "activeMethod": { "type": "string", "enum": ["excel", "google_sheets"] },
+        "sourceName": { "type": "string", "maxLength": 260 },
+        "spreadsheetId": { "type": "string", "maxLength": 200 },
+        "spreadsheetUrl": { "type": "string", "maxLength": 400 },
+        "syncMode": { "type": "string", "enum": ["immediate", "scheduled", "manual"] },
+        "syncIntervalMinutes": { "type": "number" },
+        "status": { "type": "string", "enum": ["unconfigured", "connected", "syncing", "synced", "error", "reauth_required"] }
+      },
+      "required": ["id", "groupKey", "activeMethod", "sourceName", "syncMode", "status"]
+    },
+    "AfternoonScheduleEntry": {
+      "title": "AfternoonScheduleEntry",
+      "description": "Afternoon timetable and school activity schedule entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "academicYear": { "type": "string", "maxLength": 40 },
+        "date": { "type": "string", "maxLength": 32 },
+        "dayOfWeek": { "type": "number" },
+        "className": { "type": "string", "maxLength": 64 },
+        "startTime": { "type": "string", "maxLength": 20 },
+        "endTime": { "type": "string", "maxLength": 20 },
+        "activity": { "type": "string", "maxLength": 260 },
+        "location": { "type": "string", "maxLength": 120 },
+        "coordinator": { "type": "string", "maxLength": 120 }
+      },
+      "required": ["id", "dayOfWeek", "startTime", "endTime", "activity"]
+    }
+  },
+  "firestore": {
+    "/appConfig/{configId}": { "schema": "AppRuntimeConfig", "description": "Immutable backend/console runtime flags (e.g. DEVELOPMENT_ADMIN_MODE)" },
+    "/users/{userId}": { "schema": "User", "description": "User profiles and RBAC assignment" },
+    "/userInvites/{inviteId}": { "schema": "UserInvite", "description": "Pre-provisioned account invites claimed on Google Sign-In" },
+    "/externalDatasets/{datasetId}": { "schema": "ExternalDataset", "description": "Shared cloud reference datasets for Analytics & AI" },
+    "/studentProfiles/{studentId}": { "schema": "StudentProfile", "description": "Student registry records" },
+    "/teacherProfiles/{teacherId}": { "schema": "TeacherProfile", "description": "Teacher profiles" },
+    "/staffMembers/{staffId}": { "schema": "StaffMember", "description": "Non-teaching staff profiles" },
+    "/academicYears/{yearId}": { "schema": "User", "description": "Academic year configurations" },
+    "/classes/{classId}": { "schema": "SchoolClass", "description": "School classes" },
+    "/classPlacements/{placementId}": { "schema": "ClassPlacement", "description": "Student class placements by academic year" },
+    "/teachingAssignments/{assignmentId}": { "schema": "TeachingAssignment", "description": "Teacher class-subject assignments" },
+    "/timetable/{entryId}": { "schema": "TimetableEntry", "description": "Weekly timetable entries" },
+    "/assignments/{assignmentId}": { "schema": "User", "description": "Class assignments" },
+    "/assignmentSubmissions/{submissionId}": { "schema": "User", "description": "Student assignment submissions" },
+    "/learningMaterials/{materialId}": { "schema": "User", "description": "Digital learning materials" },
+    "/books/{bookId}": { "schema": "Book", "description": "Library book catalog" },
+    "/bookCopies/{copyId}": { "schema": "BookCopy", "description": "Physical book copy records" },
+    "/borrowTransactions/{transactionId}": { "schema": "BorrowTransaction", "description": "Library circulation records" },
+    "/bookReservations/{reservationId}": { "schema": "User", "description": "Library book hold reservations" },
+    "/libraryRenewalRequests/{requestId}": { "schema": "LibraryRenewalRequest", "description": "Library loan renewal requests" },
+    "/libraryTransactionHistory/{entryId}": { "schema": "LibraryTransactionHistoryEntry", "description": "Immutable library due-date & renewal audit trail" },
+    "/inventoryAudits/{auditId}": { "schema": "User", "description": "Library inventory audit logs" },
+    "/surveys/{surveyId}": { "schema": "Survey", "description": "Surveys" },
+    "/surveyResponses/{responseId}": { "schema": "User", "description": "Survey responses" },
+    "/feedbackReports/{reportId}": { "schema": "FeedbackReport", "description": "Student feedback and incident reports" },
+    "/counselingRequests/{requestId}": { "schema": "CounselingRequest", "description": "Confidential student counseling bookings" },
+    "/leaveRequests/{requestId}": { "schema": "StudentLeaveRequest", "description": "Student leave and admin requests" },
+    "/supportTickets/{ticketId}": { "schema": "SupportTicket", "description": "Technical helpdesk tickets" },
+    "/announcements/{announcementId}": { "schema": "Announcement", "description": "Official announcements" },
+    "/schoolEvents/{eventId}": { "schema": "User", "description": "School events calendar" },
+    "/attendanceRecords/{recordId}": { "schema": "AttendanceRecord", "description": "Daily attendance logs" },
+    "/academicRecords/{recordId}": { "schema": "AcademicRecord", "description": "Subject grades" },
+    "/rooms/{roomId}": { "schema": "SchoolRoom", "description": "School classrooms and functional rooms" },
+    "/facilities/{assetId}": { "schema": "FacilityAsset", "description": "School facility equipment assets" },
+    "/maintenanceRequests/{requestId}": { "schema": "MaintenanceRequest", "description": "Facility repair requests" },
+    "/ruleDocuments/{documentId}": { "schema": "RuleDocument", "description": "Uploaded rule documents and extracted text" },
+    "/ruleVersions/{versionId}": { "schema": "RuleVersion", "description": "Rule version history" },
+    "/ruleCategories/{categoryId}": { "schema": "RuleCategory", "description": "Rule criterion categories" },
+    "/ruleCriteria/{criterionId}": { "schema": "RuleCriterion", "description": "Structured school rule criteria" },
+    "/emulationRecords/{recordId}": { "schema": "EmulationRecord", "description": "Emulation violation and achievement logs" },
+    "/emulationAppeals/{appealId}": { "schema": "EmulationAppeal", "description": "Student appeals on emulation records" },
+    "/emulationPeriods/{periodId}": { "schema": "EmulationPeriod", "description": "Emulation cycle periods" },
+    "/emulationSnapshots/{snapshotId}": { "schema": "EmulationSnapshot", "description": "Closed-period emulation snapshots" },
+    "/emulationTitleConfigs/{configId}": { "schema": "EmulationTitleConfig", "description": "Emulation title threshold definitions" },
+    "/competitions/{competitionId}": { "schema": "Competition", "description": "School competitions and campaigns" },
+    "/competitionCriteria/{criterionId}": { "schema": "CompetitionCriterion", "description": "Competition scoring criteria" },
+    "/competitionParticipants/{participantId}": { "schema": "CompetitionParticipant", "description": "Competition participant registrations" },
+    "/competitionScores/{scoreId}": { "schema": "CompetitionScore", "description": "Competition scores" },
+    "/competitionAwards/{awardId}": { "schema": "CompetitionAward", "description": "Competition awards" },
+    "/scoreTransferRecords/{transferId}": { "schema": "ScoreTransferRecord", "description": "Anti-double-count competition score transfers" },
+    "/auditLogs/{logId}": { "schema": "User", "description": "System audit logs" },
+    "/importHistory/{historyId}": { "schema": "ImportHistory", "description": "Excel/CSV bulk import execution logs" },
+    "/exportHistory/{historyId}": { "schema": "ExportHistory", "description": "Excel/CSV data export logs" },
+    "/systemSettings/{settingId}": { "schema": "User", "description": "Global system configuration and RBAC matrix" },
+    "/googleSyncSources/{sourceId}": { "schema": "GoogleSyncSource", "description": "Linked Google Sheets & Docs synchronization sources" },
+    "/googleSyncHistory/{historyId}": { "schema": "GoogleSyncHistoryItem", "description": "Google Workspace sync and export execution history" },
+    "/googleDataChangeLogs/{logId}": { "schema": "GoogleDataChangeLog", "description": "Field-level diff logs from Google Workspace sync" },
+    "/googleSyncConflicts/{conflictId}": { "schema": "GoogleSyncConflict", "description": "Detected two-way sync conflicts awaiting resolution" },
+    "/googlePendingDeletions/{deletionId}": { "schema": "GooglePendingDeletion", "description": "Records removed in Google Sheet flagged for review" },
+    "/googleDocProposals/{proposalId}": { "schema": "GoogleDocProposal", "description": "Google Docs revision AI draft proposals requiring approval" },
+    "/googleReportTemplates/{templateId}": { "schema": "GoogleReportTemplate", "description": "Templates for exporting reports to Google Docs and Sheets" },
+    "/dataSourceConfigs/{configId}": { "schema": "DataSourceConfig", "description": "Per-group unified Excel or Google Sheets data source configuration" },
+    "/afternoonSchedules/{entryId}": { "schema": "AfternoonScheduleEntry", "description": "Afternoon school schedule entries" }
+  }
+}
