@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Văn Hiến</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="/assets/aistudio/subject-ai-bridge.js"></script>
+  <style>
+    :root {
+      --bg: #FAF6EF;
+      --paper: #F2EADF;
+      --card: #FFFDF9;
+      --ink: #221C18;
+      --muted: #6E6257;
+      --moss: #364E3F;
+      --moss-bg: #E6EDE8;
+      --wine: #782A32;
+      --wine-bg: #F5E6E8;
+      --line: #DDD2C2;
+      --r: 10px;
+      --f-serif: 'Cormorant Garamond', Georgia, serif;
+      --f-lit: 'Newsreader', Georgia, serif;
+      --f-ui: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--f-ui);
+      font-size: 14px;
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+    h1, h2, h3 { font-family: var(--f-serif); font-weight: 600; letter-spacing: -0.01em; }
+
+    /* Topbar */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(250, 246, 239, 0.94); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-wrap {
+      max-width: 1200px; margin: 0 auto; padding: 0.7rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 0.6rem; cursor: pointer;
+      font-family: var(--f-serif); font-size: 1.5rem; font-weight: 700;
+    }
+    .logo i {
+      width: 30px; height: 30px; border: 1.5px solid var(--wine); border-radius: 6px;
+      display: grid; place-items: center; font-style: normal; color: var(--wine); font-size: 1.15rem;
+    }
+    nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    .tab-btn {
+      background: none; border: none; padding: 0.45rem 0.8rem; border-radius: 7px;
+      color: var(--muted); font-family: var(--f-ui); font-size: 0.84rem; font-weight: 500;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; transition: 0.18s;
+    }
+    .tab-btn:hover { background: var(--paper); color: var(--ink); }
+    .tab-btn.active { background: var(--moss); color: #fff; }
+    .tab-btn.ai.active { background: var(--wine); }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
+    .view { display: none; animation: fadeIn 0.28s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .head-row {
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      margin-bottom: 1.5rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--line); flex-wrap: wrap;
+    }
+    .head-row h1 { font-size: 2.05rem; line-height: 1.1; }
+
+    /* Controls */
+    .btn {
+      background: var(--card); border: 1px solid var(--line); color: var(--ink);
+      padding: 0.48rem 0.9rem; border-radius: 8px; font-family: var(--f-ui); font-size: 0.83rem;
+      font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; transition: 0.18s;
+    }
+    .btn:hover { background: var(--paper); }
+    .btn-moss { background: var(--moss); border-color: var(--moss); color: #fff; }
+    .btn-moss:hover { background: #2A3E32; }
+    .btn-wine { background: var(--wine); border-color: var(--wine); color: #fff; }
+    .btn-wine:hover { background: #5E1F25; }
+    .btn-sm { padding: 0.34rem 0.68rem; font-size: 0.78rem; }
+
+    input, select, textarea {
+      width: 100%; padding: 0.52rem 0.75rem; border: 1px solid var(--line); border-radius: 8px;
+      background: var(--card); color: var(--ink); font-family: var(--f-ui); font-size: 0.86rem;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--moss); }
+
+    /* Cards & Layout */
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 1.2rem; transition: transform 0.2s, border-color 0.2s;
+    }
+    .card-click:hover { transform: translateY(-2px); border-color: #B59E82; }
+    .g-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.15rem; }
+    .g-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.15rem; }
+    .g-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 900px) { .g-3, .g-4 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px) { .g-2, .g-3, .g-4 { grid-template-columns: 1fr; } }
+
+    .tag {
+      display: inline-block; font-size: 0.72rem; font-weight: 500; padding: 0.16rem 0.5rem;
+      border-radius: 5px; background: var(--paper); color: var(--muted); border: 1px solid var(--line);
+    }
+    .tag-moss { background: var(--moss-bg); color: var(--moss); border-color: transparent; }
+    .tag-wine { background: var(--wine-bg); color: var(--wine); border-color: transparent; }
+
+    .quote-strip {
+      background: var(--paper); border-left: 3px solid var(--wine); border-radius: 0 var(--r) var(--r) 0;
+      padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .quote-strip em { font-family: var(--f-lit); font-size: 1.08rem; }
+
+    .stat-num { font-family: var(--f-serif); font-size: 1.85rem; font-weight: 700; line-height: 1.1; }
+    .muted { color: var(--muted); }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .gap { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+
+    /* Reader */
+    .reader-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 880px) { .reader-grid { grid-template-columns: 1fr; } }
+    .page-sheet {
+      background: #FFFDF8; border: 1px solid var(--line); border-radius: var(--r);
+      padding: 2rem 2.25rem; box-shadow: 0 8px 24px rgba(34,28,24,0.05);
+    }
+    .lit-text { font-family: var(--f-lit); font-size: 1.15rem; line-height: 1.9; white-space: pre-line; }
+    .lit-text mark { background: rgba(120,42,50,0.16); border-bottom: 1.5px solid var(--wine); color: inherit; }
+
+    /* Quiz */
+    .opt {
+      padding: 0.65rem 0.85rem; border: 1px solid var(--line); border-radius: 8px;
+      margin-bottom: 0.45rem; cursor: pointer; background: var(--card); transition: 0.15s;
+    }
+    .opt:hover { background: var(--paper); }
+    .opt.sel { border-color: var(--moss); background: var(--moss-bg); }
+    .opt.ok { border-color: #2C6A45; background: #E3F2E9; }
+    .opt.bad { border-color: var(--wine); background: var(--wine-bg); }
+
+    /* Writing & AI */
+    .editor-area {
+      font-family: var(--f-lit); font-size: 1.1rem; line-height: 1.85;
+      min-height: 330px; padding: 1.25rem; background: #FFFDF8;
+    }
+    .ai-grid { display: grid; grid-template-columns: 290px 1fr; gap: 1.25rem; align-items: start; }
+    @media (max-width: 860px) { .ai-grid { grid-template-columns: 1fr; } }
+    .chat-box {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      display: flex; flex-direction: column; height: 540px;
+    }
+    .chat-log { flex: 1; overflow-y: auto; padding: 1.15rem; display: flex; flex-direction: column; gap: 0.8rem; }
+    .bubble { max-width: 84%; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.9rem; line-height: 1.6; }
+    .bubble.u { align-self: flex-end; background: var(--moss); color: #fff; }
+    .bubble.a { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); font-family: var(--f-lit); font-size: 1.02rem; }
+    .bubble.err { align-self: flex-start; background: var(--wine-bg); border: 1px solid var(--wine); color: var(--wine); }
+    .chat-bar { padding: 0.7rem; border-top: 1px solid var(--line); display: flex; gap: 0.5rem; background: var(--bg); }
+
+    /* Modal */
+    .modal {
+      position: fixed; inset: 0; background: rgba(34,28,24,0.48);
+      display: none; place-items: center; z-index: 100; padding: 1rem;
+    }
+    .modal.open { display: grid; }
+    .modal-card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      max-width: 720px; width: 100%; max-height: 86vh; overflow-y: auto; padding: 1.4rem;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.6rem; }
+    th, td { border: 1px solid var(--line); padding: 0.4rem 0.55rem; text-align: left; }
+    th { background: var(--paper); }
+
+    #toast {
+      position: fixed; bottom: 1.25rem; right: 1.25rem; background: var(--ink); color: #fff;
+      padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.82rem; z-index: 200;
+      opacity: 0; transform: translateY(10px); transition: 0.22s; pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="nav-wrap">
+      <div class="logo" onclick="go('home')"><i>V</i><span>Văn Hiến</span></div>
+      <nav>
+        <button class="tab-btn active" data-v="home" onclick="go('home')"><i data-lucide="home" size="15"></i>Trang chủ</button>
+        <button class="tab-btn" data-v="lit" onclick="go('lit')"><i data-lucide="book-open" size="15"></i>Tác phẩm</button>
+        <button class="tab-btn" data-v="know" onclick="go('know')"><i data-lucide="layers" size="15"></i>Kiến thức</button>
+        <button class="tab-btn" data-v="prac" onclick="go('prac')"><i data-lucide="check-square" size="15"></i>Luyện tập</button>
+        <button class="tab-btn" data-v="write" onclick="go('write')"><i data-lucide="pen-tool" size="15"></i>Luyện viết</button>
+        <button class="tab-btn ai" data-v="ai" onclick="go('ai')"><i data-lucide="sparkles" size="15"></i>Trợ lý AI</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. HOME -->
+    <section id="v-home" class="view active">
+      <div class="head-row">
+        <h1>Thư phòng Ngữ văn</h1>
+        <div class="gap">
+          <button class="btn" onclick="openExcel('literature')"><i data-lucide="file-spreadsheet" size="15"></i>Nhập Excel</button>
+          <button class="btn btn-moss" onclick="go('lit')">Đọc tác phẩm</button>
+        </div>
+      </div>
+
+      <div class="quote-strip">
+        <div>
+          <em id="q-text">“Văn chương là một thứ khí giới thanh cao và đắc lực... làm cho lòng người được thêm trong sạch và phong phú hơn.”</em>
+          <div class="muted mt-1" id="q-by">— Thạch Lam</div>
+        </div>
+        <button class="btn btn-sm" onclick="nextQuote()">Đổi câu</button>
+      </div>
+
+      <div class="g-4 mb-2" id="home-stats"></div>
+
+      <div class="g-2 mt-2">
+        <div class="card">
+          <div class="row mb-1"><h3>Đang đọc</h3><button class="btn btn-sm" onclick="go('lit')">Tất cả</button></div>
+          <div id="home-works"></div>
+        </div>
+        <div class="card">
+          <div class="row mb-1"><h3>Cần ôn tập</h3><button class="btn btn-sm" onclick="go('prac')">Luyện tập</button></div>
+          <div id="home-review"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. LITERATURE -->
+    <section id="v-lit" class="view">
+      <div id="lit-list">
+        <div class="head-row">
+          <h1>Tác phẩm văn học</h1>
+          <div class="gap">
+            <button class="btn" onclick="openExcel('literature')"><i data-lucide="upload" size="15"></i>Excel / Mẫu</button>
+            <button class="btn btn-moss" onclick="openWorkModal()"><i data-lucide="plus" size="15"></i>Thêm</button>
+          </div>
+        </div>
+
+        <div class="card mb-2">
+          <div class="g-4">
+            <input type="text" id="f-q" placeholder="Tìm tên, tác giả, câu thơ..." oninput="renderWorks()" />
+            <select id="f-grade" onchange="renderWorks()">
+              <option value="">Tất cả lớp</option><option>Lớp 10</option><option>Lớp 11</option><option>Lớp 12</option>
+            </select>
+            <select id="f-genre" onchange="renderWorks()">
+              <option value="">Tất cả thể loại</option><option>Thơ</option><option>Truyện ngắn</option><option>Ký</option><option>Nghị luận</option>
+            </select>
+            <select id="f-curr" onchange="renderWorks()">
+              <option value="">Tất cả chương trình</option><option>Kết nối tri thức</option><option>Cánh diều</option><option>Chân trời sáng tạo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="g-3" id="works-grid"></div>
+      </div>
+
+      <div id="lit-read" style="display:none;">
+        <div class="row mb-2">
+          <button class="btn btn-sm" onclick="closeReader()"><i data-lucide="arrow-left" size="14"></i>Danh sách</button>
+          <div class="gap">
+            <button class="btn btn-sm" id="r-edit">Sửa</button>
+            <button class="btn btn-sm" id="r-prac">Luyện đề</button>
+            <button class="btn btn-sm" id="r-write">Lập dàn ý</button>
+            <button class="btn btn-sm btn-wine" id="r-ai">Hỏi AI</button>
+          </div>
+        </div>
+
+        <div class="reader-grid">
+          <div class="page-sheet">
+            <div class="row mb-1">
+              <div class="gap" id="r-tags"></div>
+              <button class="btn btn-sm btn-moss" onclick="markSelection()"><i data-lucide="highlighter" size="13"></i>Đánh dấu</button>
+            </div>
+            <h1 id="r-title" style="font-size:2rem;"></h1>
+            <div class="muted mb-2" id="r-author"></div>
+            <div class="lit-text" id="r-body"></div>
+          </div>
+
+          <div class="card">
+            <div class="gap mb-2">
+              <button class="btn btn-sm" id="sub-info" onclick="rTab('info')">Thông tin &amp; Bố cục</button>
+              <button class="btn btn-sm" id="sub-val" onclick="rTab('val')">Giá trị</button>
+              <button class="btn btn-sm" id="sub-notes" onclick="rTab('notes')">Bút ký</button>
+            </div>
+            <div id="p-info" class="muted"></div>
+            <div id="p-val" class="muted" style="display:none;"></div>
+            <div id="p-notes" style="display:none;">
+              <textarea id="note-in" rows="2" placeholder="Ghi chú cảm thụ..."></textarea>
+              <button class="btn btn-sm btn-moss mt-1" onclick="addNote()">Lưu bút ký</button>
+              <div id="notes-box" class="mt-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. KNOWLEDGE -->
+    <section id="v-know" class="view">
+      <div class="head-row">
+        <h1>Kiến thức Ngữ văn</h1>
+        <div class="gap">
+          <button class="btn" onclick="openExcel('knowledge')"><i data-lucide="upload" size="15"></i>Excel / Mẫu</button>
+          <button class="btn btn-moss" onclick="openKnowModal()"><i data-lucide="plus" size="15"></i>Thêm</button>
+        </div>
+      </div>
+      <div class="card mb-2">
+        <div class="g-2">
+          <input type="text" id="k-q" placeholder="Tìm khái niệm, ví dụ..." oninput="renderKnow()" />
+          <select id="k-cat" onchange="renderKnow()">
+            <option value="">Tất cả chuyên đề</option>
+            <option>Thể loại văn học</option><option>Phương thức biểu đạt</option><option>Phong cách ngôn ngữ</option>
+            <option>Biện pháp tu từ</option><option>Tiếng Việt</option><option>Lý luận văn học</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-2" id="know-grid"></div>
+    </section>
+
+    <!-- 4. PRACTICE -->
+    <section id="v-prac" class="view">
+      <div class="head-row">
+        <h1>Luyện tập</h1>
+        <div class="gap">
+          <button class="btn" id="lit-ai-q" onclick="genLitQuizAI()"><i data-lucide="sparkles" size="15"></i>Sinh câu hỏi AI</button>
+          <button class="btn" onclick="openExcel('practice')"><i data-lucide="upload" size="15"></i>Excel / Mẫu</button>
+          <button class="btn btn-moss" onclick="startTimer()"><i data-lucide="timer" size="15"></i>Tính giờ 15p</button>
+          <button class="btn btn-wine" onclick="gradeQuiz()">Chấm điểm</button>
+        </div>
+      </div>
+      <div class="g-3 mb-2">
+        <select id="p-work" onchange="renderQuiz()"><option value="">Tất cả tác phẩm</option></select>
+        <select id="p-type" onchange="renderQuiz()">
+          <option value="">Tất cả dạng</option><option value="mcq">Trắc nghiệm</option><option value="tf">Đúng/Sai</option>
+          <option value="short">Trả lời ngắn</option><option value="essay">Tự luận</option>
+        </select>
+        <div class="card row" style="padding:0.65rem 1rem;">
+          <span class="muted">Thời gian</span>
+          <strong id="timer" class="stat-num" style="font-size:1.4rem; color:var(--wine);">15:00</strong>
+        </div>
+      </div>
+      <div id="score-box" class="card mb-2" style="display:none; background:var(--moss-bg);"></div>
+      <div id="quiz-list"></div>
+    </section>
+
+    <!-- 5. WRITING -->
+    <section id="v-write" class="view">
+      <div class="head-row">
+        <h1>Luyện viết</h1>
+        <div class="gap">
+          <button class="btn" onclick="openExcel('writing')"><i data-lucide="upload" size="15"></i>Excel / Mẫu</button>
+          <button class="btn" onclick="exportEssay()">Xuất .txt</button>
+          <button class="btn btn-moss" onclick="saveEssay()"><i data-lucide="save" size="15"></i>Lưu bài</button>
+        </div>
+      </div>
+      <div class="g-2" style="grid-template-columns: 1fr 1.35fr;">
+        <div class="card">
+          <select id="w-prompt" onchange="pickPrompt()"></select>
+          <input type="text" id="w-title" class="mt-1" placeholder="Đề bài..." />
+          <div class="gap mt-1">
+            <select id="w-work"></select>
+            <button class="btn btn-sm btn-moss" onclick="makeOutline()">Dàn ý</button>
+          </div>
+          <div class="gap mt-2 mb-1">
+            <button class="btn btn-sm" onclick="wSub('out')">Dàn ý</button>
+            <button class="btn btn-sm" onclick="wSub('quo')">Dẫn chứng</button>
+            <button class="btn btn-sm" onclick="wSub('sav')">Đã lưu</button>
+          </div>
+          <div id="w-out" class="muted mt-1"></div>
+          <div id="w-quo" class="mt-1" style="display:none;"></div>
+          <div id="w-sav" class="mt-1" style="display:none;"></div>
+        </div>
+        <div class="card">
+          <div class="row mb-1">
+            <span class="tag tag-moss" id="w-stat">0 từ · 0 đoạn</span>
+            <div class="gap">
+              <button class="btn btn-sm" onclick="checkEssay()">Kiểm tra</button>
+              <button class="btn btn-sm btn-wine" onclick="essayToAI()">AI góp ý</button>
+            </div>
+          </div>
+          <textarea id="w-editor" class="editor-area" placeholder="Viết bài nghị luận..." oninput="countWords()"></textarea>
+          <div id="w-check" class="card mt-1" style="display:none; background:var(--paper);"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. AI ASSISTANT -->
+    <section id="v-ai" class="view">
+      <div class="head-row">
+        <h1>Trợ lý Ngữ văn</h1>
+        <button class="btn btn-sm" onclick="resetChat()">Xóa hội thoại</button>
+      </div>
+      <div class="ai-grid">
+        <div class="card">
+          <label class="muted">Chế độ trợ lý</label>
+          <select id="ai-mode" class="mt-1 mb-2">
+            <option value="tutor_chat">Hỏi đáp Ngữ văn &amp; Tu từ</option>
+            <option value="writing_outline">Hướng dẫn phân tích đề &amp; Lập dàn ý</option>
+            <option value="writing_feedback">Nhận xét lập luận &amp; Diễn đạt bài viết</option>
+            <option value="quiz_generate">Tạo câu hỏi ôn tập tác phẩm</option>
+          </select>
+          <label class="muted">Tác phẩm liên kết</label>
+          <select id="ai-work" class="mt-1 mb-2"></select>
+          <label class="muted">Tài liệu / Ảnh đề (PDF, Word, TXT, Ảnh)</label>
+          <input type="file" id="ai-file" accept=".txt,.md,.pdf,.doc,.docx,image/*" class="mt-1" onchange="uploadDoc(event)" />
+          <div id="ai-docs" class="mt-1"></div>
+          <div id="ai-img-badge" class="mt-1"></div>
+          <div class="gap mt-2" style="flex-direction:column; align-items:stretch;">
+            <button class="btn btn-sm" onclick="askAI('Gợi ý hướng phân tích hình tượng và nghệ thuật', 'tutor_chat')">Phân tích hình tượng</button>
+            <button class="btn btn-sm" onclick="askAI('Hướng dẫn phân tích đề, lập dàn ý và chọn dẫn chứng chuẩn từ văn bản', 'writing_outline')">Lập dàn ý &amp; dẫn chứng</button>
+            <button class="btn btn-sm" onclick="askAI('Phân tích tài liệu hoặc ảnh đề bài đã tải lên', 'tutor_chat')">Đọc tài liệu / ảnh đính kèm</button>
+          </div>
+        </div>
+        <div class="chat-box">
+          <div class="chat-log" id="ai-log">
+            <div class="bubble a">Chọn tác phẩm hoặc tải tài liệu/ảnh đề bài, Trợ lý Gemini Ngữ văn sẽ hướng dẫn tư duy và đối chiếu dẫn chứng chính xác.</div>
+          </div>
+          <div class="chat-bar">
+            <input type="text" id="ai-in" placeholder="Nhập câu hỏi hoặc đề bài..." onkeydown="if(event.key==='Enter') sendAI()" />
+            <button class="btn btn-wine" id="ai-send" onclick="sendAI()">Gửi</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL EXCEL -->
+  <div class="modal" id="m-excel">
+    <div class="modal-card">
+      <div class="row mb-1"><h2>Nhập Excel (.xlsx, .xls)</h2><button class="btn btn-sm" onclick="closeM('m-excel')">Đóng</button></div>
+      <div class="gap mb-2">
+        <select id="x-mod" onchange="xHint()"><option value="literature">Tác phẩm</option><option value="knowledge">Kiến thức</option><option value="practice">Luyện tập</option><option value="writing">Luyện viết</option></select>
+        <button class="btn btn-sm btn-moss" onclick="dlTemplate()">Tải file mẫu</button>
+      </div>
+      <div class="muted mb-2" id="x-hint"></div>
+      <input type="file" id="x-file" accept=".xlsx,.xls" onchange="readExcel(event)" />
+      <div id="x-prev" style="display:none;" class="mt-2">
+        <div class="row"><strong id="x-cnt"></strong><button class="btn btn-sm btn-wine" onclick="saveExcel()">Xác nhận lưu</button></div>
+        <div style="overflow-x:auto; max-height:260px;"><table id="x-tbl"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL WORK -->
+  <div class="modal" id="m-work">
+    <div class="modal-card">
+      <div class="row mb-1"><h2 id="wm-title">Tác phẩm</h2><button class="btn btn-sm" onclick="closeM('m-work')">Đóng</button></div>
+      <input type="hidden" id="wm-id" />
+      <div class="g-2">
+        <input type="text" id="wf-t" placeholder="Tên tác phẩm *" />
+        <input type="text" id="wf-a" placeholder="Tác giả *" />
+        <select id="wf-g"><option>Lớp 10</option><option>Lớp 11</option><option>Lớp 12</option></select>
+        <select id="wf-gn"><option>Thơ</option><option>Truyện ngắn</option><option>Ký</option><option>Nghị luận</option></select>
+        <select id="wf-c"><option>Kết nối tri thức</option><option>Cánh diều</option><option>Chân trời sáng tạo</option></select>
+        <input type="text" id="wf-b" placeholder="Thông tin tác giả" />
+      </div>
+      <input type="text" id="wf-ctx" class="mt-1" placeholder="Hoàn cảnh sáng tác" />
+      <input type="text" id="wf-str" class="mt-1" placeholder="Bố cục" />
+      <input type="text" id="wf-thm" class="mt-1" placeholder="Chủ đề" />
+      <div class="g-2 mt-1">
+        <textarea id="wf-cv" rows="2" placeholder="Giá trị nội dung"></textarea>
+        <textarea id="wf-av" rows="2" placeholder="Giá trị nghệ thuật"></textarea>
+      </div>
+      <textarea id="wf-txt" rows="5" class="mt-1" placeholder="Nội dung văn bản *"></textarea>
+      <button class="btn btn-moss mt-2" onclick="saveWork()">Lưu tác phẩm</button>
+    </div>
+  </div>
+
+  <!-- MODAL KNOWLEDGE -->
+  <div class="modal" id="m-know">
+    <div class="modal-card">
+      <div class="row mb-1"><h2>Thêm kiến thức</h2><button class="btn btn-sm" onclick="closeM('m-know')">Đóng</button></div>
+      <div class="g-2">
+        <input type="text" id="kf-t" placeholder="Tên kiến thức *" />
+        <select id="kf-c"><option>Thể loại văn học</option><option>Phương thức biểu đạt</option><option>Phong cách ngôn ngữ</option><option>Biện pháp tu từ</option><option>Tiếng Việt</option><option>Lý luận văn học</option></select>
+      </div>
+      <textarea id="kf-d" rows="2" class="mt-1" placeholder="Nội dung ngắn gọn *"></textarea>
+      <textarea id="kf-e" rows="2" class="mt-1" placeholder="Ví dụ minh họa"></textarea>
+      <button class="btn btn-moss mt-2" onclick="saveKnow()">Lưu</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const KEY = 'vanhien_compact_v1';
+    const QUOTES = [
+      { t: '“Văn chương là một thứ khí giới thanh cao và đắc lực... làm cho lòng người được thêm trong sạch và phong phú hơn.”', b: '— Thạch Lam' },
+      { t: '“Một tác phẩm thật giá trị, phải vượt lên bên trên tất cả các bờ cõi và giới hạn, phải là một tác phẩm chung cho cả loài người.”', b: '— Nam Cao' }
+    ];
+    let qIdx = 0;
+
+    const SEED = {
+      works: [
+        {
+          id: 'w1', title: 'Tây Tiến (Trích)', author: 'Quang Dũng', grade: 'Lớp 12', genre: 'Thơ', curriculum: 'Kết nối tri thức',
+          bio: 'Quang Dũng (1921–1988), nghệ sĩ đa tài với hồn thơ phóng khoáng, lãng mạn.',
+          context: 'Cuối năm 1948 tại Phù Lưu Chanh, khi tác giả rời đơn vị Tây Tiến.',
+          structure: '4 đoạn: Thiên nhiên & hành quân; Kỷ niệm & sông nước; Chân dung người lính; Lời thề gắn bó.',
+          theme: 'Vẻ đẹp bi tráng, hào hoa của người lính Tây Tiến.',
+          contentVal: 'Khắc họa tượng đài người lính lý tưởng cao đẹp, tâm hồn lãng mạn.',
+          artVal: 'Bút pháp lãng mạn – bi tráng, từ Hán Việt trang trọng, nhạc điệu giàu sức gợi.',
+          text: `Sông Mã xa rồi Tây Tiến ơi!\nNhớ về rừng núi nhớ chơi vơi\nSài Khao sương lấp đoàn quân mỏi\nMường Lát hoa về trong đêm hơi\n\nDốc lên khúc khuỷu dốc thăm thẳm\nHeo hút cồn mây súng ngửi trời\nNgàn thước lên cao, ngàn thước xuống\nNhà ai Pha Luông mưa xa khơi\n\nTây Tiến đoàn binh không mọc tóc\nQuân xanh màu lá dữ oai hùm\nMắt trừng gửi mộng qua biên giới\nĐêm mơ Hà Nội dáng kiều thơm\n\nRải rác biên cương mồ viễn xứ\nChiến trường đi chẳng tiếc đời xanh\nÁo bào thay chiếu anh về đất\nSông Mã gầm lên khúc độc hành.`,
+          notes: [{ type: 'note', text: '“Súng ngửi trời” vừa tả độ cao vừa thể hiện nét hóm hỉnh.' }]
+        },
+        {
+          id: 'w2', title: 'Chữ người tử tù (Trích)', author: 'Nguyễn Tuân', grade: 'Lớp 11', genre: 'Truyện ngắn', curriculum: 'Kết nối tri thức',
+          bio: 'Nguyễn Tuân (1910–1987), bậc thầy ngôn từ với phong cách tài hoa, uyên bác.',
+          context: 'Tập “Vang bóng một thời” (1940), trân trọng nét đẹp văn hóa cổ truyền.',
+          structure: '3 phần: Tâm trạng quản ngục; Cuộc đối thoại với Huấn Cao; Cảnh cho chữ.',
+          theme: 'Cái đẹp và thiên lương chiến thắng bóng tối, cái ác.',
+          contentVal: 'Cái đẹp gắn liền với thiên lương trong sáng; tôn vinh khí phách nghệ sĩ.',
+          artVal: 'Tình huống truyện độc đáo, tương phản sáng – tối, ngôn ngữ giàu tính điện ảnh.',
+          text: `Đêm hôm ấy, lúc trại giam tỉnh Sơn chỉ còn vẳng có tiếng mõ trên vọng canh, một cảnh tượng xưa nay chưa từng có, đã bày ra trong một buồng tối chật hẹp, ẩm ướt, tường đầy mạng nhện.\n\nÁnh sáng đỏ rực của một bó đuốc tẩm dầu rọi lên ba cái đầu người đang chăm chú trên một tấm lụa bạch.\n\nMột người tù, cổ đeo gông, chân vướng xiềng, đang dậm tô nét chữ trên tấm lụa trắng tinh.`,
+          notes: []
+        },
+        {
+          id: 'w3', title: 'Người lái đò Sông Đà (Trích)', author: 'Nguyễn Tuân', grade: 'Lớp 12', genre: 'Ký', curriculum: 'Cánh diều',
+          bio: 'Tiếp cận con người ở phương diện tài hoa nghệ sĩ và sự vật ở góc nhìn văn hóa.',
+          context: 'Năm 1960, từ chuyến đi thực tế Tây Bắc.',
+          structure: '2 hình tượng: Sông Đà hung bạo – trữ tình; Ông lái đò trí dũng, tài hoa.',
+          theme: 'Vẻ đẹp Tây Bắc và chất “vàng mười” của người lao động.',
+          contentVal: 'Chủ nghĩa anh hùng tỏa sáng trong lao động chinh phục tự nhiên.',
+          artVal: 'Tùy bút phóng túng, liên tưởng hội họa – điện ảnh – võ thuật.',
+          text: `Con Sông Đà tuôn dài tuôn dài như một áng tóc trữ tình, đầu tóc chân tóc ẩn hiện trong mây trời Tây Bắc.\n\nMùa xuân dòng xanh ngọc bích, chứ nước Sông Đà không xanh màu xanh canh hến của Sông Gâm Sông Lô. Mùa thu nước Sông Đà lừ lừ chín đỏ.`,
+          notes: []
+        }
+      ],
+      knowledge: [
+        { id: 'k1', title: 'Bút pháp bi tráng', category: 'Lý luận văn học', definition: 'Kết hợp yếu tố bi (gian khổ, mất mát) với tráng (hào hùng, lý tưởng).', example: '“Áo bào thay chiếu anh về đất / Sông Mã gầm lên khúc độc hành” (Tây Tiến).' },
+        { id: 'k2', title: 'Tình huống truyện', category: 'Thể loại văn học', definition: 'Hoàn cảnh đặc biệt làm bộc lộ tính cách nhân vật và tư tưởng tác phẩm.', example: 'Cảnh Huấn Cao cho chữ trong buồng giam.' },
+        { id: 'k3', title: 'Ẩn dụ chuyển đổi cảm giác', category: 'Biện pháp tu từ', definition: 'Cảm nhận đối tượng bằng giác quan khác để tăng sức gợi.', example: '“Sông Mã gầm lên khúc độc hành”.' },
+        { id: 'k4', title: 'Phong cách ngôn ngữ nghệ thuật', category: 'Phong cách ngôn ngữ', definition: 'Có tính hình tượng, truyền cảm và cá thể hóa cao.', example: 'Cách tả màu nước Sông Đà của Nguyễn Tuân.' }
+      ],
+      questions: [
+        { id: 'q1', workId: 'w1', type: 'mcq', prompt: 'Biện pháp tu từ nổi bật trong “Heo hút cồn mây súng ngửi trời”?', options: ['Nhân hóa', 'So sánh', 'Hoán dụ', 'Điệp ngữ'], answer: 0, exp: '“Ngửi” nhân hóa khẩu súng, vừa gợi độ cao vừa gợi nét tinh nghịch.' },
+        { id: 'q2', workId: 'w2', type: 'tf', prompt: 'Đúng/Sai: Tương phản ánh sáng – bóng tối làm nổi bật chiến thắng của cái đẹp.', options: ['Đúng', 'Sai'], answer: 0, exp: 'Đúng. Ánh lửa rọi sáng thiên lương giữa ngục tối.' },
+        { id: 'q3', workId: 'w3', type: 'short', prompt: 'Mùa xuân nước Sông Đà có màu xanh gì?', ans: 'xanh ngọc bích', exp: 'Nguyên văn: “Mùa xuân dòng xanh ngọc bích”.' },
+        { id: 'q4', workId: 'w1', type: 'essay', prompt: 'Cảm nhận vẻ đẹp bi tráng qua 2 câu: “Áo bào thay chiếu anh về đất / Sông Mã gầm lên khúc độc hành”.', ans: 'Nêu sự hy sinh gian khổ (bi) kết hợp từ Hán Việt trang trọng và âm hưởng hùng tráng (tráng).', exp: 'Cần làm rõ sự hòa quyện giữa “bi” và “tráng”.' }
+      ],
+      prompts: [
+        { id: 'p1', title: 'Vẻ đẹp bi tráng của người lính Tây Tiến', workId: 'w1', outline: ['Mở bài: Giới thiệu Quang Dũng & Tây Tiến', 'Luận điểm 1: Hiện thực gian khổ & khí phách', 'Luận điểm 2: Tâm hồn hào hoa, lãng mạn', 'Luận điểm 3: Sự hy sinh bi tráng', 'Kết bài: Giá trị trường tồn'] },
+        { id: 'p2', title: 'Sức mạnh của cái đẹp trong Chữ người tử tù', workId: 'w2', outline: ['Mở bài: Quan niệm nghệ thuật Nguyễn Tuân', 'Luận điểm 1: Không gian – thời gian nghịch lý', 'Luận điểm 2: Tư thế người cho chữ & nhận chữ', 'Luận điểm 3: Cái đẹp gắn với thiên lương', 'Kết bài: Giá trị nhân văn'] }
+      ],
+      essays: [],
+      wrong: [],
+      readIds: ['w1'],
+      docs: []
+    };
+
+    let db = JSON.parse(localStorage.getItem(KEY) || 'null') || structuredClone(SEED);
+    let curWork = null, answers = {}, timer = null, secs = 900, xRows = [];
+
+    const save = () => { localStorage.setItem(KEY, JSON.stringify(db)); renderAll(); };
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const toast = m => { const el = document.getElementById('toast'); el.textContent = m; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2200); };
+    const closeM = id => document.getElementById(id).classList.remove('open');
+
+    function emitLitContext(v) {
+      if (!window.SchoolHubAI) return;
+      const names = { home: 'Thư phòng Ngữ văn', lit: 'Tác phẩm văn học', know: 'Kiến thức Ngữ văn', prac: 'Luyện tập Ngữ văn', write: 'Luyện viết nghị luận', ai: 'Trợ lý AI Ngữ văn' };
+      const curW = curWork ? db.works.find(x => x.id === curWork) : null;
+      window.SchoolHubAI.emitContext({
+        subjectId: 'literature',
+        view: v,
+        topic: curW ? `${curW.title} (${curW.author})` : (names[v] || v),
+        summary: `Tác phẩm: ${db.works.length} · Kiến thức: ${db.knowledge.length} · Câu hỏi: ${db.questions.length} · Bài viết: ${db.essays.length}`,
+        wrongCount: db.wrong.length
+      });
+    }
+
+    function go(v) {
+      document.querySelectorAll('.view').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('v-' + v).classList.add('active');
+      document.querySelector(`.tab-btn[data-v="${v}"]`).classList.add('active');
+      emitLitContext(v);
+    }
+
+    function nextQuote() {
+      qIdx = (qIdx + 1) % QUOTES.length;
+      document.getElementById('q-text').textContent = QUOTES[qIdx].t;
+      document.getElementById('q-by').textContent = QUOTES[qIdx].b;
+    }
+
+    /* HOME */
+    function renderHome() {
+      const notes = db.works.reduce((a, w) => a + (w.notes?.length || 0), 0);
+      document.getElementById('home-stats').innerHTML = `
+        <div class="card"><div class="muted">Tác phẩm</div><div class="stat-num" style="color:var(--moss)">${db.works.length}</div><div class="muted">${db.readIds.length} đã đọc</div></div>
+        <div class="card"><div class="muted">Bút ký</div><div class="stat-num" style="color:var(--wine)">${notes}</div><div class="muted">Ghi chú &amp; đánh dấu</div></div>
+        <div class="card"><div class="muted">Kiến thức</div><div class="stat-num">${db.knowledge.length}</div><div class="muted">Chuyên đề</div></div>
+        <div class="card"><div class="muted">Bài viết</div><div class="stat-num">${db.essays.length}</div><div class="muted">${db.wrong.length} câu cần ôn</div></div>
+      `;
+      document.getElementById('home-works').innerHTML = db.works.slice(0, 3).map(w => `
+        <div class="row mt-1" style="padding:0.5rem 0; border-bottom:1px solid var(--line);">
+          <div><strong>${esc(w.title)}</strong> <span class="muted">· ${esc(w.author)}</span></div>
+          <button class="btn btn-sm" onclick="openReader('${w.id}')">Đọc</button>
+        </div>
+      `).join('');
+      const wrongQs = db.questions.filter(q => db.wrong.includes(q.id));
+      document.getElementById('home-review').innerHTML = wrongQs.length
+        ? wrongQs.map(q => `<div class="tag-wine mt-1" style="padding:0.5rem 0.7rem; border-radius:7px;">${esc(q.prompt)}</div>`).join('')
+        : `<div class="muted mt-1">Chưa có câu sai. Thử <a href="javascript:void(0)" onclick="go('prac')">làm bài luyện tập</a> để kiểm tra.</div>`;
+    }
+
+    /* LITERATURE */
+    function renderWorks() {
+      const q = document.getElementById('f-q').value.toLowerCase().trim();
+      const g = document.getElementById('f-grade').value;
+      const gn = document.getElementById('f-genre').value;
+      const c = document.getElementById('f-curr').value;
+      const list = db.works.filter(w =>
+        (!q || (w.title + w.author + w.text).toLowerCase().includes(q)) &&
+        (!g || w.grade === g) && (!gn || w.genre === gn) && (!c || w.curriculum === c)
+      );
+      document.getElementById('works-grid').innerHTML = list.map(w => `
+        <div class="card card-click">
+          <div class="row mb-1"><span class="tag tag-moss">${esc(w.grade)}</span><span class="tag">${esc(w.genre)}</span></div>
+          <h3 style="font-size:1.35rem;">${esc(w.title)}</h3>
+          <div class="muted mb-1">${esc(w.author)} · ${esc(w.curriculum)}</div>
+          <div class="row mt-2" style="border-top:1px solid var(--line); padding-top:0.65rem;">
+            <span class="muted">${w.notes?.length || 0} ghi chú</span>
+            <div class="gap">
+              <button class="btn btn-sm" onclick="openWorkModal('${w.id}')"><i data-lucide="edit-2" size="13"></i></button>
+              <button class="btn btn-sm" onclick="delWork('${w.id}')"><i data-lucide="trash-2" size="13"></i></button>
+              <button class="btn btn-sm btn-moss" onclick="openReader('${w.id}')">Đọc</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openReader(id) {
+      const w = db.works.find(x => x.id === id);
+      if (!w) return;
+      curWork = id;
+      if (!db.readIds.includes(id)) { db.readIds.push(id); save(); }
+      go('lit');
+      document.getElementById('lit-list').style.display = 'none';
+      document.getElementById('lit-read').style.display = 'block';
+      document.getElementById('r-tags').innerHTML = `<span class="tag tag-moss">${esc(w.grade)}</span><span class="tag">${esc(w.genre)}</span><span class="tag">${esc(w.curriculum)}</span>`;
+      document.getElementById('r-title').textContent = w.title;
+      document.getElementById('r-author').textContent = `${w.author} — ${w.bio || ''}`;
+      let html = esc(w.text);
+      (w.notes || []).filter(n => n.type === 'hi').forEach(h => { const s = esc(h.text); if (s) html = html.replace(s, `<mark>${s}</mark>`); });
+      document.getElementById('r-body').innerHTML = html;
+      document.getElementById('p-info').innerHTML = `<p><strong>Hoàn cảnh:</strong> ${esc(w.context || '')}</p><p class="mt-1"><strong>Bố cục:</strong> ${esc(w.structure || '')}</p>`;
+      document.getElementById('p-val').innerHTML = `<p><strong>Chủ đề:</strong> ${esc(w.theme || '')}</p><p class="mt-1"><strong>Nội dung:</strong> ${esc(w.contentVal || '')}</p><p class="mt-1"><strong>Nghệ thuật:</strong> ${esc(w.artVal || '')}</p>`;
+      renderNotes(w);
+      document.getElementById('r-edit').onclick = () => openWorkModal(w.id);
+      document.getElementById('r-prac').onclick = () => { go('prac'); document.getElementById('p-work').value = w.id; renderQuiz(); };
+      document.getElementById('r-write').onclick = () => { go('write'); document.getElementById('w-work').value = w.id; makeOutline(); };
+      document.getElementById('r-ai').onclick = () => { go('ai'); document.getElementById('ai-work').value = w.id; askAI(`Phân tích tác phẩm "${w.title}" (${w.author})`); };
+      rTab('info');
+    }
+
+    function closeReader() {
+      document.getElementById('lit-read').style.display = 'none';
+      document.getElementById('lit-list').style.display = 'block';
+      curWork = null;
+    }
+
+    function rTab(t) {
+      ['info', 'val', 'notes'].forEach(k => document.getElementById('p-' + k).style.display = k === t ? 'block' : 'none');
+    }
+
+    function markSelection() {
+      const sel = window.getSelection().toString().trim();
+      if (!sel) return toast('Bôi đen đoạn cần đánh dấu trước');
+      const w = db.works.find(x => x.id === curWork);
+      w.notes = w.notes || [];
+      w.notes.push({ type: 'hi', text: sel });
+      save(); openReader(curWork); toast('Đã đánh dấu');
+    }
+
+    function addNote() {
+      const val = document.getElementById('note-in').value.trim();
+      if (!val) return;
+      const w = db.works.find(x => x.id === curWork);
+      w.notes = w.notes || [];
+      w.notes.push({ type: 'note', text: val });
+      document.getElementById('note-in').value = '';
+      save(); renderNotes(w); toast('Đã lưu bút ký');
+    }
+
+    function renderNotes(w) {
+      document.getElementById('notes-box').innerHTML = (w.notes || []).map((n, i) => `
+        <div class="row mt-1" style="background:var(--paper); padding:0.45rem 0.65rem; border-radius:6px;">
+          <span><span class="tag ${n.type === 'hi' ? 'tag-wine' : 'tag-moss'}">${n.type === 'hi' ? 'Trích' : 'Note'}</span> ${esc(n.text)}</span>
+          <button class="btn btn-sm" onclick="delNote(${i})">×</button>
+        </div>
+      `).join('');
+    }
+
+    function delNote(i) {
+      const w = db.works.find(x => x.id === curWork);
+      w.notes.splice(i, 1); save(); openReader(curWork);
+    }
+
+    function openWorkModal(id = '') {
+      document.getElementById('wm-id').value = id;
+      document.getElementById('wm-title').textContent = id ? 'Sửa tác phẩm' : 'Thêm tác phẩm';
+      const w = db.works.find(x => x.id === id) || {};
+      ['t','a','b','ctx','str','thm','cv','av','txt'].forEach(k => {
+        const map = { t:'title', a:'author', b:'bio', ctx:'context', str:'structure', thm:'theme', cv:'contentVal', av:'artVal', txt:'text' };
+        document.getElementById('wf-' + k).value = w[map[k]] || '';
+      });
+      if (w.grade) document.getElementById('wf-g').value = w.grade;
+      if (w.genre) document.getElementById('wf-gn').value = w.genre;
+      if (w.curriculum) document.getElementById('wf-c').value = w.curriculum;
+      document.getElementById('m-work').classList.add('open');
+    }
+
+    function saveWork() {
+      const title = document.getElementById('wf-t').value.trim();
+      const author = document.getElementById('wf-a').value.trim();
+      const text = document.getElementById('wf-txt').value.trim();
+      if (!title || !author || !text) return toast('Nhập đủ tên, tác giả và văn bản');
+      const data = {
+        title, author, text,
+        grade: document.getElementById('wf-g').value,
+        genre: document.getElementById('wf-gn').value,
+        curriculum: document.getElementById('wf-c').value,
+        bio: document.getElementById('wf-b').value.trim(),
+        context: document.getElementById('wf-ctx').value.trim(),
+        structure: document.getElementById('wf-str').value.trim(),
+        theme: document.getElementById('wf-thm').value.trim(),
+        contentVal: document.getElementById('wf-cv').value.trim(),
+        artVal: document.getElementById('wf-av').value.trim()
+      };
+      const id = document.getElementById('wm-id').value;
+      if (id) {
+        const idx = db.works.findIndex(x => x.id === id);
+        db.works[idx] = { ...db.works[idx], ...data };
+      } else {
+        db.works.unshift({ id: 'w_' + Date.now(), ...data, notes: [] });
+      }
+      save(); closeM('m-work'); toast('Đã lưu');
+    }
+
+    function delWork(id) {
+      if (!confirm('Xóa tác phẩm này?')) return;
+      db.works = db.works.filter(x => x.id !== id); save();
+    }
+
+    /* KNOWLEDGE */
+    function renderKnow() {
+      const q = document.getElementById('k-q').value.toLowerCase().trim();
+      const c = document.getElementById('k-cat').value;
+      const list = db.knowledge.filter(k => (!q || (k.title + k.definition + k.example).toLowerCase().includes(q)) && (!c || k.category === c));
+      document.getElementById('know-grid').innerHTML = list.map(k => `
+        <div class="card">
+          <span class="tag tag-moss">${esc(k.category)}</span>
+          <h3 class="mt-1" style="font-size:1.3rem;">${esc(k.title)}</h3>
+          <p class="mt-1">${esc(k.definition)}</p>
+          <div class="muted mt-1" style="background:var(--paper); padding:0.55rem 0.75rem; border-radius:6px;"><em>VD:</em> ${esc(k.example)}</div>
+        </div>
+      `).join('');
+    }
+
+    function openKnowModal() { document.getElementById('m-know').classList.add('open'); }
+    function saveKnow() {
+      const title = document.getElementById('kf-t').value.trim();
+      const definition = document.getElementById('kf-d').value.trim();
+      if (!title || !definition) return toast('Nhập tên và nội dung');
+      db.knowledge.unshift({ id: 'k_' + Date.now(), title, category: document.getElementById('kf-c').value, definition, example: document.getElementById('kf-e').value.trim() });
+      save(); closeM('m-know'); toast('Đã thêm kiến thức');
+    }
+
+    /* PRACTICE */
+    function startTimer() {
+      clearInterval(timer); secs = 900; answers = {};
+      document.getElementById('score-box').style.display = 'none';
+      renderQuiz();
+      timer = setInterval(() => {
+        secs--;
+        document.getElementById('timer').textContent = `${String(Math.floor(secs/60)).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}`;
+        if (secs <= 0) { clearInterval(timer); gradeQuiz(); }
+      }, 1000);
+    }
+
+    function renderQuiz(graded = false) {
+      const wf = document.getElementById('p-work').value;
+      const tf = document.getElementById('p-type').value;
+      const list = db.questions.filter(q => (!wf || q.workId === wf) && (!tf || q.type === tf));
+      document.getElementById('quiz-list').innerHTML = list.map((q, i) => {
+        let body = '';
+        if (q.type === 'mcq' || q.type === 'tf') {
+          body = (q.options || []).map((o, idx) => {
+            let cls = 'opt';
+            if (answers[q.id] === idx) cls += ' sel';
+            if (graded) { if (idx === q.answer) cls += ' ok'; else if (answers[q.id] === idx) cls += ' bad'; }
+            return `<div class="${cls}" onclick="pickOpt('${q.id}',${idx})"><strong>${String.fromCharCode(65+idx)}.</strong> ${esc(o)}</div>`;
+          }).join('');
+        } else if (q.type === 'short') {
+          body = `<input type="text" value="${esc(answers[q.id] || '')}" placeholder="Đáp án ngắn..." oninput="answers['${q.id}']=this.value" />`;
+        } else {
+          body = `<textarea rows="3" placeholder="Viết đoạn phân tích..." oninput="answers['${q.id}']=this.value">${esc(answers[q.id] || '')}</textarea>`;
+        }
+        const sol = graded ? `<div class="muted mt-1" style="background:var(--paper); padding:0.6rem 0.8rem; border-radius:6px;">${q.ans ? `<strong>Gợi ý:</strong> ${esc(q.ans)} · ` : ''}${esc(q.exp)}</div>` : '';
+        return `<div class="card mb-2"><div class="row mb-1"><span class="tag tag-moss">Câu ${i+1}</span><span class="muted">${q.type.toUpperCase()}</span></div><p class="mb-1"><strong>${esc(q.prompt)}</strong></p>${body}${sol}</div>`;
+      }).join('');
+    }
+
+    function pickOpt(qid, idx) { answers[qid] = idx; renderQuiz(false); }
+
+    function gradeQuiz() {
+      clearInterval(timer);
+      let ok = 0, tot = 0; const bad = [];
+      db.questions.forEach(q => {
+        if (q.type === 'mcq' || q.type === 'tf') {
+          tot++; if (answers[q.id] === q.answer) ok++; else bad.push(q.id);
+        } else if (q.type === 'short') {
+          tot++; if ((answers[q.id] || '').trim().toLowerCase().includes((q.ans || '').toLowerCase())) ok++; else bad.push(q.id);
+        }
+      });
+      db.wrong = bad; save();
+      const sb = document.getElementById('score-box');
+      sb.style.display = 'block';
+      sb.innerHTML = `<strong>Kết quả: ${ok}/${tot} câu khách quan</strong> — Các câu sai đã lưu vào mục Cần ôn tập.`;
+      renderQuiz(true);
+    }
+
+    /* WRITING */
+    function pickPrompt() {
+      const p = db.prompts.find(x => x.id === document.getElementById('w-prompt').value);
+      if (!p) return;
+      document.getElementById('w-title').value = p.title;
+      if (p.workId) document.getElementById('w-work').value = p.workId;
+      document.getElementById('w-out').innerHTML = `<ul style="padding-left:1.1rem;">${p.outline.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+      renderQuotes();
+    }
+
+    function makeOutline() {
+      const w = db.works.find(x => x.id === document.getElementById('w-work').value);
+      const t = document.getElementById('w-title').value.trim();
+      renderQuotes();
+      document.getElementById('w-out').innerHTML = w
+        ? `<ul style="padding-left:1.1rem;"><li><strong>Mở bài:</strong> ${esc(w.title)} – ${esc(w.author)}</li><li><strong>Luận điểm 1 (Bố cục):</strong> ${esc(w.structure)}</li><li><strong>Luận điểm 2 (Nội dung):</strong> ${esc(w.theme)}</li><li><strong>Luận điểm 3 (Nghệ thuật):</strong> ${esc(w.artVal)}</li><li><strong>Kết bài:</strong> Giá trị &amp; dư âm</li></ul>`
+        : `<ul style="padding-left:1.1rem;"><li><strong>Mở bài:</strong> ${esc(t || 'Nêu vấn đề')}</li><li><strong>Thân bài:</strong> Giải thích – Chứng minh – Bình luận</li><li><strong>Kết bài:</strong> Khẳng định &amp; liên hệ</li></ul>`;
+    }
+
+    function renderQuotes() {
+      const w = db.works.find(x => x.id === document.getElementById('w-work').value);
+      if (!w) { document.getElementById('w-quo').innerHTML = '<span class="muted">Chọn tác phẩm để lấy dẫn chứng.</span>'; return; }
+      const parts = w.text.split(/\n\s*\n/).filter(Boolean);
+      document.getElementById('w-quo').innerHTML = parts.map((p, i) => `
+        <div class="mt-1" style="background:var(--paper); padding:0.55rem 0.75rem; border-radius:6px;">
+          <div style="font-family:var(--f-lit); font-style:italic; white-space:pre-line;">${esc(p.trim())}</div>
+          <button class="btn btn-sm btn-moss mt-1" onclick="insQuote(${i})">+ Chèn</button>
+        </div>
+      `).join('');
+    }
+
+    function insQuote(i) {
+      const w = db.works.find(x => x.id === document.getElementById('w-work').value);
+      const q = w.text.split(/\n\s*\n/).filter(Boolean)[i];
+      const ed = document.getElementById('w-editor');
+      ed.value += (ed.value ? '\n' : '') + `“${q.trim()}” (${w.title})\n`;
+      countWords();
+    }
+
+    function wSub(t) {
+      ['out', 'quo', 'sav'].forEach(k => document.getElementById('w-' + k).style.display = k === t ? 'block' : 'none');
+      if (t === 'quo') renderQuotes();
+      if (t === 'sav') {
+        document.getElementById('w-sav').innerHTML = db.essays.length
+          ? db.essays.map((e, idx) => `<div class="row mt-1" style="border-bottom:1px solid var(--line); padding-bottom:0.4rem;"><strong>${esc(e.title)}</strong><button class="btn btn-sm" onclick="loadEssay(${idx})">Mở</button></div>`).join('')
+          : '<span class="muted">Chưa có bài lưu.</span>';
+      }
+    }
+
+    function loadEssay(i) { document.getElementById('w-title').value = db.essays[i].title; document.getElementById('w-editor').value = db.essays[i].body; countWords(); }
+    function countWords() {
+      const v = document.getElementById('w-editor').value.trim();
+      const wc = v ? v.split(/\s+/).length : 0;
+      const pc = v ? v.split(/\n+/).filter(Boolean).length : 0;
+      document.getElementById('w-stat').textContent = `${wc} từ · ${pc} đoạn`;
+    }
+
+    function checkEssay() {
+      const v = document.getElementById('w-editor').value.trim();
+      if (!v) return toast('Chưa có nội dung');
+      const box = document.getElementById('w-check');
+      box.style.display = 'block';
+      const paras = v.split(/\n+/).filter(Boolean).length;
+      const hasQuote = /["“”]/.test(v);
+      box.innerHTML = `<strong>Nhận xét nhanh:</strong> ${paras} đoạn · ${hasQuote ? 'Có dẫn chứng trích dẫn' : 'Nên thêm dẫn chứng nguyên văn'} · Nên tách rõ Mở – Thân – Kết.`;
+    }
+
+    function saveEssay() {
+      const body = document.getElementById('w-editor').value.trim();
+      if (!body) return toast('Bài viết trống');
+      db.essays.unshift({ title: document.getElementById('w-title').value.trim() || 'Bài viết', body });
+      save(); toast('Đã lưu bài viết');
+    }
+
+    function exportEssay() {
+      const body = document.getElementById('w-editor').value.trim();
+      if (!body) return toast('Bài viết trống');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([body], { type: 'text/plain;charset=utf-8' }));
+      a.download = 'bai-viet.txt'; a.click();
+    }
+
+    function essayToAI() {
+      const body = document.getElementById('w-editor').value.trim();
+      if (!body) return toast('Bài viết trống');
+      go('ai');
+      askAI(`Góp ý lập luận và diễn đạt cho bài viết:\n${body.slice(0, 2000)}`, 'writing_feedback');
+    }
+
+    /* AI */
+    let aiHistory = [];
+    let aiImage = null;
+    let aiBusy = false;
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result || ''));
+        r.onerror = () => reject(new Error('Không đọc được tệp.'));
+        r.readAsDataURL(file);
+      });
+    }
+
+    function fmtAiHtml(raw) {
+      if (window.SchoolHubAI && window.SchoolHubAI.renderMarkdown) {
+        return window.SchoolHubAI.renderMarkdown(raw);
+      }
+      return esc(String(raw || ''))
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+    }
+
+    async function uploadDoc(ev) {
+      const f = ev.target.files[0]; if (!f) return;
+      try {
+        if (f.type.startsWith('image/')) {
+          const dataUrl = await readFileAsDataUrl(f);
+          aiImage = { name: f.name, mimeType: f.type, dataBase64: dataUrl };
+          renderDocs();
+          toast(`Đã đính kèm ảnh "${f.name}" cho Trợ lý AI`);
+          return;
+        }
+        let txt = '';
+        if (f.name.toLowerCase().endsWith('.pdf') || f.name.toLowerCase().endsWith('.docx')) {
+          toast('Đang trích xuất nội dung tài liệu...');
+          const dataBase64 = await readFileAsDataUrl(f);
+          const res = await fetch('/api/literature/parse-document', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileName: f.name, mimeType: f.type, fileBase64: dataBase64 }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.error || 'Không trích xuất được nội dung tài liệu.');
+          }
+          txt = data.text || '';
+        } else {
+          txt = await f.text();
+        }
+        db.docs.push({ name: f.name, text: (txt || `[Tệp: ${f.name}]`).slice(0, 6000) });
+        save();
+        toast('Đã tải tài liệu');
+      } catch (err) {
+        toast(err && err.message ? err.message : 'Không thể đọc tài liệu');
+      }
+    }
+
+    function renderDocs() {
+      document.getElementById('ai-docs').innerHTML = db.docs.map((d, i) => `
+        <div class="row mt-1" style="background:var(--moss-bg); color:var(--moss); padding:0.3rem 0.55rem; border-radius:6px;">
+          <span>${esc(d.name)}</span><button class="btn btn-sm" onclick="db.docs.splice(${i},1);save()">×</button>
+        </div>
+      `).join('');
+      const imgBadge = document.getElementById('ai-img-badge');
+      if (imgBadge) {
+        imgBadge.innerHTML = aiImage ? `
+          <div class="row mt-1" style="background:var(--wine-bg); color:var(--wine); padding:0.3rem 0.55rem; border-radius:6px;">
+            <span>📷 ${esc(aiImage.name)}</span><button class="btn btn-sm" onclick="aiImage=null;renderDocs()">×</button>
+          </div>
+        ` : '';
+      }
+    }
+
+    function resetChat() {
+      aiHistory = [];
+      aiImage = null;
+      renderDocs();
+      document.getElementById('ai-log').innerHTML = '<div class="bubble a">Đã làm mới hội thoại. Hãy chọn tác phẩm hoặc đặt câu hỏi cho Trợ lý Gemini Ngữ văn.</div>';
+    }
+
+    function askAI(m, mode) {
+      if (mode) {
+        const modeEl = document.getElementById('ai-mode');
+        if (modeEl) modeEl.value = mode;
+      }
+      document.getElementById('ai-in').value = m;
+      sendAI();
+    }
+
+    function buildLiteratureContext() {
+      const parts = [];
+      const w = db.works.find(x => x.id === document.getElementById('ai-work').value);
+      if (w) {
+        parts.push([
+          `Tác phẩm đang chọn: ${w.title} (${w.author || 'Không rõ tác giả'})`,
+          `Thể loại: ${w.genre || ''} · Chương trình: ${w.curriculum || ''} · Lớp: ${w.grade || ''}`,
+          w.theme ? `Chủ đề: ${w.theme}` : '',
+          w.contentVal ? `Giá trị nội dung: ${w.contentVal}` : '',
+          w.artVal ? `Giá trị nghệ thuật: ${w.artVal}` : '',
+          w.text ? `Văn bản trích dẫn:\n${w.text.slice(0, 4500)}` : ''
+        ].filter(Boolean).join('\n'));
+      }
+      if (db.docs.length) {
+        db.docs.slice(-3).forEach(d => {
+          parts.push(`[Tài liệu đính kèm: ${d.name}]\n${String(d.text || '').slice(0, 3000)}`);
+        });
+      }
+      return parts.join('\n\n').slice(0, 15000);
+    }
+
+    async function sendAI() {
+      if (aiBusy) return;
+      const inp = document.getElementById('ai-in');
+      const msg = (inp ? inp.value : '').trim();
+      if (!msg && !aiImage) return toast('Vui lòng nhập câu hỏi hoặc đính kèm ảnh đề bài.');
+      const userPrompt = msg || `Phân tích nội dung trong ảnh đính kèm (${aiImage.name}).`;
+      const log = document.getElementById('ai-log');
+      const sendBtn = document.getElementById('ai-send');
+      const modeEl = document.getElementById('ai-mode');
+      const mode = modeEl ? modeEl.value : 'tutor_chat';
+
+      if (inp) inp.value = '';
+      aiHistory.push({ role: 'user', content: userPrompt });
+      log.innerHTML += `<div class="bubble u">${esc(userPrompt).replace(/\n/g, '<br>')}</div>`;
+      const waitId = 'ai-wait-' + Date.now();
+      log.innerHTML += `<div class="bubble a" id="${waitId}">Đang phân tích bằng Gemini AI...</div>`;
+      log.scrollTop = log.scrollHeight;
+
+      const imgToSend = aiImage ? { mimeType: aiImage.mimeType, dataBase64: aiImage.dataBase64 } : null;
+      aiImage = null;
+      renderDocs();
+      aiBusy = true;
+      if (sendBtn) sendBtn.disabled = true;
+
+      try {
+        let replyText = '';
+        const waitEl = document.getElementById(waitId);
+        if (window.SchoolHubAI && window.SchoolHubAI.streamAssist) {
+          replyText = await window.SchoolHubAI.streamAssist({
+            subjectId: 'literature',
+            mode,
+            messages: aiHistory.slice(-10),
+            contextText: buildLiteratureContext(),
+            image: imgToSend,
+            onDelta: (_delta, full) => {
+              if (waitEl) waitEl.innerHTML = fmtAiHtml(full);
+              log.scrollTop = log.scrollHeight;
+            },
+          });
+        } else {
+          const res = await fetch('/api/ai/subject-assist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              subjectId: 'literature',
+              mode,
+              messages: aiHistory.slice(-10),
+              contextText: buildLiteratureContext(),
+              image: imgToSend,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.text) {
+            throw new Error(data.error || 'Không thể kết nối Trợ lý AI lúc này.');
+          }
+          replyText = data.text;
+        }
+        aiHistory.push({ role: 'assistant', content: replyText });
+        if (waitEl) {
+          waitEl.removeAttribute('id');
+          waitEl.innerHTML = fmtAiHtml(replyText);
+        }
+      } catch (err) {
+        const waitEl = document.getElementById(waitId);
+        if (waitEl) {
+          waitEl.className = 'bubble err';
+          waitEl.textContent = `⚠ ${err && err.message ? err.message : 'Không thể kết nối Trợ lý AI lúc này.'}`;
+        }
+      } finally {
+        aiBusy = false;
+        if (sendBtn) sendBtn.disabled = false;
+        log.scrollTop = log.scrollHeight;
+      }
+    }
+
+    async function genLitQuizAI() {
+      if (!window.SchoolHubAI) return toast('Chưa nạp cầu nối AI.');
+      const selWorkId = document.getElementById('p-work')?.value || '';
+      const w = db.works.find(x => x.id === selWorkId) || db.works[0];
+      const topic = w ? `${w.title} (${w.author})` : prompt('Nhập chủ đề/tác phẩm Ngữ văn muốn AI tạo câu hỏi:', 'Nghị luận văn học & Biện pháp tu từ');
+      if (!topic) return;
+      const btn = document.getElementById('lit-ai-q');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang tạo đề...'; }
+      try {
+        const res = await window.SchoolHubAI.generateQuiz({
+          subjectId: 'literature',
+          topic,
+          count: 4,
+          contextText: w ? `${w.title} - ${w.author}\nChủ đề: ${w.theme}\nNghệ thuật: ${w.artVal}\n${w.text.slice(0, 2000)}` : '',
+        });
+        const qs = Array.isArray(res.questions) ? res.questions : [];
+        if (!qs.length) return toast('AI chưa tạo được câu hỏi.');
+        qs.forEach((q, idx) => {
+          db.questions.unshift({
+            id: 'q_ai_' + Date.now() + '_' + idx,
+            workId: w ? w.id : '',
+            type: 'mcq',
+            prompt: q.question,
+            options: q.options || [],
+            answer: Math.max(0, Number(q.correctIndex) || 0),
+            exp: q.explanation || '',
+          });
+        });
+        save();
+        toast(`Đã tạo ${qs.length} câu hỏi Ngữ văn bằng AI!`);
+      } catch (err) {
+        toast('Lỗi AI: ' + (err && err.message ? err.message : 'Không tạo được câu hỏi'));
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="sparkles" size="15"></i>Sinh câu hỏi AI';
+          lucide.createIcons();
+        }
+      }
+    }
+
+    /* EXCEL */
+    const TPL = {
+      literature: { name: 'mau_tac_pham.xlsx', hint: 'Cột: TenTacPham, TacGia, Lop, TheLoai, ChuongTrinh, ChuDe, GiaTriNoiDung, GiaTriNgheThuat, VanBan', row: [{ TenTacPham: 'Việt Bắc', TacGia: 'Tố Hữu', Lop: 'Lớp 12', TheLoai: 'Thơ', ChuongTrinh: 'Kết nối tri thức', ChuDe: 'Nghĩa tình cách mạng', GiaTriNoiDung: 'Khúc tình ca, hùng ca', GiaTriNgheThuat: 'Thể lục bát', VanBan: 'Mình về mình có nhớ ta...' }] },
+      knowledge: { name: 'mau_kien_thuc.xlsx', hint: 'Cột: TenKienThuc, ChuyenDe, NoiDung, ViDu', row: [{ TenKienThuc: 'Điệp từ', ChuyenDe: 'Biện pháp tu từ', NoiDung: 'Lặp lại từ ngữ nhấn mạnh', ViDu: 'Nhớ...' }] },
+      practice: { name: 'mau_luyen_tap.xlsx', hint: 'Cột: MaTacPham, DangCauHoi (mcq/tf/short/essay), CauHoi, LuaChonA, LuaChonB, DapAnDung, GiaiThich', row: [{ MaTacPham: 'w1', DangCauHoi: 'mcq', CauHoi: 'Năm sáng tác Tây Tiến?', LuaChonA: '1948', LuaChonB: '1954', DapAnDung: 0, GiaiThich: 'Cuối 1948' }] },
+      writing: { name: 'mau_luyen_viet.xlsx', hint: 'Cột: DeBai, MaTacPham, DanY (cách nhau bởi |)', row: [{ DeBai: 'Phân tích Tây Tiến', MaTacPham: 'w1', DanY: 'Mở bài | Thân bài | Kết bài' }] }
+    };
+
+    function openExcel(mod) { document.getElementById('x-mod').value = mod; document.getElementById('x-prev').style.display = 'none'; document.getElementById('x-file').value = ''; xHint(); document.getElementById('m-excel').classList.add('open'); }
+    function xHint() { document.getElementById('x-hint').textContent = TPL[document.getElementById('x-mod').value].hint; }
+    function dlTemplate() { const t = TPL[document.getElementById('x-mod').value]; const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(t.row), 'Mau'); XLSX.writeFile(wb, t.name); }
+
+    function readExcel(ev) {
+      const f = ev.target.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = e => {
+        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        xRows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+        if (!xRows.length) return toast('File trống');
+        document.getElementById('x-prev').style.display = 'block';
+        document.getElementById('x-cnt').textContent = `${xRows.length} dòng`;
+        const cols = Object.keys(xRows[0]);
+        document.getElementById('x-tbl').innerHTML = `<thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${xRows.map((row,ri)=>`<tr>${cols.map(c=>`<td contenteditable="true" onblur="xRows[${ri}]['${c}']=this.innerText">${esc(row[c])}</td>`).join('')}</tr>`).join('')}</tbody>`;
+      };
+      r.readAsArrayBuffer(f);
+    }
+
+    function saveExcel() {
+      const m = document.getElementById('x-mod').value;
+      xRows.forEach((r, i) => {
+        if (m === 'literature') db.works.unshift({ id: 'w_'+Date.now()+i, title: r.TenTacPham||'Mới', author: r.TacGia||'', grade: r.Lop||'Lớp 12', genre: r.TheLoai||'Thơ', curriculum: r.ChuongTrinh||'Kết nối tri thức', theme: r.ChuDe||'', contentVal: r.GiaTriNoiDung||'', artVal: r.GiaTriNgheThuat||'', text: r.VanBan||'', notes: [] });
+        if (m === 'knowledge') db.knowledge.unshift({ id: 'k_'+Date.now()+i, title: r.TenKienThuc||'Mới', category: r.ChuyenDe||'Lý luận văn học', definition: r.NoiDung||'', example: r.ViDu||'' });
+        if (m === 'practice') db.questions.unshift({ id: 'q_'+Date.now()+i, workId: r.MaTacPham||'', type: r.DangCauHoi||'mcq', prompt: r.CauHoi||'', options: [r.LuaChonA, r.LuaChonB].filter(Boolean), answer: Number(r.DapAnDung)||0, ans: String(r.DapAnDung||''), exp: r.GiaiThich||'' });
+        if (m === 'writing') db.prompts.unshift({ id: 'p_'+Date.now()+i, title: r.DeBai||'Đề mới', workId: r.MaTacPham||'', outline: String(r.DanY||'').split('|').map(s=>s.trim()).filter(Boolean) });
+      });
+      save(); closeM('m-excel'); toast('Đã nhập dữ liệu');
+    }
+
+    function renderAll() {
+      const wOpts = db.works.map(w => `<option value="${w.id}">${esc(w.title)}</option>`).join('');
+      document.getElementById('p-work').innerHTML = '<option value="">Tất cả tác phẩm</option>' + wOpts;
+      document.getElementById('w-work').innerHTML = '<option value="">Chọn tác phẩm...</option>' + wOpts;
+      document.getElementById('ai-work').innerHTML = '<option value="">-- Tác phẩm --</option>' + wOpts;
+      document.getElementById('w-prompt').innerHTML = '<option value="">-- Đề mẫu --</option>' + db.prompts.map(p => `<option value="${p.id}">${esc(p.title)}</option>`).join('');
+      renderHome(); renderWorks(); renderKnow(); renderQuiz(); renderDocs();
+    }
+
+    if (window.SchoolHubAI) {
+      window.SchoolHubAI.onHostCommand((msg) => {
+        if (msg.type === 'host:inject-quiz' && msg.payload && Array.isArray(msg.payload.questions)) {
+          msg.payload.questions.forEach((q, idx) => {
+            db.questions.unshift({
+              id: 'q_host_' + Date.now() + '_' + idx,
+              workId: curWork || '',
+              type: 'mcq',
+              prompt: q.question,
+              options: Array.isArray(q.options) ? q.options : [],
+              answer: Math.max(0, Number(q.correctIndex) || 0),
+              exp: q.explanation || '',
+            });
+          });
+          save();
+          go('prac');
+          toast(`Đã nạp ${msg.payload.questions.length} câu hỏi AI vào Luyện tập.`);
+        } else if (msg.type === 'host:inject-cards' && msg.payload && Array.isArray(msg.payload.cards)) {
+          msg.payload.cards.forEach((c, idx) => {
+            db.knowledge.unshift({
+              id: 'k_host_' + Date.now() + '_' + idx,
+              title: c.front,
+              category: 'Lý luận văn học',
+              definition: c.back,
+              example: c.example || c.tip || '',
+            });
+          });
+          save();
+          go('know');
+          toast(`Đã nạp ${msg.payload.cards.length} kiến thức AI.`);
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { renderAll(); lucide.createIcons(); emitLitContext('home'); });
+  </script>
+</body>
+</html>

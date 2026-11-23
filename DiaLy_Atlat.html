@@ -1,0 +1,3315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Địa Lý – Atlat &amp; Khám phá</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F6F4EC;
+      --paper: #EDEADF;
+      --card: #FFFFFF;
+      --ink: #13222B;
+      --muted: #52646E;
+      --ocean: #0B4F6C;
+      --ocean-bg: #E5F1F5;
+      --moss: #2D6A4F;
+      --moss-bg: #E6F2EC;
+      --sand: #9C7A4C;
+      --sand-bg: #F4EFE4;
+      --danger: #B84A39;
+      --danger-bg: #FBECE9;
+      --line: #D8D3C4;
+      --r: 8px;
+      --f-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --f-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0D171D;
+      --paper: #14222A;
+      --card: #111D24;
+      --ink: #E8F0F2;
+      --muted: #93A7B2;
+      --ocean: #38BDF8;
+      --ocean-bg: rgba(56, 189, 248, 0.14);
+      --moss: #34D399;
+      --moss-bg: rgba(52, 211, 153, 0.14);
+      --sand: #D4A373;
+      --sand-bg: rgba(212, 163, 115, 0.14);
+      --danger: #F87171;
+      --danger-bg: rgba(248, 113, 113, 0.14);
+      --line: #233743;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(to right, rgba(11, 79, 108, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(11, 79, 108, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: var(--ink);
+      font-family: var(--f-ui);
+      font-size: 13.5px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+    h1, h2, h3 { font-weight: 700; letter-spacing: -0.015em; }
+
+    /* Compact Header */
+    header {
+      position: sticky; top: 0; z-index: 40;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-wrap {
+      max-width: 1220px; margin: 0 auto; padding: 0.48rem 0.9rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none; }
+    .compass-mark {
+      width: 28px; height: 28px; border: 1.5px solid var(--ocean); border-radius: 7px;
+      display: grid; place-items: center; color: var(--ocean); background: var(--ocean-bg);
+    }
+    .brand-title { font-size: 1.05rem; font-weight: 800; line-height: 1.05; }
+    .brand-sub { font-size: 0.66rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+    nav.main-nav { display: flex; align-items: center; gap: 0.2rem; flex-wrap: wrap; }
+    .nav-btn {
+      background: transparent; border: 1px solid transparent; padding: 0.36rem 0.62rem; border-radius: 6px;
+      color: var(--muted); font-family: var(--f-ui); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 0.32rem; white-space: nowrap;
+      transition: background-color 0.12s ease, color 0.12s ease;
+    }
+    .nav-btn:hover { background: var(--paper); color: var(--ink); }
+    .nav-btn.active { background: var(--ocean); color: #fff; }
+    :root[data-theme="dark"] .nav-btn.active { color: #081217; }
+    .nav-btn.ai-tab.active { background: var(--moss); color: #fff; }
+    :root[data-theme="dark"] .nav-btn.ai-tab.active { color: #06140D; }
+
+    main { max-width: 1220px; margin: 0 auto; padding: 1rem 0.9rem 2.5rem; }
+    .view { display: none; animation: fadeIn 0.18s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap;
+      padding-bottom: 0.55rem; margin-bottom: 0.85rem; border-bottom: 1px solid var(--line);
+    }
+    .section-head h1 { font-size: 1.28rem; line-height: 1.15; }
+    .section-head .sub { font-size: 0.76rem; color: var(--muted); margin-top: 0.1rem; }
+    .btn-row { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+
+    /* Buttons & Inputs */
+    .btn {
+      background: var(--card); border: 1px solid var(--line); color: var(--ink);
+      padding: 0.38rem 0.7rem; border-radius: 6px; font-family: var(--f-ui);
+      font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.32rem; white-space: nowrap;
+      transition: background-color 0.12s ease, border-color 0.12s ease;
+    }
+    .btn:hover { background: var(--paper); border-color: var(--ocean); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-ocean { background: var(--ocean); border-color: var(--ocean); color: #fff; }
+    :root[data-theme="dark"] .btn-ocean { color: #071318; }
+    .btn-ocean:hover { filter: brightness(0.92); background: var(--ocean); }
+    .btn-moss { background: var(--moss); border-color: var(--moss); color: #fff; }
+    :root[data-theme="dark"] .btn-moss { color: #07140D; }
+    .btn-moss:hover { filter: brightness(0.92); background: var(--moss); }
+    .btn-sand { background: var(--sand); border-color: var(--sand); color: #fff; }
+    .btn-sand:hover { filter: brightness(0.92); background: var(--sand); }
+    .btn-danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, var(--line)); }
+    .btn-sm { padding: 0.25rem 0.52rem; font-size: 0.72rem; }
+    .btn-xs { padding: 0.18rem 0.42rem; font-size: 0.69rem; }
+
+    input, select, textarea {
+      width: 100%; padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 6px;
+      background: var(--card); color: var(--ink); font-family: var(--f-ui); font-size: 0.8rem;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ocean); }
+    label.lbl { display: block; font-size: 0.72rem; font-weight: 600; color: var(--muted); margin-bottom: 0.2rem; }
+
+    /* Cards & Layout */
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 0.8rem 0.9rem; position: relative;
+    }
+    .card-click { cursor: pointer; transition: border-color 0.14s ease; }
+    .card-click:hover { border-color: var(--ocean); }
+    .card-active { border-color: var(--ocean); background: color-mix(in srgb, var(--ocean-bg) 35%, var(--card)); }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.65rem; }
+    .grid-2 > *, .grid-3 > *, .grid-4 > *, .atlas-shell > *, .split-knowledge > *, .ai-layout > * { min-width: 0; }
+    @media (max-width: 920px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 640px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 0.68rem 0.85rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    }
+    .kpi-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+    .kpi-val { font-size: 1.35rem; font-weight: 700; line-height: 1.1; margin-top: 0.12rem; }
+    .kpi-icon {
+      width: 32px; height: 32px; border-radius: 7px; display: grid; place-items: center;
+      background: var(--ocean-bg); color: var(--ocean); flex-shrink: 0;
+    }
+
+    .tag {
+      display: inline-flex; align-items: center; gap: 0.22rem; font-size: 0.7rem; font-weight: 600;
+      padding: 0.12rem 0.42rem; border-radius: 5px; background: var(--paper); color: var(--muted);
+      border: 1px solid var(--line); white-space: nowrap;
+    }
+    .tag-ocean { background: var(--ocean-bg); color: var(--ocean); border-color: transparent; }
+    .tag-moss { background: var(--moss-bg); color: var(--moss); border-color: transparent; }
+    .tag-sand { background: var(--sand-bg); color: var(--sand); border-color: transparent; }
+    .tag-danger { background: var(--danger-bg); color: var(--danger); border-color: transparent; }
+    .meta-line { font-size: 0.74rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+
+    .empty-box {
+      background: var(--card); border: 1px dashed var(--ocean); border-radius: var(--r);
+      padding: 1.3rem 1rem; text-align: center; max-width: 560px; margin: 0.5rem auto;
+    }
+    .empty-box h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .empty-box p { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: grid; grid-template-columns: 1.5fr repeat(4, minmax(105px, 1fr)) auto; gap: 0.45rem;
+      margin-bottom: 0.85rem; align-items: center;
+    }
+    @media (max-width: 920px) {
+      .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filter-bar input[type="search"] { grid-column: 1 / -1; }
+    }
+
+    /* Split Panes */
+    .split-knowledge { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 0.85rem; align-items: start; }
+    @media (max-width: 900px) { .split-knowledge { grid-template-columns: 1fr; } }
+
+    .lesson-list { display: flex; flex-direction: column; gap: 0.45rem; max-height: 620px; overflow-y: auto; }
+    .reader-section { margin-top: 0.65rem; padding-top: 0.6rem; border-top: 1px solid var(--line); }
+    .reader-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ocean); margin-bottom: 0.22rem; }
+    .quote-item {
+      background: var(--sand-bg); border: 1px solid var(--line); border-radius: 6px;
+      padding: 0.4rem 0.55rem; font-size: 0.78rem; display: flex; justify-content: space-between; gap: 0.5rem; align-items: start;
+    }
+
+    /* Atlas Layout */
+    .atlas-shell { display: grid; grid-template-columns: 205px minmax(0, 1fr) 280px; gap: 0.75rem; align-items: stretch; }
+    @media (max-width: 1040px) { .atlas-shell { grid-template-columns: 1fr; } }
+
+    .atlas-layers-list { display: flex; flex-direction: column; gap: 0.3rem; }
+    .layer-toggle {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;
+      padding: 0.32rem 0.5rem; border: 1px solid var(--line); border-radius: 6px;
+      background: var(--card); cursor: pointer; font-size: 0.76rem; font-weight: 600;
+    }
+    .layer-toggle input { width: auto; accent-color: var(--ocean); }
+    .layer-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    .atlas-viewport-wrap {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      display: flex; flex-direction: column; overflow: hidden; min-height: 440px;
+    }
+    .atlas-toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; flex-wrap: wrap;
+      padding: 0.45rem 0.65rem; background: var(--paper); border-bottom: 1px solid var(--line);
+    }
+    .atlas-canvas-box {
+      position: relative; flex: 1; min-height: 380px; overflow: hidden; cursor: grab;
+      background: radial-gradient(circle at center, color-mix(in srgb, var(--ocean-bg) 42%, var(--card)), var(--card));
+      user-select: none; touch-action: none;
+    }
+    .atlas-canvas-box:active { cursor: grabbing; }
+    .atlas-svg { width: 100%; height: 100%; min-height: 380px; display: block; }
+    .atlas-hud {
+      border-top: 1px solid var(--line); background: var(--paper); padding: 0.34rem 0.65rem;
+      font-size: 0.72rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .atlas-compass {
+      position: absolute; right: 0.65rem; top: 0.6rem; z-index: 4; pointer-events: none;
+      width: 42px; height: 42px; opacity: 0.85;
+    }
+
+    /* Data & Charts */
+    .data-grid-wrap { width: 100%; max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 7px; background: var(--card); }
+    table.geo-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    table.geo-table th, table.geo-table td {
+      border-bottom: 1px solid var(--line); border-right: 1px solid var(--line);
+      padding: 0.34rem 0.45rem; text-align: left; vertical-align: middle;
+    }
+    table.geo-table th { background: var(--paper); font-weight: 700; font-size: 0.74rem; white-space: nowrap; }
+    table.geo-table td:last-child, table.geo-table th:last-child { border-right: none; }
+    table.geo-table input { padding: 0.24rem 0.4rem; font-size: 0.76rem; min-width: 64px; }
+    table.geo-table td:first-child input { min-width: 148px; }
+    .chart-box {
+      position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 0.75rem; min-height: 310px;
+    }
+    .chart-tooltip {
+      position: fixed; pointer-events: none; z-index: 90; display: none;
+      background: var(--ink); color: var(--bg); padding: 0.32rem 0.55rem; border-radius: 6px;
+      font-size: 0.72rem; font-weight: 600; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    }
+
+    /* Practice & Test */
+    .opt-btn {
+      width: 100%; text-align: left; padding: 0.44rem 0.62rem; border: 1px solid var(--line);
+      border-radius: 6px; background: var(--card); color: var(--ink); font-size: 0.8rem;
+      cursor: pointer; display: flex; align-items: flex-start; gap: 0.45rem;
+    }
+    .opt-btn:hover { border-color: var(--ocean); background: var(--paper); }
+    .opt-btn.selected { border-color: var(--ocean); background: var(--ocean-bg); font-weight: 600; }
+    .opt-btn.ok { border-color: var(--moss); background: var(--moss-bg); }
+    .opt-btn.bad { border-color: var(--danger); background: var(--danger-bg); }
+    .q-nav-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .q-idx-btn {
+      width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 5px;
+      background: var(--card); color: var(--ink); font-size: 0.74rem; font-weight: 700; cursor: pointer;
+    }
+    .q-idx-btn.answered { background: var(--ocean-bg); border-color: var(--ocean); color: var(--ocean); }
+    .q-idx-btn.current { background: var(--ocean); border-color: var(--ocean); color: #fff; }
+
+    /* AI Assistant */
+    .ai-layout { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 0.8rem; align-items: start; }
+    @media (max-width: 920px) { .ai-layout { grid-template-columns: 1fr; } }
+    .chat-box {
+      display: flex; flex-direction: column; height: 530px; background: var(--card);
+      border: 1px solid var(--line); border-radius: var(--r); overflow: hidden;
+    }
+    .chat-msgs { flex: 1; overflow-y: auto; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.55rem; }
+    .msg-bubble {
+      max-width: 90%; padding: 0.55rem 0.72rem; border-radius: 8px; font-size: 0.81rem; line-height: 1.5;
+      border: 1px solid var(--line);
+    }
+    .msg-user { align-self: flex-end; background: var(--ocean-bg); border-color: color-mix(in srgb, var(--ocean) 30%, var(--line)); }
+    .msg-ai { align-self: flex-start; background: var(--paper); }
+    .msg-err { align-self: flex-start; border: 1px solid #C84B55; background: rgba(200,75,85,0.1); color: #9E2A33; }
+    .msg-ai table { width: 100%; border-collapse: collapse; margin: 0.4rem 0; font-size: 0.75rem; }
+    .msg-ai th, .msg-ai td { border: 1px solid var(--line); padding: 0.25rem 0.4rem; }
+    .msg-ai th { background: var(--card); }
+    .msg-ai ul, .msg-ai ol { padding-left: 1.1rem; margin: 0.25rem 0; }
+    .chat-compose { padding: 0.55rem; border-top: 1px solid var(--line); background: var(--bg); display: flex; gap: 0.45rem; align-items: flex-end; }
+
+    /* Modal & Toast */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(11, 23, 29, 0.55); z-index: 80;
+      display: none; align-items: center; justify-content: center; padding: 0.9rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-dialog {
+      background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+      width: 100%; max-width: 720px; max-height: 88vh; display: flex; flex-direction: column;
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.25);
+    }
+    .modal-head {
+      padding: 0.7rem 0.95rem; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-head h3 { font-size: 0.98rem; }
+    .modal-body { padding: 0.85rem 0.95rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.65rem; }
+    .modal-foot { padding: 0.65rem 0.95rem; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 0.45rem; }
+
+    .toast {
+      position: fixed; right: 1rem; bottom: 1rem; z-index: 95;
+      background: var(--ink); color: var(--bg); padding: 0.5rem 0.8rem; border-radius: 7px;
+      font-size: 0.78rem; font-weight: 600; opacity: 0; transform: translateY(8px);
+      pointer-events: none; transition: 0.18s ease;
+    }
+    .toast.show { opacity: 1; transform: none; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <div class="brand" onclick="switchView('home')" role="button" tabindex="0" aria-label="Địa Lý – Atlat & Khám phá">
+      <div class="compass-mark">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      </div>
+      <div>
+        <div class="brand-title">Địa Lý</div>
+        <div class="brand-sub">Atlat &amp; Khám phá</div>
+      </div>
+    </div>
+
+    <nav class="main-nav" aria-label="Điều hướng môn Địa Lý">
+      <button type="button" class="nav-btn active" data-view="home" onclick="switchView('home')">Trang chủ</button>
+      <button type="button" class="nav-btn" data-view="knowledge" onclick="switchView('knowledge')">Kiến thức</button>
+      <button type="button" class="nav-btn" data-view="atlas" onclick="switchView('atlas')">Atlat</button>
+      <button type="button" class="nav-btn" data-view="data" onclick="switchView('data')">Số liệu &amp; Biểu đồ</button>
+      <button type="button" class="nav-btn" data-view="practice" onclick="switchView('practice')">Luyện tập</button>
+      <button type="button" class="nav-btn" data-view="test" onclick="switchView('test')">Kiểm tra</button>
+      <button type="button" class="nav-btn ai-tab" data-view="ai" onclick="switchView('ai')">Trợ lý AI</button>
+    </nav>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-sm btn-sand" onclick="openExcelModal(currentExcelModule())">Nhập Excel</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 1. HOME -->
+  <section id="view-home" class="view active"></section>
+
+  <!-- 2. KNOWLEDGE -->
+  <section id="view-knowledge" class="view"></section>
+
+  <!-- 3. ATLAS -->
+  <section id="view-atlas" class="view"></section>
+
+  <!-- 4. DATA & CHARTS -->
+  <section id="view-data" class="view"></section>
+
+  <!-- 5. PRACTICE -->
+  <section id="view-practice" class="view"></section>
+
+  <!-- 6. TEST -->
+  <section id="view-test" class="view"></section>
+
+  <!-- 7. AI ASSISTANT -->
+  <section id="view-ai" class="view"></section>
+</main>
+
+<div id="chart-tooltip" class="chart-tooltip"></div>
+
+<div id="modal-backdrop" class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+  <div class="modal-dialog" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3 id="modal-title">Hộp thoại</h3>
+      <button type="button" class="btn btn-sm" onclick="closeModal()">Đóng</button>
+    </div>
+    <div id="modal-body" class="modal-body"></div>
+    <div id="modal-foot" class="modal-foot"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/assets/aistudio/subject-ai-bridge.js"></script>
+<script>
+// ===================== THEME SYNC =====================
+(function initThemeSync() {
+  function applyTheme(dark) {
+    const mode = dark ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', mode);
+    document.documentElement.style.colorScheme = mode;
+  }
+  try {
+    const saved = localStorage.getItem('schoolhub_theme') || localStorage.getItem('theme');
+    if (saved === 'dark') applyTheme(true);
+  } catch {}
+  window.addEventListener('message', (ev) => {
+    if (ev?.data?.type === 'schoolhub-theme') {
+      applyTheme(Boolean(ev.data.dark));
+    }
+  });
+})();
+
+// ===================== CONSTANTS & EMPTY STORE =====================
+const STORAGE_KEY = 'dialy_atlas_v1';
+
+const ATLAS_LAYERS = [
+  { id: 'topography', label: 'Địa hình', color: '#8C6D46' },
+  { id: 'administrative', label: 'Hành chính', color: '#B84A39' },
+  { id: 'climate', label: 'Khí hậu', color: '#D97706' },
+  { id: 'hydrology', label: 'Sông ngòi', color: '#0284C7' },
+  { id: 'population', label: 'Dân cư', color: '#7C3AED' },
+  { id: 'economy', label: 'Kinh tế', color: '#0B4F6C' },
+  { id: 'transport', label: 'Giao thông', color: '#475569' },
+  { id: 'resources', label: 'Tài nguyên', color: '#2D6A4F' },
+];
+
+const GEO_DOMAINS = ['Tự nhiên', 'Dân cư', 'Kinh tế', 'Xã hội', 'Môi trường'];
+const DATA_CATEGORIES = ['Dân số', 'Diện tích', 'Khí hậu', 'Kinh tế', 'Nông nghiệp', 'Công nghiệp'];
+const CHART_COLORS = ['#0B4F6C', '#2D6A4F', '#9C7A4C', '#0284C7', '#B84A39', '#6D597A'];
+
+const SCOPE_BOUNDS = {
+  vietnam: { latMin: 8, latMax: 24, lonMin: 102, lonMax: 110, stepLat: 2, stepLon: 2, label: 'Việt Nam (8°B–24°B, 102°Đ–110°Đ)' },
+  world: { latMin: -75, latMax: 82, lonMin: -180, lonMax: 180, stepLat: 30, stepLon: 45, label: 'Thế giới (-75°..82°, -180°..180°)' },
+};
+
+function createEmptyState() {
+  return {
+    lessons: [],
+    atlasFeatures: [],
+    atlasMapLayerImages: { vietnam: '', world: '' },
+    datasets: [],
+    questions: [],
+    testResults: [],
+    recentActivity: [],
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return createEmptyState();
+    const parsed = JSON.parse(raw);
+    return {
+      lessons: Array.isArray(parsed.lessons) ? parsed.lessons : [],
+      atlasFeatures: Array.isArray(parsed.atlasFeatures) ? parsed.atlasFeatures : [],
+      atlasMapLayerImages: parsed.atlasMapLayerImages && typeof parsed.atlasMapLayerImages === 'object'
+        ? { vietnam: parsed.atlasMapLayerImages.vietnam || '', world: parsed.atlasMapLayerImages.world || '' }
+        : { vietnam: '', world: '' },
+      datasets: Array.isArray(parsed.datasets) ? parsed.datasets : [],
+      questions: Array.isArray(parsed.questions) ? parsed.questions : [],
+      testResults: Array.isArray(parsed.testResults) ? parsed.testResults : [],
+      recentActivity: Array.isArray(parsed.recentActivity) ? parsed.recentActivity : [],
+    };
+  } catch {
+    return createEmptyState();
+  }
+}
+
+let state = loadState();
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    toast('Không đủ dung lượng trình duyệt để lưu dữ liệu cục bộ.');
+  }
+}
+
+function logActivity(action, detail) {
+  state.recentActivity.unshift({
+    id: uid('act'),
+    action,
+    detail,
+    at: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + new Date().toLocaleDateString('vi-VN'),
+  });
+  state.recentActivity = state.recentActivity.slice(0, 12);
+}
+
+const ui = {
+  view: 'home',
+  // Knowledge
+  kSearch: '',
+  kGrade: '',
+  kChapter: '',
+  kTopic: '',
+  kDomain: '',
+  kBookmarked: false,
+  selectedLessonId: '',
+  // Atlas
+  atlasScope: 'vietnam',
+  atlasLayers: ATLAS_LAYERS.reduce((acc, l) => { acc[l.id] = true; return acc; }, {}),
+  atlasSearch: '',
+  atlasZoom: 1,
+  atlasPanX: 0,
+  atlasPanY: 0,
+  atlasHoverCoord: null,
+  atlasPinCoord: null,
+  selectedAtlasId: '',
+  // Data
+  selectedDatasetId: '',
+  pieColIdx: 0,
+  calcTab: 'structure',
+  calcPop: '',
+  calcArea: '',
+  calcTotal: '',
+  calcDiv: '',
+  // Practice
+  pType: '',
+  pTopic: '',
+  pGrade: '',
+  practiceAnswers: {},
+  practiceChecked: {},
+  // Test
+  tGrade: '',
+  tChapter: '',
+  tTopic: '',
+  tType: '',
+  tCount: 5,
+  tMinutes: 10,
+  activeTest: null,
+  testTimerHandle: null,
+  lastTestResult: null,
+  // AI
+  aiMode: 'tutor_chat',
+  aiContextRef: '',
+  aiPrompt: '',
+  aiMessages: [],
+  aiImage: null,
+  aiExtraDocText: '',
+  aiExtraDocName: '',
+  aiBusy: false,
+  // Excel
+  excelPreview: { moduleKey: 'knowledge', rows: [], dataset: null },
+};
+
+// ===================== UTILITIES =====================
+function uid(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function esc(val) {
+  return String(val ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function roundGeo(v, d = 2) {
+  const f = Math.pow(10, d);
+  return Math.round((v + Number.EPSILON) * f) / f;
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function readFileDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Không đọc được tệp đã chọn.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function readFileText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Không đọc được nội dung tệp.'));
+    reader.readAsText(file);
+  });
+}
+
+function openModal(title, bodyHtml, footHtml) {
+  document.getElementById('modal-title').innerHTML = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-foot').innerHTML = footHtml || '';
+  document.getElementById('modal-backdrop').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-backdrop').classList.remove('open');
+}
+
+function currentExcelModule() {
+  if (ui.view === 'knowledge') return 'knowledge';
+  if (ui.view === 'atlas') return 'atlas';
+  if (ui.view === 'data') return 'data';
+  if (ui.view === 'practice') return 'practice';
+  if (ui.view === 'test') return 'test';
+  return 'knowledge';
+}
+
+function emitGeoContext(viewName) {
+  if (!window.SchoolHubAI) return;
+  const names = {
+    home: 'Trang chủ Địa lý',
+    knowledge: 'Kho kiến thức Địa lý',
+    atlas: 'Atlat & Địa danh',
+    data: 'Bảng số liệu & Biểu đồ',
+    practice: 'Luyện tập Địa lý',
+    test: 'Kiểm tra Địa lý',
+    ai: 'Trợ lý Địa lý AI',
+  };
+  window.SchoolHubAI.emitContext({
+    subjectId: 'geography',
+    view: viewName,
+    topic: names[viewName] || viewName,
+    summary: `Bài học: ${state.lessons.length} · Địa danh: ${state.atlasFeatures.length} · Bảng số liệu: ${state.datasets.length} · Câu hỏi: ${state.questions.length}`,
+  });
+}
+
+function switchView(viewName) {
+  ui.view = viewName;
+  document.querySelectorAll('.nav-btn').forEach((b) => {
+    b.classList.toggle('active', b.getAttribute('data-view') === viewName);
+  });
+  document.querySelectorAll('.view').forEach((v) => {
+    v.classList.toggle('active', v.id === `view-${viewName}`);
+  });
+  renderCurrentView();
+  emitGeoContext(viewName);
+}
+
+function renderCurrentView() {
+  switch (ui.view) {
+    case 'home': renderHome(); break;
+    case 'knowledge': renderKnowledge(); break;
+    case 'atlas': renderAtlas(); break;
+    case 'data': renderData(); break;
+    case 'practice': renderPractice(); break;
+    case 'test': renderTest(); break;
+    case 'ai': renderAi(); break;
+  }
+}
+
+// Pure calculation helpers (aligned with geographyRules.ts)
+function calcStructure(values) {
+  const clean = values.map((v) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : null));
+  const total = clean.reduce((s, v) => s + (v ?? 0), 0);
+  if (total <= 0) return clean.map(() => null);
+  return clean.map((v) => (v === null ? null : roundGeo((v / total) * 100, 2)));
+}
+
+function calcGrowth(series) {
+  const firstValid = series.find((v) => typeof v === 'number' && Number.isFinite(v) && v > 0);
+  const baseVal = firstValid ?? null;
+  return series.map((val, idx) => {
+    const ok = typeof val === 'number' && Number.isFinite(val);
+    const indexPercent = ok && baseVal ? roundGeo((val / baseVal) * 100, 2) : null;
+    let yoyPercent = null;
+    if (idx > 0 && ok) {
+      const prev = series[idx - 1];
+      if (typeof prev === 'number' && Number.isFinite(prev) && prev > 0) {
+        yoyPercent = roundGeo(((val - prev) / prev) * 100, 2);
+      }
+    }
+    return { value: ok ? val : null, indexPercent, yoyPercent };
+  });
+}
+
+function parseCoordinatePair(raw) {
+  const str = String(raw || '').trim();
+  if (!str) return null;
+  const m = /(-?\d+(?:[.,]\d+)?)\s*°?\s*([NSns])?\s*[,;\s/]+\s*(-?\d+(?:[.,]\d+)?)\s*°?\s*([EWew])?/.exec(str);
+  if (!m) return null;
+  let lat = Number(m[1].replace(',', '.'));
+  let lon = Number(m[3].replace(',', '.'));
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  if (m[2]?.toUpperCase() === 'S') lat = -Math.abs(lat);
+  if (m[2]?.toUpperCase() === 'N') lat = Math.abs(lat);
+  if (m[4]?.toUpperCase() === 'W') lon = -Math.abs(lon);
+  if (m[4]?.toUpperCase() === 'E') lon = Math.abs(lon);
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+  return { lat: roundGeo(lat, 4), lon: roundGeo(lon, 4) };
+}
+
+function gradeQuestion(q, ans) {
+  if (!ans) return { isCorrect: false };
+  if (q.type === 'tf') {
+    return { isCorrect: typeof q.correctBool === 'boolean' && ans.selectedBool === q.correctBool };
+  }
+  if (q.type === 'short') {
+    const u = String(ans.textAnswer || '').trim().toLowerCase();
+    if (!u) return { isCorrect: false };
+    const exp = String(q.correctAnswerText || '').trim().toLowerCase();
+    if (exp && (u === exp || u.includes(exp) || exp.includes(u))) return { isCorrect: true };
+    const kws = (q.acceptedKeywords || []).map((k) => k.trim().toLowerCase()).filter(Boolean);
+    return { isCorrect: kws.some((k) => u.includes(k)) };
+  }
+  if (Array.isArray(q.options) && q.options.length > 0) {
+    return { isCorrect: typeof q.correctIndex === 'number' && ans.selectedIndex === q.correctIndex };
+  }
+  return { isCorrect: false };
+}
+
+// ===================== 1. HOME =====================
+function renderHome() {
+  const el = document.getElementById('view-home');
+  const completedCount = state.lessons.filter((l) => l.completed).length;
+  const avgScore = state.testResults.length
+    ? roundGeo(state.testResults.reduce((s, r) => s + r.score10, 0) / state.testResults.length, 1)
+    : null;
+  const weakTopics = Array.from(new Set(state.testResults.flatMap((r) => r.weakTopics || []))).slice(0, 6);
+  const unreadLessons = state.lessons.filter((l) => !l.completed).slice(0, 4);
+  const hasAny = state.lessons.length || state.atlasFeatures.length || state.datasets.length || state.questions.length;
+
+  const highlights = [
+    ...state.lessons.slice(0, 2).map((l) => ({ tag: l.domain, title: l.title, sub: `${l.grade} · ${l.topic}${l.yearRef ? ' · ' + l.yearRef : ''}`, action: `ui.selectedLessonId='${esc(l.id)}';switchView('knowledge')` })),
+    ...state.atlasFeatures.slice(0, 2).map((a) => ({ tag: 'Atlat', title: a.name, sub: `${a.lat}°, ${a.lon}° · ${a.region || a.country || a.scope}`, action: `ui.atlasScope='${esc(a.scope)}';ui.selectedAtlasId='${esc(a.id)}';switchView('atlas')` })),
+    ...state.datasets.slice(0, 2).map((d) => ({ tag: d.category, title: d.title, sub: `${d.rows.length} dòng · ${d.unit}${d.yearRange ? ' · ' + d.yearRange : ''}`, action: `ui.selectedDatasetId='${esc(d.id)}';switchView('data')` })),
+  ].slice(0, 4);
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Trang chủ Địa Lý</h1>
+        <div class="sub">Tổng quan tiến độ, nội dung cần ôn tập và dữ liệu học tập của bạn</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ocean btn-sm" onclick="switchView('atlas')">Mở Atlat</button>
+        <button type="button" class="btn btn-moss btn-sm" onclick="switchView('data')">Vẽ biểu đồ</button>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:0.85rem;">
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-label">Bài học đã lưu</div>
+          <div class="kpi-val num">${completedCount}/${state.lessons.length}</div>
+        </div>
+        <div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
+      </div>
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-label">Địa danh Atlat</div>
+          <div class="kpi-val num">${state.atlasFeatures.length}</div>
+        </div>
+        <div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+      </div>
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-label">Bảng số liệu</div>
+          <div class="kpi-val num">${state.datasets.length}</div>
+        </div>
+        <div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div>
+      </div>
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-label">Điểm kiểm tra TB</div>
+          <div class="kpi-val num">${avgScore !== null ? avgScore + '/10' : '—'}</div>
+        </div>
+        <div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      </div>
+    </div>
+
+    ${!hasAny ? `
+      <div class="empty-box" style="margin-bottom:0.85rem;">
+        <h3>Chưa có dữ liệu Địa lý</h3>
+        <p>Kho học liệu trống. Bạn có thể tự thêm bài học, nạp bản đồ/tọa độ Atlat, tạo bảng số liệu vẽ biểu đồ hoặc nhập nhanh từ Excel.</p>
+        <div class="btn-row" style="justify-content:center;">
+          <button type="button" class="btn btn-ocean btn-sm" onclick="switchView('knowledge');openLessonModal()">+ Thêm bài học</button>
+          <button type="button" class="btn btn-moss btn-sm" onclick="switchView('atlas')">Mở lưới Atlat</button>
+          <button type="button" class="btn btn-sm" onclick="switchView('data');openDatasetModal()">+ Tạo bảng số liệu</button>
+          <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('knowledge')">Nhập Excel</button>
+        </div>
+      </div>
+    ` : ''}
+
+    <div class="grid-2">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.55rem;">
+          <h2 style="font-size:0.95rem;">Gợi ý bài học &amp; Cần ôn tập</h2>
+          <span class="tag tag-ocean num">${unreadLessons.length} bài chưa xong</span>
+        </div>
+        ${weakTopics.length ? `
+          <div style="margin-bottom:0.55rem;">
+            <div class="kpi-label" style="margin-bottom:0.28rem;">Chủ đề cần củng cố sau bài kiểm tra:</div>
+            <div class="btn-row">
+              ${weakTopics.map((t) => `<button type="button" class="btn btn-xs btn-danger" onclick="ui.pTopic='${esc(t)}';switchView('practice')">${esc(t)}</button>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+        ${unreadLessons.length ? `
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            ${unreadLessons.map((l) => `
+              <div class="card card-click" style="padding:0.55rem 0.7rem;" onclick="ui.selectedLessonId='${esc(l.id)}';switchView('knowledge')">
+                <div style="display:flex;justify-content:space-between;gap:0.4rem;align-items:center;">
+                  <strong style="font-size:0.82rem;">${esc(l.title)}</strong>
+                  <span class="tag tag-moss">${esc(l.domain)}</span>
+                </div>
+                <div class="meta-line" style="margin-top:0.15rem;">
+                  <span>${esc(l.grade)}</span> · <span>${esc(l.chapter)}</span> · <span>${esc(l.topic)}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : `<div class="meta-line">Chưa có bài học chờ hoàn thành.</div>`}
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+            <h2 style="font-size:0.95rem;">Khám phá từ kho dữ liệu của bạn</h2>
+            <span class="tag num">${highlights.length}</span>
+          </div>
+          ${highlights.length ? `
+            <div style="display:flex;flex-direction:column;gap:0.38rem;">
+              ${highlights.map((h) => `
+                <div class="card card-click" style="padding:0.5rem 0.65rem;" onclick="${h.action}">
+                  <div style="display:flex;justify-content:space-between;gap:0.4rem;align-items:center;">
+                    <strong style="font-size:0.8rem;">${esc(h.title)}</strong>
+                    <span class="tag tag-sand">${esc(h.tag)}</span>
+                  </div>
+                  <div class="meta-line">${esc(h.sub)}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : `<div class="meta-line">Thêm bài học, địa danh Atlat hoặc bảng số liệu để hiển thị nổi bật tại đây.</div>`}
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;">
+            <h2 style="font-size:0.95rem;">Hoạt động gần đây</h2>
+            <span class="tag num">${state.recentActivity.length}</span>
+          </div>
+          ${state.recentActivity.length ? `
+            <div style="display:flex;flex-direction:column;gap:0.35rem;max-height:190px;overflow-y:auto;">
+              ${state.recentActivity.map((act) => `
+                <div style="display:flex;justify-content:space-between;gap:0.5rem;font-size:0.76rem;padding-bottom:0.3rem;border-bottom:1px solid var(--line);">
+                  <span><strong>${esc(act.action)}</strong>: ${esc(act.detail)}</span>
+                  <span class="mono" style="font-size:0.69rem;color:var(--muted);white-space:nowrap;">${esc(act.at)}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : `<div class="meta-line">Chưa ghi nhận hoạt động nào.</div>`}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ===================== 2. KNOWLEDGE =====================
+function renderKnowledge() {
+  const el = document.getElementById('view-knowledge');
+  const grades = Array.from(new Set(state.lessons.map((l) => l.grade).filter(Boolean)));
+  const chapters = Array.from(new Set(state.lessons.map((l) => l.chapter).filter(Boolean)));
+  const topics = Array.from(new Set(state.lessons.map((l) => l.topic).filter(Boolean)));
+
+  const filtered = state.lessons.filter((l) => {
+    const q = ui.kSearch.trim().toLowerCase();
+    if (q && !`${l.title} ${l.topic} ${l.summary} ${l.keyPoints}`.toLowerCase().includes(q)) return false;
+    if (ui.kGrade && l.grade !== ui.kGrade) return false;
+    if (ui.kChapter && l.chapter !== ui.kChapter) return false;
+    if (ui.kTopic && l.topic !== ui.kTopic) return false;
+    if (ui.kDomain && l.domain !== ui.kDomain) return false;
+    if (ui.kBookmarked && !l.bookmarked) return false;
+    return true;
+  });
+
+  if (!ui.selectedLessonId || !filtered.some((l) => l.id === ui.selectedLessonId)) {
+    ui.selectedLessonId = filtered[0]?.id || '';
+  }
+  const active = filtered.find((l) => l.id === ui.selectedLessonId) || null;
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Kiến thức Địa Lý</h1>
+        <div class="sub">Phân loại theo lớp, chương, chủ đề và mảng tự nhiên – kinh tế – xã hội</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ocean btn-sm" onclick="openLessonModal()">+ Thêm bài học</button>
+        <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('knowledge')">Nhập Excel</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="search" value="${esc(ui.kSearch)}" placeholder="Tìm tiêu đề, từ khóa..." oninput="ui.kSearch=this.value;renderKnowledge()" />
+      <select onchange="ui.kGrade=this.value;renderKnowledge()">
+        <option value="">Tất cả lớp</option>
+        ${grades.map((g) => `<option value="${esc(g)}" ${ui.kGrade===g?'selected':''}>${esc(g)}</option>`).join('')}
+      </select>
+      <select onchange="ui.kChapter=this.value;renderKnowledge()">
+        <option value="">Tất cả chương</option>
+        ${chapters.map((c) => `<option value="${esc(c)}" ${ui.kChapter===c?'selected':''}>${esc(c)}</option>`).join('')}
+      </select>
+      <select onchange="ui.kDomain=this.value;renderKnowledge()">
+        <option value="">Tất cả mảng</option>
+        ${GEO_DOMAINS.map((d) => `<option value="${esc(d)}" ${ui.kDomain===d?'selected':''}>${esc(d)}</option>`).join('')}
+      </select>
+      <select onchange="ui.kTopic=this.value;renderKnowledge()">
+        <option value="">Tất cả chủ đề</option>
+        ${topics.map((t) => `<option value="${esc(t)}" ${ui.kTopic===t?'selected':''}>${esc(t)}</option>`).join('')}
+      </select>
+      <label class="btn btn-sm" style="gap:0.35rem;">
+        <input type="checkbox" style="width:auto;" ${ui.kBookmarked ? 'checked' : ''} onchange="ui.kBookmarked=this.checked;renderKnowledge()" />
+        Đã lưu
+      </label>
+    </div>
+
+    ${state.lessons.length === 0 ? `
+      <div class="empty-box">
+        <h3>Chưa có bài học Địa lý nào</h3>
+        <p>Tạo bài học mới hoặc nhập bảng bài học từ file Excel (.xlsx/.xls) hay tài liệu PDF/Word.</p>
+        <div class="btn-row" style="justify-content:center;">
+          <button type="button" class="btn btn-ocean btn-sm" onclick="openLessonModal()">+ Tạo bài học đầu tiên</button>
+          <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('knowledge')">Nhập Excel mẫu</button>
+        </div>
+      </div>
+    ` : `
+      <div class="split-knowledge">
+        <div class="lesson-list">
+          ${filtered.length ? filtered.map((l) => `
+            <div class="card card-click ${active?.id === l.id ? 'card-active' : ''}" style="padding:0.65rem 0.75rem;" onclick="ui.selectedLessonId='${esc(l.id)}';renderKnowledge()">
+              <div style="display:flex;justify-content:space-between;gap:0.35rem;align-items:start;">
+                <strong style="font-size:0.83rem;">${esc(l.title)}</strong>
+                ${l.bookmarked ? `<span class="tag tag-sand">Đã lưu</span>` : ''}
+              </div>
+              <div class="meta-line" style="margin-top:0.25rem;">
+                <span class="tag tag-ocean">${esc(l.domain)}</span>
+                <span>${esc(l.grade)}</span> · <span>${esc(l.topic)}</span>
+                ${l.completed ? `<span class="tag tag-moss">Xong</span>` : ''}
+              </div>
+            </div>
+          `).join('') : `<div class="card"><div class="meta-line">Không tìm thấy bài học phù hợp bộ lọc.</div></div>`}
+        </div>
+
+        ${active ? `
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;align-items:flex-start;">
+              <div>
+                <h2 style="font-size:1.12rem;">${esc(active.title)}</h2>
+                <div class="meta-line" style="margin-top:0.22rem;">
+                  <span class="tag tag-ocean">${esc(active.domain)}</span>
+                  <span class="tag">${esc(active.grade)}</span>
+                  <span class="tag">${esc(active.chapter)}</span>
+                  <span class="tag">${esc(active.topic)}</span>
+                  ${active.yearRef ? `<span class="tag tag-sand mono">${esc(active.yearRef)}</span>` : ''}
+                  ${active.source ? `<span>Nguồn: ${esc(active.source)}</span>` : ''}
+                </div>
+              </div>
+              <div class="btn-row">
+                <button type="button" class="btn btn-xs ${active.bookmarked ? 'btn-sand' : ''}" onclick="toggleLessonFlag('${esc(active.id)}','bookmarked')">${active.bookmarked ? 'Bỏ đánh dấu' : 'Đánh dấu'}</button>
+                <button type="button" class="btn btn-xs ${active.completed ? 'btn-moss' : ''}" onclick="toggleLessonFlag('${esc(active.id)}','completed')">${active.completed ? 'Đã hoàn thành' : 'Đánh dấu xong'}</button>
+                <button type="button" class="btn btn-xs btn-ocean" onclick="askAiAboutLesson('${esc(active.id)}')">Hỏi AI</button>
+                <button type="button" class="btn btn-xs" onclick="openLessonModal('${esc(active.id)}')">Sửa</button>
+                <button type="button" class="btn btn-xs btn-danger" onclick="deleteLesson('${esc(active.id)}')">Xóa</button>
+              </div>
+            </div>
+
+            ${active.summary ? `<div class="reader-section"><div class="reader-label">Kiến thức trọng tâm</div><p style="white-space:pre-line;">${esc(active.summary)}</p></div>` : ''}
+            ${active.keyPoints ? `<div class="reader-section"><div class="reader-label">Ý chính</div><p style="white-space:pre-line;">${esc(active.keyPoints)}</p></div>` : ''}
+            ${active.dataNotes ? `<div class="reader-section"><div class="reader-label">Số liệu minh họa</div><p class="mono" style="font-size:0.78rem;white-space:pre-line;">${esc(active.dataNotes)}</p></div>` : ''}
+            ${active.examples ? `<div class="reader-section"><div class="reader-label">Ví dụ thực tiễn</div><p style="white-space:pre-line;">${esc(active.examples)}</p></div>` : ''}
+
+            ${(active.media || []).length ? `
+              <div class="reader-section">
+                <div class="reader-label">Hình ảnh &amp; Tài liệu đính kèm</div>
+                <div class="grid-2">
+                  ${active.media.map((m) => m.type === 'image'
+                    ? `<div class="card" style="padding:0.45rem;"><img src="${esc(m.url)}" alt="${esc(m.name)}" style="width:100%;max-height:190px;object-fit:contain;border-radius:5px;" /><div class="meta-line" style="margin-top:0.25rem;">${esc(m.name)}</div></div>`
+                    : `<div class="card" style="padding:0.55rem;"><div style="font-weight:700;font-size:0.78rem;">${esc(m.name)}</div><div style="font-size:0.75rem;color:var(--muted);max-height:110px;overflow:auto;white-space:pre-line;margin-top:0.25rem;">${esc(m.content || '')}</div></div>`
+                  ).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="reader-section">
+              <div class="reader-label">Đánh dấu nội dung quan trọng</div>
+              <div style="display:flex;gap:0.4rem;margin-bottom:0.45rem;">
+                <input id="hl-input" placeholder="Nhập câu/ý trọng tâm muốn ghim..." />
+                <button type="button" class="btn btn-sm btn-sand" onclick="addLessonHighlight('${esc(active.id)}')">Ghim ý</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.3rem;">
+                ${(active.highlights || []).map((h) => `
+                  <div class="quote-item">
+                    <span>${esc(h.text)}</span>
+                    <button type="button" class="btn btn-xs" onclick="removeLessonHighlight('${esc(active.id)}','${esc(h.id)}')">×</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="reader-section">
+              <div class="reader-label">Ghi chú cá nhân</div>
+              <textarea rows="2" placeholder="Ghi chú riêng cho bài học này..." onchange="saveLessonNote('${esc(active.id)}',this.value)">${esc(active.notes || '')}</textarea>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `}
+  `;
+}
+
+let tempLessonMedia = [];
+function openLessonModal(editId) {
+  const item = editId ? state.lessons.find((x) => x.id === editId) : null;
+  tempLessonMedia = JSON.parse(JSON.stringify(item?.media || []));
+  openModal(
+    item ? 'Cập nhật bài học Địa lý' : 'Thêm bài học Địa lý',
+    `
+      <div class="grid-2">
+        <div><label class="lbl">Tiêu đề bài học *</label><input id="fl-title" value="${esc(item?.title || '')}" placeholder="Ví dụ: Địa hình Việt Nam" /></div>
+        <div><label class="lbl">Mảng kiến thức</label>
+          <select id="fl-domain">
+            ${GEO_DOMAINS.map((d) => `<option value="${esc(d)}" ${item?.domain===d?'selected':''}>${esc(d)}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Lớp</label><input id="fl-grade" value="${esc(item?.grade || 'Lớp 12')}" /></div>
+        <div><label class="lbl">Chương</label><input id="fl-chap" value="${esc(item?.chapter || '')}" placeholder="Địa lý tự nhiên" /></div>
+        <div><label class="lbl">Chủ đề</label><input id="fl-topic" value="${esc(item?.topic || '')}" placeholder="Địa hình" /></div>
+        <div><label class="lbl">Mốc năm / Nguồn</label>
+          <div style="display:grid;grid-template-columns:90px 1fr;gap:0.35rem;">
+            <input id="fl-year" value="${esc(item?.yearRef || '')}" placeholder="Năm" />
+            <input id="fl-src" value="${esc(item?.source || '')}" placeholder="SGK / Niên giám..." />
+          </div>
+        </div>
+      </div>
+      <div><label class="lbl">Kiến thức trọng tâm</label><textarea id="fl-sum" rows="2">${esc(item?.summary || '')}</textarea></div>
+      <div class="grid-2">
+        <div><label class="lbl">Ý chính</label><textarea id="fl-kp" rows="2">${esc(item?.keyPoints || '')}</textarea></div>
+        <div><label class="lbl">Ví dụ minh họa</label><textarea id="fl-ex" rows="2">${esc(item?.examples || '')}</textarea></div>
+      </div>
+      <div><label class="lbl">Số liệu kèm theo (ghi rõ năm &amp; đơn vị)</label><textarea id="fl-data" rows="2">${esc(item?.dataNotes || '')}</textarea></div>
+      <div>
+        <label class="lbl">Đính kèm ảnh bản đồ/biểu đồ hoặc tài liệu (.png, .jpg, .pdf, .docx, .txt)</label>
+        <input type="file" accept="image/*,.pdf,.docx,.txt,.csv" onchange="attachLessonMedia(this)" />
+        <div id="fl-media-list" class="meta-line" style="margin-top:0.3rem;">${tempLessonMedia.map((m) => `<span class="tag">${esc(m.name)}</span>`).join('')}</div>
+      </div>
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Hủy</button><button type="button" class="btn btn-ocean" onclick="saveLessonForm('${esc(editId || '')}')">Lưu bài học</button>`
+  );
+}
+
+async function attachLessonMedia(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const dataUrl = await readFileDataUrl(file);
+    if (file.type.startsWith('image/')) {
+      tempLessonMedia.push({ name: file.name, type: 'image', url: dataUrl });
+    } else {
+      const res = await fetch('/api/geography/parse-document', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, mimeType: file.type, fileBase64: dataUrl }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || 'Không đọc được tài liệu.');
+      tempLessonMedia.push({ name: file.name, type: 'doc', url: '', content: d.text || '' });
+    }
+    const list = document.getElementById('fl-media-list');
+    if (list) list.innerHTML = tempLessonMedia.map((m) => `<span class="tag">${esc(m.name)}</span>`).join('');
+    toast(`Đã đính kèm "${file.name}".`);
+  } catch (e) { toast(e.message); }
+}
+
+function saveLessonForm(editId) {
+  const title = document.getElementById('fl-title').value.trim();
+  if (!title) { toast('Vui lòng nhập tiêu đề bài học.'); return; }
+  const existing = editId ? state.lessons.find((x) => x.id === editId) : null;
+  const now = new Date().toISOString();
+  const rec = {
+    id: existing?.id || uid('gles'),
+    title,
+    domain: document.getElementById('fl-domain').value,
+    grade: document.getElementById('fl-grade').value.trim() || 'Khác',
+    chapter: document.getElementById('fl-chap').value.trim() || 'Chuyên đề',
+    topic: document.getElementById('fl-topic').value.trim() || 'Địa lý',
+    yearRef: document.getElementById('fl-year').value.trim(),
+    source: document.getElementById('fl-src').value.trim(),
+    summary: document.getElementById('fl-sum').value.trim(),
+    keyPoints: document.getElementById('fl-kp').value.trim(),
+    examples: document.getElementById('fl-ex').value.trim(),
+    dataNotes: document.getElementById('fl-data').value.trim(),
+    media: tempLessonMedia,
+    bookmarked: existing?.bookmarked || false,
+    completed: existing?.completed || false,
+    highlights: existing?.highlights || [],
+    notes: existing?.notes || '',
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  };
+  if (existing) state.lessons = state.lessons.map((x) => (x.id === existing.id ? rec : x));
+  else state.lessons.unshift(rec);
+  ui.selectedLessonId = rec.id;
+  logActivity(existing ? 'Cập nhật bài học' : 'Thêm bài học', rec.title);
+  saveState();
+  closeModal();
+  renderKnowledge();
+  toast('Đã lưu bài học Địa lý.');
+}
+
+function toggleLessonFlag(id, key) {
+  state.lessons = state.lessons.map((l) => (l.id === id ? { ...l, [key]: !l[key] } : l));
+  saveState();
+  renderKnowledge();
+}
+
+function addLessonHighlight(id) {
+  const inp = document.getElementById('hl-input');
+  const txt = inp?.value.trim();
+  if (!txt) return;
+  state.lessons = state.lessons.map((l) =>
+    l.id === id ? { ...l, highlights: [...(l.highlights || []), { id: uid('hl'), text: txt }] } : l
+  );
+  saveState();
+  renderKnowledge();
+}
+
+function removeLessonHighlight(id, hlId) {
+  state.lessons = state.lessons.map((l) =>
+    l.id === id ? { ...l, highlights: (l.highlights || []).filter((h) => h.id !== hlId) } : l
+  );
+  saveState();
+  renderKnowledge();
+}
+
+function saveLessonNote(id, note) {
+  state.lessons = state.lessons.map((l) => (l.id === id ? { ...l, notes: note } : l));
+  saveState();
+}
+
+function deleteLesson(id) {
+  state.lessons = state.lessons.filter((l) => l.id !== id);
+  logActivity('Xóa bài học', id);
+  saveState();
+  renderKnowledge();
+}
+
+function askAiAboutLesson(id) {
+  ui.aiContextRef = `lesson:${id}`;
+  ui.aiMode = 'tutor_chat';
+  switchView('ai');
+}
+
+// ===================== 3. INTERACTIVE ATLAS (GRATICULE + LAYERS + GEOJSON/IMAGE + PINS) =====================
+const SVG_W = 680;
+const SVG_H = 440;
+
+function projectCoord(lat, lon, scope) {
+  const b = SCOPE_BOUNDS[scope] || SCOPE_BOUNDS.vietnam;
+  const x = ((lon - b.lonMin) / (b.lonMax - b.lonMin)) * SVG_W;
+  const y = ((b.latMax - lat) / (b.latMax - b.latMin)) * SVG_H;
+  return { x, y };
+}
+
+function unprojectPoint(x, y, scope) {
+  const b = SCOPE_BOUNDS[scope] || SCOPE_BOUNDS.vietnam;
+  const lon = b.lonMin + (x / SVG_W) * (b.lonMax - b.lonMin);
+  const lat = b.latMax - (y / SVG_H) * (b.latMax - b.latMin);
+  return { lat: roundGeo(lat, 3), lon: roundGeo(lon, 3) };
+}
+
+function getAtlasViewBox() {
+  const w = SVG_W / ui.atlasZoom;
+  const h = SVG_H / ui.atlasZoom;
+  const cx = SVG_W / 2 - ui.atlasPanX;
+  const cy = SVG_H / 2 - ui.atlasPanY;
+  return { vx: cx - w / 2, vy: cy - h / 2, vw: w, vh: h };
+}
+
+function atlasZoomStep(factor) {
+  ui.atlasZoom = Math.max(0.8, Math.min(10, roundGeo(ui.atlasZoom * factor, 2)));
+  renderAtlas();
+}
+
+function atlasResetView() {
+  ui.atlasZoom = 1;
+  ui.atlasPanX = 0;
+  ui.atlasPanY = 0;
+  ui.atlasPinCoord = null;
+  renderAtlas();
+}
+
+function focusAtlasOnCoord(lat, lon) {
+  const pt = projectCoord(lat, lon, ui.atlasScope);
+  ui.atlasZoom = Math.max(ui.atlasZoom, 2.2);
+  ui.atlasPanX = SVG_W / 2 - pt.x;
+  ui.atlasPanY = SVG_H / 2 - pt.y;
+}
+
+function renderAtlas() {
+  const el = document.getElementById('view-atlas');
+  const b = SCOPE_BOUNDS[ui.atlasScope];
+  const scopeFeatures = state.atlasFeatures.filter((f) => f.scope === ui.atlasScope);
+  const searchCoord = parseCoordinatePair(ui.atlasSearch);
+  const q = ui.atlasSearch.trim().toLowerCase();
+
+  const visibleFeatures = scopeFeatures.filter((f) => {
+    if (!ui.atlasLayers[f.layer]) return false;
+    if (q && !searchCoord) {
+      return `${f.name} ${f.region} ${f.country} ${f.summary}`.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  if (!ui.selectedAtlasId || !scopeFeatures.some((f) => f.id === ui.selectedAtlasId)) {
+    ui.selectedAtlasId = visibleFeatures[0]?.id || '';
+  }
+  const active = scopeFeatures.find((f) => f.id === ui.selectedAtlasId) || null;
+  const bgImg = state.atlasMapLayerImages?.[ui.atlasScope] || '';
+  const { vx, vy, vw, vh } = getAtlasViewBox();
+
+  // Graticule grid lines
+  const latLines = [];
+  for (let lat = Math.ceil(b.latMin / b.stepLat) * b.stepLat; lat <= b.latMax; lat += b.stepLat) {
+    const { y } = projectCoord(lat, b.lonMin, ui.atlasScope);
+    latLines.push(`<line x1="0" y1="${y}" x2="${SVG_W}" y2="${y}" stroke="currentColor" stroke-opacity="0.14" stroke-dasharray="3 3" />`);
+    latLines.push(`<text x="6" y="${y - 3}" font-size="9.5" fill="currentColor" fill-opacity="0.58" font-family="JetBrains Mono, monospace">${lat}°</text>`);
+  }
+  const lonLines = [];
+  for (let lon = Math.ceil(b.lonMin / b.stepLon) * b.stepLon; lon <= b.lonMax; lon += b.stepLon) {
+    const { x } = projectCoord(b.latMin, lon, ui.atlasScope);
+    lonLines.push(`<line x1="${x}" y1="0" x2="${x}" y2="${SVG_H}" stroke="currentColor" stroke-opacity="0.14" stroke-dasharray="3 3" />`);
+    lonLines.push(`<text x="${x + 3}" y="${SVG_H - 6}" font-size="9.5" fill="currentColor" fill-opacity="0.58" font-family="JetBrains Mono, monospace">${lon}°</text>`);
+  }
+
+  // Vector features (GeoJSON polygons/lines + point pins)
+  const vectorSvg = visibleFeatures.map((f) => {
+    const meta = ATLAS_LAYERS.find((l) => l.id === f.layer) || ATLAS_LAYERS[1];
+    const isSel = f.id === active?.id;
+    let shapeHtml = '';
+    if (Array.isArray(f.coordinates) && f.coordinates.length > 0) {
+      shapeHtml = f.coordinates.map((ring) => {
+        const pts = ring.map((pt) => {
+          const p = projectCoord(Number(pt[1]), Number(pt[0]), ui.atlasScope);
+          return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+        }).join(' ');
+        return f.kind === 'polyline'
+          ? `<polyline points="${pts}" fill="none" stroke="${meta.color}" stroke-width="${isSel ? 3 : 1.8}" stroke-opacity="0.88" />`
+          : `<polygon points="${pts}" fill="${meta.color}" fill-opacity="${isSel ? 0.34 : 0.18}" stroke="${meta.color}" stroke-width="${isSel ? 2.2 : 1.1}" />`;
+      }).join('');
+    }
+    const c = projectCoord(f.lat, f.lon, ui.atlasScope);
+    const markerR = (isSel ? 6.5 : 4.8) / Math.max(1, Math.sqrt(ui.atlasZoom) * 0.7);
+    const fSize = 10.5 / Math.max(1, Math.sqrt(ui.atlasZoom) * 0.72);
+    return `
+      <g class="atlas-feat" style="cursor:pointer;" onclick="event.stopPropagation();selectAtlasFeature('${esc(f.id)}')">
+        ${shapeHtml}
+        <circle cx="${c.x}" cy="${c.y}" r="${markerR}" fill="${meta.color}" stroke="#FFFFFF" stroke-width="${isSel ? 2.2 : 1.3}" />
+        ${isSel ? `<circle cx="${c.x}" cy="${c.y}" r="${markerR * 2}" fill="none" stroke="${meta.color}" stroke-width="1.2" stroke-opacity="0.7" />` : ''}
+        <text x="${c.x + markerR + 4}" y="${c.y + 3}" font-size="${fSize.toFixed(1)}" font-weight="${isSel ? 700 : 600}" fill="var(--ink)">${esc(f.name)}</text>
+      </g>
+    `;
+  }).join('');
+
+  const pinTarget = searchCoord || ui.atlasPinCoord;
+  const pinPt = pinTarget ? projectCoord(pinTarget.lat, pinTarget.lon, ui.atlasScope) : null;
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Atlat tương tác</h1>
+        <div class="sub">Hệ tọa độ địa lý ${esc(b.label)} — phóng to, di chuyển, bật/tắt lớp và nạp bản đồ thực tế của bạn</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-sm ${ui.atlasScope==='vietnam'?'btn-ocean':''}" onclick="ui.atlasScope='vietnam';atlasResetView()">Việt Nam</button>
+        <button type="button" class="btn btn-sm ${ui.atlasScope==='world'?'btn-ocean':''}" onclick="ui.atlasScope='world';atlasResetView()">Thế giới</button>
+        <button type="button" class="btn btn-moss btn-sm" onclick="openAtlasFeatureModal()">+ Thêm địa danh</button>
+        <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('atlas')">Nhập Excel</button>
+      </div>
+    </div>
+
+    <div class="atlas-shell">
+      <!-- Left: Layers & File Import -->
+      <div class="card" style="padding:0.65rem;display:flex;flex-direction:column;gap:0.55rem;">
+        <div style="font-size:0.74rem;font-weight:700;text-transform:uppercase;color:var(--muted);">8 Lớp dữ liệu bản đồ</div>
+        <div class="atlas-layers-list">
+          ${ATLAS_LAYERS.map((l) => {
+            const count = scopeFeatures.filter((f) => f.layer === l.id).length;
+            return `
+              <label class="layer-toggle">
+                <span style="display:flex;align-items:center;gap:0.4rem;">
+                  <input type="checkbox" ${ui.atlasLayers[l.id] ? 'checked' : ''} onchange="ui.atlasLayers['${l.id}']=this.checked;renderAtlas()" />
+                  <span class="layer-dot" style="background:${l.color};"></span>
+                  <span>${esc(l.label)}</span>
+                </span>
+                <span class="num" style="color:var(--muted);font-size:0.7rem;">${count}</span>
+              </label>
+            `;
+          }).join('')}
+        </div>
+
+        <div style="border-top:1px solid var(--line);padding-top:0.5rem;display:flex;flex-direction:column;gap:0.35rem;">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--muted);">Nạp lớp bản đồ / GeoJSON</div>
+          <label class="btn btn-xs" style="justify-content:center;cursor:pointer;">
+            Nạp ảnh bản đồ (.png/.jpg/.svg)
+            <input type="file" accept="image/*" class="hidden" onchange="uploadAtlasBaseImage(this)" />
+          </label>
+          <label class="btn btn-xs" style="justify-content:center;cursor:pointer;">
+            Nạp file GeoJSON (.geojson/.json)
+            <input type="file" accept=".geojson,.json" class="hidden" onchange="uploadAtlasGeoJson(this)" />
+          </label>
+          ${bgImg ? `<button type="button" class="btn btn-xs btn-danger" onclick="state.atlasMapLayerImages['${ui.atlasScope}']='';saveState();renderAtlas()">Gỡ ảnh nền hiện tại</button>` : ''}
+        </div>
+      </div>
+
+      <!-- Center: Interactive Coordinate Canvas -->
+      <div class="atlas-viewport-wrap">
+        <div class="atlas-toolbar">
+          <div style="display:flex;gap:0.35rem;flex:1;min-width:210px;">
+            <input id="atlas-search-inp" type="search" value="${esc(ui.atlasSearch)}" placeholder="Tìm địa danh hoặc tọa độ (vd: 21.03, 105.85)..." onkeydown="if(event.key==='Enter') searchAtlasTarget(this.value)" oninput="ui.atlasSearch=this.value" />
+            <button type="button" class="btn btn-sm btn-ocean" onclick="searchAtlasTarget(document.getElementById('atlas-search-inp').value)">Tìm</button>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-xs" onclick="atlasZoomStep(1.35)">+</button>
+            <button type="button" class="btn btn-xs" onclick="atlasZoomStep(1/1.35)">-</button>
+            <span class="mono" style="font-size:0.72rem;color:var(--muted);">${ui.atlasZoom.toFixed(1)}x</span>
+            <button type="button" class="btn btn-xs" onclick="atlasResetView()">Đặt lại</button>
+          </div>
+        </div>
+
+        <div id="atlas-canvas-box" class="atlas-canvas-box" onwheel="handleAtlasWheel(event)" onpointerdown="startAtlasPan(event)" onpointermove="moveAtlasPan(event)" onpointerup="endAtlasPan(event)" onpointercancel="endAtlasPan(event)">
+          <svg id="atlas-svg" class="atlas-svg" viewBox="${vx} ${vy} ${vw} ${vh}" preserveAspectRatio="xMidYMid meet">
+            ${bgImg ? `<image href="${esc(bgImg)}" x="0" y="0" width="${SVG_W}" height="${SVG_H}" preserveAspectRatio="none" opacity="0.92" />` : ''}
+            <rect x="0" y="0" width="${SVG_W}" height="${SVG_H}" fill="none" stroke="var(--ocean)" stroke-opacity="0.35" stroke-width="1.2" />
+            ${latLines.join('')}
+            ${lonLines.join('')}
+            ${vectorSvg}
+            ${pinPt ? `
+              <g>
+                <line x1="${pinPt.x - 10}" y1="${pinPt.y}" x2="${pinPt.x + 10}" y2="${pinPt.y}" stroke="#B84A39" stroke-width="1.5" />
+                <line x1="${pinPt.x}" y1="${pinPt.y - 10}" x2="${pinPt.x}" y2="${pinPt.y + 10}" stroke="#B84A39" stroke-width="1.5" />
+                <circle cx="${pinPt.x}" cy="${pinPt.y}" r="5" fill="none" stroke="#B84A39" stroke-width="1.8" />
+              </g>
+            ` : ''}
+          </svg>
+
+          <svg class="atlas-compass" viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="20" fill="var(--card)" fill-opacity="0.86" stroke="var(--line)" />
+            <polygon points="24,7 28,24 24,21 20,24" fill="var(--danger)" />
+            <polygon points="24,41 28,24 24,27 20,24" fill="var(--muted)" fill-opacity="0.5" />
+            <text x="24" y="13" text-anchor="middle" font-size="7" font-weight="800" fill="var(--ink)">B</text>
+          </svg>
+        </div>
+
+        <div class="atlas-hud">
+          <span id="atlas-coord-readout" class="mono">${ui.atlasHoverCoord ? `${ui.atlasHoverCoord.lat}°, ${ui.atlasHoverCoord.lon}°` : 'Di chuột xem tọa độ · Nhấn chọn vị trí'}</span>
+          ${ui.atlasPinCoord ? `
+            <button type="button" class="btn btn-xs btn-moss" onclick="openAtlasFeatureModal(null, ${ui.atlasPinCoord.lat}, ${ui.atlasPinCoord.lon})">+ Ghim (${ui.atlasPinCoord.lat}, ${ui.atlasPinCoord.lon})</button>
+          ` : ''}
+        </div>
+      </div>
+
+      <!-- Right: Feature Inspector -->
+      <div class="card" style="padding:0.75rem;display:flex;flex-direction:column;gap:0.55rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="font-size:0.92rem;">Thông tin địa danh</h2>
+          <span class="tag num">${visibleFeatures.length} mục</span>
+        </div>
+
+        ${active ? `
+          <div style="display:flex;flex-direction:column;gap:0.42rem;">
+            <div style="font-size:1rem;font-weight:700;">${esc(active.name)}</div>
+            <div class="meta-line">
+              <span class="tag tag-ocean">${esc(ATLAS_LAYERS.find((l) => l.id === active.layer)?.label || active.layer)}</span>
+              <span class="tag mono">${active.lat}°, ${active.lon}°</span>
+            </div>
+            <div class="meta-line">
+              ${active.country ? `<span>Quốc gia: <strong>${esc(active.country)}</strong></span>` : ''}
+              ${active.region ? `<span>· Vùng: <strong>${esc(active.region)}</strong></span>` : ''}
+            </div>
+            ${active.metricsText ? `<div class="card" style="padding:0.45rem 0.6rem;background:var(--paper);"><div class="kpi-label">Chỉ số</div><div class="mono" style="font-size:0.76rem;white-space:pre-line;">${esc(active.metricsText)}</div></div>` : ''}
+            ${active.summary ? `<p style="font-size:0.79rem;white-space:pre-line;">${esc(active.summary)}</p>` : ''}
+            <div class="meta-line">${active.yearRef ? `Năm: ${esc(active.yearRef)}` : ''} ${active.source ? `· Nguồn: ${esc(active.source)}` : ''}</div>
+            <div class="btn-row" style="margin-top:0.2rem;">
+              <button type="button" class="btn btn-xs btn-ocean" onclick="askAiAboutAtlas('${esc(active.id)}')">Hỏi AI khu vực</button>
+              <button type="button" class="btn btn-xs" onclick="openAtlasFeatureModal('${esc(active.id)}')">Sửa</button>
+              <button type="button" class="btn btn-xs btn-danger" onclick="deleteAtlasFeature('${esc(active.id)}')">Xóa</button>
+            </div>
+          </div>
+        ` : `
+          <div class="meta-line">Chưa chọn địa danh nào. Nhấn trực tiếp trên lưới tọa độ để ghim điểm, nạp GeoJSON/ảnh bản đồ hoặc nhập tọa độ từ Excel.</div>
+        `}
+
+        ${visibleFeatures.length ? `
+          <div style="border-top:1px solid var(--line);padding-top:0.5rem;">
+            <div class="kpi-label" style="margin-bottom:0.3rem;">Danh sách hiển thị</div>
+            <div style="display:flex;flex-direction:column;gap:0.28rem;max-height:190px;overflow-y:auto;">
+              ${visibleFeatures.map((f) => `
+                <button type="button" class="btn btn-xs" style="justify-content:space-between;text-align:left;${f.id===active?.id?'border-color:var(--ocean);background:var(--ocean-bg);':''}" onclick="selectAtlasFeature('${esc(f.id)}')">
+                  <span style="overflow:hidden;text-overflow:ellipsis;">${esc(f.name)}</span>
+                  <span class="mono" style="color:var(--muted);">${f.lat.toFixed(1)}, ${f.lon.toFixed(1)}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+let atlasDrag = null;
+function getSvgPointFromEvent(ev) {
+  const svg = document.getElementById('atlas-svg');
+  if (!svg) return null;
+  const rect = svg.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+  const { vx, vy, vw, vh } = getAtlasViewBox();
+  const sx = vx + ((ev.clientX - rect.left) / rect.width) * vw;
+  const sy = vy + ((ev.clientY - rect.top) / rect.height) * vh;
+  return { sx, sy, rect };
+}
+
+function handleAtlasWheel(ev) {
+  ev.preventDefault();
+  atlasZoomStep(ev.deltaY < 0 ? 1.18 : 1 / 1.18);
+}
+
+function startAtlasPan(ev) {
+  atlasDrag = { x: ev.clientX, y: ev.clientY, px: ui.atlasPanX, py: ui.atlasPanY, moved: false };
+}
+
+function moveAtlasPan(ev) {
+  const pt = getSvgPointFromEvent(ev);
+  if (pt) {
+    const coord = unprojectPoint(pt.sx, pt.sy, ui.atlasScope);
+    ui.atlasHoverCoord = coord;
+    const readout = document.getElementById('atlas-coord-readout');
+    if (readout) readout.textContent = `${coord.lat}°, ${coord.lon}°`;
+  }
+  if (!atlasDrag) return;
+  const dx = ev.clientX - atlasDrag.x;
+  const dy = ev.clientY - atlasDrag.y;
+  if (Math.abs(dx) > 4 || Math.abs(dy) > 4) atlasDrag.moved = true;
+  if (atlasDrag.moved && pt) {
+    const scaleX = (SVG_W / ui.atlasZoom) / pt.rect.width;
+    const scaleY = (SVG_H / ui.atlasZoom) / pt.rect.height;
+    ui.atlasPanX = atlasDrag.px + dx * scaleX;
+    ui.atlasPanY = atlasDrag.py + dy * scaleY;
+    const svg = document.getElementById('atlas-svg');
+    if (svg) {
+      const { vx, vy, vw, vh } = getAtlasViewBox();
+      svg.setAttribute('viewBox', `${vx} ${vy} ${vw} ${vh}`);
+    }
+  }
+}
+
+function endAtlasPan(ev) {
+  const wasMoved = atlasDrag?.moved;
+  atlasDrag = null;
+  if (!wasMoved) {
+    const pt = getSvgPointFromEvent(ev);
+    if (pt) {
+      ui.atlasPinCoord = unprojectPoint(pt.sx, pt.sy, ui.atlasScope);
+      renderAtlas();
+    }
+  }
+}
+
+function selectAtlasFeature(id) {
+  ui.selectedAtlasId = id;
+  const feat = state.atlasFeatures.find((f) => f.id === id);
+  if (feat) focusAtlasOnCoord(feat.lat, feat.lon);
+  renderAtlas();
+}
+
+function searchAtlasTarget(raw) {
+  ui.atlasSearch = raw;
+  const coord = parseCoordinatePair(raw);
+  if (coord) {
+    ui.atlasPinCoord = coord;
+    focusAtlasOnCoord(coord.lat, coord.lon);
+    toast(`Đã định vị tọa độ ${coord.lat}°, ${coord.lon}°`);
+  } else if (raw.trim()) {
+    const q = raw.trim().toLowerCase();
+    const match = state.atlasFeatures.find((f) => f.scope === ui.atlasScope && `${f.name} ${f.region} ${f.country}`.toLowerCase().includes(q));
+    if (match) {
+      ui.selectedAtlasId = match.id;
+      focusAtlasOnCoord(match.lat, match.lon);
+    }
+  }
+  renderAtlas();
+}
+
+async function uploadAtlasBaseImage(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const dataUrl = await readFileDataUrl(file);
+    state.atlasMapLayerImages[ui.atlasScope] = dataUrl;
+    logActivity('Nạp ảnh bản đồ Atlat', `${ui.atlasScope} · ${file.name}`);
+    saveState();
+    renderAtlas();
+    toast(`Đã nạp ảnh bản đồ "${file.name}".`);
+  } catch (e) { toast(e.message); }
+}
+
+async function uploadAtlasGeoJson(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const raw = JSON.parse(await readFileText(file));
+    const list = raw.type === 'FeatureCollection' && Array.isArray(raw.features) ? raw.features
+      : raw.type === 'Feature' ? [raw] : [];
+    const added = [];
+    list.forEach((f, idx) => {
+      const props = f.properties || {};
+      const geom = f.geometry;
+      if (!geom) return;
+      const name = String(props.name || props.ten || props.NAME || props.ADMIN || `Đối tượng #${idx + 1}`).trim();
+      if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
+        const [lon, lat] = geom.coordinates;
+        added.push({
+          id: uid('atl'), name, scope: ui.atlasScope, layer: 'administrative', kind: 'point',
+          lat: Number(lat) || 0, lon: Number(lon) || 0,
+          region: String(props.region || ''), country: String(props.country || ''),
+          summary: String(props.summary || props.description || ''), metricsText: String(props.metrics || ''),
+          source: String(props.source || file.name), yearRef: String(props.year || ''),
+        });
+      } else if ((geom.type === 'Polygon' || geom.type === 'MultiPolygon' || geom.type === 'LineString') && Array.isArray(geom.coordinates)) {
+        const rings = geom.type === 'Polygon' ? geom.coordinates : geom.type === 'LineString' ? [geom.coordinates] : geom.coordinates.flat();
+        const pts = rings.flat().filter((p) => Array.isArray(p) && p.length >= 2);
+        if (pts.length) {
+          const avgLon = pts.reduce((s, p) => s + Number(p[0] || 0), 0) / pts.length;
+          const avgLat = pts.reduce((s, p) => s + Number(p[1] || 0), 0) / pts.length;
+          added.push({
+            id: uid('atl'), name, scope: ui.atlasScope, layer: 'administrative',
+            kind: geom.type === 'LineString' ? 'polyline' : 'polygon',
+            lat: roundGeo(avgLat, 4), lon: roundGeo(avgLon, 4), coordinates: rings,
+            region: String(props.region || ''), country: String(props.country || ''),
+            summary: String(props.summary || props.description || ''), metricsText: String(props.metrics || ''),
+            source: String(props.source || file.name), yearRef: String(props.year || ''),
+          });
+        }
+      }
+    });
+    if (!added.length) { toast('File GeoJSON không chứa đối tượng tọa độ hợp lệ.'); return; }
+    state.atlasFeatures = [...added, ...state.atlasFeatures];
+    ui.selectedAtlasId = added[0].id;
+    logActivity('Nạp GeoJSON Atlat', `${added.length} đối tượng từ ${file.name}`);
+    saveState();
+    renderAtlas();
+    toast(`Đã nạp ${added.length} đối tượng GeoJSON.`);
+  } catch { toast('Tệp GeoJSON không đúng định dạng JSON.'); }
+}
+
+function openAtlasFeatureModal(editId, preLat, preLon) {
+  const item = editId ? state.atlasFeatures.find((x) => x.id === editId) : null;
+  const defLat = item ? item.lat : (typeof preLat === 'number' ? preLat : (ui.atlasScope === 'vietnam' ? 21.0285 : 0));
+  const defLon = item ? item.lon : (typeof preLon === 'number' ? preLon : (ui.atlasScope === 'vietnam' ? 105.8542 : 0));
+  openModal(
+    item ? 'Cập nhật địa danh Atlat' : 'Thêm địa danh / đối tượng Atlat',
+    `
+      <div class="grid-2">
+        <div><label class="lbl">Tên địa danh / quốc gia *</label><input id="fa-name" value="${esc(item?.name || '')}" placeholder="Ví dụ: Hà Nội" /></div>
+        <div><label class="lbl">Lớp bản đồ</label>
+          <select id="fa-layer">
+            ${ATLAS_LAYERS.map((l) => `<option value="${l.id}" ${(item?.layer || 'administrative') === l.id ? 'selected' : ''}>${esc(l.label)}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Phạm vi bản đồ</label>
+          <select id="fa-scope">
+            <option value="vietnam" ${(item?.scope || ui.atlasScope) === 'vietnam' ? 'selected' : ''}>Việt Nam</option>
+            <option value="world" ${(item?.scope || ui.atlasScope) === 'world' ? 'selected' : ''}>Thế giới</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;">
+          <div><label class="lbl">Vĩ độ (Lat)</label><input id="fa-lat" type="number" step="0.0001" value="${esc(defLat)}" /></div>
+          <div><label class="lbl">Kinh độ (Lon)</label><input id="fa-lon" type="number" step="0.0001" value="${esc(defLon)}" /></div>
+        </div>
+        <div><label class="lbl">Vùng địa lý</label><input id="fa-reg" value="${esc(item?.region || '')}" placeholder="Đồng bằng sông Hồng..." /></div>
+        <div><label class="lbl">Quốc gia</label><input id="fa-ctry" value="${esc(item?.country || (ui.atlasScope==='vietnam'?'Việt Nam':''))}" /></div>
+        <div><label class="lbl">Năm thống kê</label><input id="fa-yr" value="${esc(item?.yearRef || '')}" /></div>
+        <div><label class="lbl">Nguồn</label><input id="fa-src" value="${esc(item?.source || '')}" /></div>
+      </div>
+      <div><label class="lbl">Chỉ số địa lý (diện tích, dân số, đỉnh cao, sản lượng...)</label><input id="fa-met" value="${esc(item?.metricsText || '')}" /></div>
+      <div><label class="lbl">Thông tin chi tiết</label><textarea id="fa-sum" rows="2">${esc(item?.summary || '')}</textarea></div>
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Hủy</button><button type="button" class="btn btn-ocean" onclick="saveAtlasFeatureForm('${esc(editId || '')}')">Lưu địa danh</button>`
+  );
+}
+
+function saveAtlasFeatureForm(editId) {
+  const name = document.getElementById('fa-name').value.trim();
+  if (!name) { toast('Vui lòng nhập tên địa danh.'); return; }
+  const existing = editId ? state.atlasFeatures.find((x) => x.id === editId) : null;
+  const rec = {
+    id: existing?.id || uid('atl'),
+    name,
+    scope: document.getElementById('fa-scope').value,
+    layer: document.getElementById('fa-layer').value,
+    kind: existing?.kind || 'point',
+    coordinates: existing?.coordinates,
+    lat: Number(document.getElementById('fa-lat').value) || 0,
+    lon: Number(document.getElementById('fa-lon').value) || 0,
+    region: document.getElementById('fa-reg').value.trim(),
+    country: document.getElementById('fa-ctry').value.trim(),
+    yearRef: document.getElementById('fa-yr').value.trim(),
+    source: document.getElementById('fa-src').value.trim(),
+    metricsText: document.getElementById('fa-met').value.trim(),
+    summary: document.getElementById('fa-sum').value.trim(),
+  };
+  if (existing) state.atlasFeatures = state.atlasFeatures.map((x) => (x.id === existing.id ? rec : x));
+  else state.atlasFeatures.unshift(rec);
+  ui.atlasScope = rec.scope;
+  ui.selectedAtlasId = rec.id;
+  ui.atlasLayers[rec.layer] = true;
+  logActivity(existing ? 'Cập nhật Atlat' : 'Thêm điểm Atlat', `${rec.name} (${rec.lat}, ${rec.lon})`);
+  saveState();
+  closeModal();
+  renderAtlas();
+  toast('Đã lưu đối tượng Atlat.');
+}
+
+function deleteAtlasFeature(id) {
+  state.atlasFeatures = state.atlasFeatures.filter((f) => f.id !== id);
+  saveState();
+  renderAtlas();
+}
+
+function askAiAboutAtlas(id) {
+  ui.aiContextRef = `atlas:${id}`;
+  ui.aiMode = 'chart_analysis';
+  switchView('ai');
+}
+
+// ===================== 4. DATA & CHARTS =====================
+function renderData() {
+  const el = document.getElementById('view-data');
+  if (!ui.selectedDatasetId || !state.datasets.some((d) => d.id === ui.selectedDatasetId)) {
+    ui.selectedDatasetId = state.datasets[0]?.id || '';
+  }
+  const active = state.datasets.find((d) => d.id === ui.selectedDatasetId) || null;
+  if (active && ui.pieColIdx >= active.columns.length) ui.pieColIdx = 0;
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Dữ liệu &amp; Biểu đồ Địa Lý</h1>
+        <div class="sub">Chỉnh sửa bảng số liệu trực tiếp để vẽ biểu đồ, tính cơ cấu, mật độ dân số và tốc độ tăng trưởng</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ocean btn-sm" onclick="openDatasetModal()">+ Tạo bảng số liệu</button>
+        <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('data')">Nhập Excel</button>
+      </div>
+    </div>
+
+    ${state.datasets.length === 0 ? `
+      <div class="empty-box">
+        <h3>Chưa có bảng số liệu nào</h3>
+        <p>Tạo bảng số liệu mới hoặc tải lên file Excel (.xlsx/.xls). Số liệu tại đây sẽ tự động vẽ biểu đồ và dùng được ngay cho phần Luyện tập &amp; Kiểm tra.</p>
+        <div class="btn-row" style="justify-content:center;">
+          <button type="button" class="btn btn-ocean btn-sm" onclick="openDatasetModal()">+ Tạo bảng số liệu</button>
+          <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('data')">Nhập từ Excel</button>
+        </div>
+      </div>
+    ` : `
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem;align-items:center;">
+        ${state.datasets.map((d) => `
+          <button type="button" class="btn btn-sm ${d.id === active?.id ? 'btn-ocean' : ''}" onclick="ui.selectedDatasetId='${esc(d.id)}';renderData()">
+            ${esc(d.title)} <span class="tag">${esc(d.category)}</span>
+          </button>
+        `).join('')}
+      </div>
+
+      ${active ? renderActiveDatasetWorkspace(active) : ''}
+    `}
+
+    <!-- Standalone quick geographic index calculator -->
+    <div class="card" style="margin-top:0.85rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.55rem;flex-wrap:wrap;gap:0.4rem;">
+        <h2 style="font-size:0.94rem;">Máy tính nhanh các chỉ số Địa lý</h2>
+        <span class="meta-line">Tính chính xác theo công thức chuẩn</span>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="background:var(--paper);padding:0.65rem;">
+          <div class="reader-label">1. Mật độ dân số (người/km²)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-bottom:0.4rem;">
+            <div><label class="lbl">Dân số (người)</label><input id="calc-pop" type="number" value="${esc(ui.calcPop)}" placeholder="99460000" oninput="ui.calcPop=this.value;updateQuickCalc()" /></div>
+            <div><label class="lbl">Diện tích (km²)</label><input id="calc-area" type="number" value="${esc(ui.calcArea)}" placeholder="331212" oninput="ui.calcArea=this.value;updateQuickCalc()" /></div>
+          </div>
+          <div id="calc-density-out" class="mono" style="font-size:0.8rem;font-weight:700;color:var(--ocean);">
+            ${computeQuickDensityText()}
+          </div>
+        </div>
+        <div class="card" style="background:var(--paper);padding:0.65rem;">
+          <div class="reader-label">2. Bình quân (theo đầu người / đơn vị)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-bottom:0.4rem;">
+            <div><label class="lbl">Tổng giá trị / sản lượng</label><input id="calc-tot" type="number" value="${esc(ui.calcTotal)}" placeholder="430000" oninput="ui.calcTotal=this.value;updateQuickCalc()" /></div>
+            <div><label class="lbl">Số dân / diện tích chia</label><input id="calc-div" type="number" value="${esc(ui.calcDiv)}" placeholder="100.3" oninput="ui.calcDiv=this.value;updateQuickCalc()" /></div>
+          </div>
+          <div id="calc-avg-out" class="mono" style="font-size:0.8rem;font-weight:700;color:var(--moss);">
+            ${computeQuickAvgText()}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function computeQuickDensityText() {
+  const p = Number(ui.calcPop);
+  const a = Number(ui.calcArea);
+  if (ui.calcPop !== '' && ui.calcArea !== '' && Number.isFinite(p) && Number.isFinite(a) && a > 0 && p >= 0) {
+    return `Mật độ = ${roundGeo(p / a, 2)} người/km²`;
+  }
+  return 'Nhập Dân số và Diện tích (> 0) để tính.';
+}
+
+function computeQuickAvgText() {
+  const t = Number(ui.calcTotal);
+  const d = Number(ui.calcDiv);
+  if (ui.calcTotal !== '' && ui.calcDiv !== '' && Number.isFinite(t) && Number.isFinite(d) && d > 0) {
+    return `Bình quân = ${roundGeo(t / d, 2)} đơn vị`;
+  }
+  return 'Nhập Tổng giá trị và Mẫu số (> 0) để tính.';
+}
+
+function updateQuickCalc() {
+  const dOut = document.getElementById('calc-density-out');
+  const aOut = document.getElementById('calc-avg-out');
+  if (dOut) dOut.textContent = computeQuickDensityText();
+  if (aOut) aOut.textContent = computeQuickAvgText();
+}
+
+function renderActiveDatasetWorkspace(ds) {
+  return `
+    <div class="card" style="margin-bottom:0.75rem;">
+      <div style="display:flex;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:0.65rem;">
+        <div>
+          <h2 style="font-size:1.05rem;">${esc(ds.title)}</h2>
+          <div class="meta-line">
+            <span class="tag tag-ocean">${esc(ds.category)}</span>
+            <span class="tag">Đơn vị: ${esc(ds.unit)}</span>
+            ${ds.yearRange ? `<span class="tag tag-sand mono">${esc(ds.yearRange)}</span>` : ''}
+            ${ds.source ? `<span>Nguồn: ${esc(ds.source)}</span>` : ''}
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-xs btn-moss" onclick="linkDatasetToPractice('${esc(ds.id)}')">Tạo câu hỏi từ bảng này</button>
+          <button type="button" class="btn btn-xs btn-ocean" onclick="askAiAboutDataset('${esc(ds.id)}')">AI nhận xét bảng</button>
+          <button type="button" class="btn btn-xs" onclick="openDatasetModal('${esc(ds.id)}')">Sửa thông tin</button>
+          <button type="button" class="btn btn-xs btn-danger" onclick="deleteDataset('${esc(ds.id)}')">Xóa bảng</button>
+        </div>
+      </div>
+
+      <div class="grid-2" style="align-items:start;">
+        <!-- Left: Editable Matrix Table -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.35rem;">
+            <span class="reader-label" style="margin:0;">Bảng số liệu (sửa trực tiếp — tự động cập nhật biểu đồ)</span>
+            <div class="btn-row">
+              <button type="button" class="btn btn-xs" onclick="addDatasetRow('${esc(ds.id)}')">+ Dòng</button>
+              <button type="button" class="btn btn-xs" onclick="addDatasetCol('${esc(ds.id)}')">+ Cột năm/chỉ tiêu</button>
+            </div>
+          </div>
+          <div class="data-grid-wrap">
+            <table class="geo-table">
+              <thead>
+                <tr>
+                  <th>Đối tượng</th>
+                  ${ds.columns.map((col, ci) => `
+                    <th>
+                      <div style="display:flex;gap:0.2rem;align-items:center;">
+                        <input value="${esc(col)}" aria-label="Cột ${ci + 1}" onchange="updateDatasetCol('${esc(ds.id)}',${ci},this.value)" />
+                        ${ds.columns.length > 1 ? `<button type="button" class="btn btn-xs" onclick="removeDatasetCol('${esc(ds.id)}',${ci})">×</button>` : ''}
+                      </div>
+                    </th>
+                  `).join('')}
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ds.rows.map((row, ri) => `
+                  <tr>
+                    <td><input value="${esc(row.label)}" onchange="updateDatasetRowLabel('${esc(ds.id)}',${ri},this.value)" /></td>
+                    ${ds.columns.map((_, ci) => `
+                      <td><input class="mono" type="number" step="any" value="${row.values[ci] ?? ''}" onchange="updateDatasetCell('${esc(ds.id)}',${ri},${ci},this.value)" /></td>
+                    `).join('')}
+                    <td>${ds.rows.length > 1 ? `<button type="button" class="btn btn-xs" onclick="removeDatasetRow('${esc(ds.id)}',${ri})">×</button>` : ''}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:0.6rem;">
+            <label class="lbl">Nhận xét &amp; so sánh số liệu (lưu kèm nguồn và năm)</label>
+            <textarea rows="2" placeholder="Ghi nhận xét về xu hướng tăng/giảm, chuyển dịch cơ cấu..." onchange="saveDatasetAnalysis('${esc(ds.id)}',this.value)">${esc(ds.analysis || '')}</textarea>
+          </div>
+        </div>
+
+        <!-- Right: SVG Chart Renderer -->
+        <div class="chart-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+            <div class="btn-row">
+              ${[
+                ['bar', 'Cột'],
+                ['line', 'Đường'],
+                ['pie', 'Tròn'],
+                ['combo', 'Kết hợp'],
+              ].map(([ct, lbl]) => `
+                <button type="button" class="btn btn-xs ${ds.chartType === ct ? 'btn-ocean' : ''}" onclick="setDatasetChartType('${esc(ds.id)}','${ct}')">${lbl}</button>
+              `).join('')}
+            </div>
+            ${ds.chartType === 'pie' && ds.columns.length > 1 ? `
+              <select style="width:auto;padding:0.2rem 0.45rem;font-size:0.72rem;" onchange="ui.pieColIdx=Number(this.value);renderData()">
+                ${ds.columns.map((c, idx) => `<option value="${idx}" ${ui.pieColIdx === idx ? 'selected' : ''}>Năm/Cột: ${esc(c)}</option>`).join('')}
+              </select>
+            ` : ''}
+          </div>
+          <div id="geo-svg-chart">${buildDatasetChartSvg(ds)}</div>
+        </div>
+      </div>
+
+      <!-- Auto-Computed Geographic Analytics -->
+      <div style="margin-top:0.75rem;padding-top:0.65rem;border-top:1px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;flex-wrap:wrap;gap:0.4rem;">
+          <span class="reader-label" style="margin:0;">Tính toán tự động từ bảng số liệu</span>
+          <div class="btn-row">
+            <button type="button" class="btn btn-xs ${ui.calcTab==='structure'?'btn-moss':''}" onclick="ui.calcTab='structure';renderData()">Cơ cấu (%)</button>
+            <button type="button" class="btn btn-xs ${ui.calcTab==='growth'?'btn-moss':''}" onclick="ui.calcTab='growth';renderData()">Tốc độ tăng trưởng (%)</button>
+          </div>
+        </div>
+        ${renderDatasetAnalyticsTable(ds)}
+      </div>
+    </div>
+  `;
+}
+
+function buildDatasetChartSvg(ds) {
+  if (!ds.rows.length || !ds.columns.length) return '<div class="meta-line">Chưa đủ dữ liệu để vẽ biểu đồ.</div>';
+  const W = 520;
+  const H = 250;
+  const pad = { top: 22, right: 26, bottom: 38, left: 48 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+
+  if (ds.chartType === 'pie') {
+    const ci = Math.min(ui.pieColIdx, ds.columns.length - 1);
+    const rawVals = ds.rows.map((r) => Math.max(0, Number(r.values[ci]) || 0));
+    const shares = calcStructure(rawVals);
+    const total = rawVals.reduce((s, v) => s + v, 0);
+    if (total <= 0) return '<div class="meta-line">Nhập giá trị &gt; 0 để vẽ biểu đồ tròn.</div>';
+
+    const cx = 135, cy = 118, rad = 84;
+    let angle = -Math.PI / 2;
+    const slices = ds.rows.map((r, ri) => {
+      const val = rawVals[ri];
+      const frac = val / total;
+      const a2 = angle + frac * Math.PI * 2;
+      const x1 = cx + rad * Math.cos(angle);
+      const y1 = cy + rad * Math.sin(angle);
+      const x2 = cx + rad * Math.cos(a2);
+      const y2 = cy + rad * Math.sin(a2);
+      const large = frac > 0.5 ? 1 : 0;
+      const color = CHART_COLORS[ri % CHART_COLORS.length];
+      const path = frac >= 0.9999
+        ? `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="${color}" />`
+        : `<path d="M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${rad} ${rad} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z" fill="${color}" stroke="var(--card)" stroke-width="1.4" onmousemove="showChartTip(event,'${esc(r.label)} · ${esc(ds.columns[ci])}: ${val} ${esc(ds.unit)} (${shares[ri]}%)')" onmouseleave="hideChartTip()" />`;
+      angle = a2;
+      return { path, label: r.label, val, pct: shares[ri], color };
+    });
+
+    const legend = slices.map((s, idx) => `
+      <g transform="translate(248, ${28 + idx * 22})">
+        <rect width="10" height="10" rx="2" fill="${s.color}" />
+        <text x="15" y="9" font-size="10.5" fill="var(--ink)">${esc(s.label)} (${s.pct ?? 0}%)</text>
+      </g>
+    `).join('');
+
+    return `
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">
+        <text x="12" y="14" font-size="10.5" font-weight="700" fill="var(--muted)">Cơ cấu ${esc(ds.columns[ci])} (${esc(ds.unit)})</text>
+        ${slices.map((s) => s.path).join('')}
+        ${legend}
+      </svg>
+    `;
+  }
+
+  // Bar / Line / Combo over columns
+  const allVals = ds.rows.flatMap((r) => r.values.filter((v) => typeof v === 'number' && Number.isFinite(v)));
+  const maxVal = Math.max(10, ...allVals.map((v) => Math.abs(v))) * 1.12;
+  const ticks = 4;
+  const grid = Array.from({ length: ticks + 1 }, (_, i) => {
+    const v = roundGeo((maxVal / ticks) * i, 1);
+    const y = pad.top + plotH - (i / ticks) * plotH;
+    return `
+      <line x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}" stroke="var(--line)" stroke-dasharray="2 2" />
+      <text x="${pad.left - 6}" y="${y + 3}" text-anchor="end" font-size="9.5" fill="var(--muted)" font-family="JetBrains Mono, monospace">${v}</text>
+    `;
+  }).join('');
+
+  const xCount = ds.columns.length;
+  const xSlot = plotW / Math.max(1, xCount);
+  const xLabels = ds.columns.map((c, ci) => {
+    const cx = pad.left + ci * xSlot + xSlot / 2;
+    return `<text x="${cx}" y="${H - 14}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--muted)">${esc(c)}</text>`;
+  }).join('');
+
+  let seriesSvg = '';
+  if (ds.chartType === 'bar') {
+    const barCount = ds.rows.length;
+    const groupW = Math.min(xSlot * 0.76, barCount * 22);
+    const barW = Math.max(6, groupW / Math.max(1, barCount) - 2);
+    ds.rows.forEach((r, ri) => {
+      const color = CHART_COLORS[ri % CHART_COLORS.length];
+      ds.columns.forEach((col, ci) => {
+        const val = r.values[ci];
+        if (typeof val !== 'number') return;
+        const bh = Math.max(1, (Math.max(0, val) / maxVal) * plotH);
+        const bx = pad.left + ci * xSlot + (xSlot - groupW) / 2 + ri * (barW + 2);
+        const by = pad.top + plotH - bh;
+        seriesSvg += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${color}" onmousemove="showChartTip(event,'${esc(r.label)} · ${esc(col)}: ${val} ${esc(ds.unit)}')" onmouseleave="hideChartTip()" />`;
+      });
+    });
+  } else if (ds.chartType === 'line') {
+    ds.rows.forEach((r, ri) => {
+      const color = CHART_COLORS[ri % CHART_COLORS.length];
+      const pts = [];
+      ds.columns.forEach((col, ci) => {
+        const val = r.values[ci];
+        if (typeof val !== 'number') return;
+        const x = pad.left + ci * xSlot + xSlot / 2;
+        const y = pad.top + plotH - (Math.max(0, val) / maxVal) * plotH;
+        pts.push({ x, y, val, col });
+      });
+      if (pts.length > 1) {
+        seriesSvg += `<polyline fill="none" stroke="${color}" stroke-width="2.2" points="${pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}" />`;
+      }
+      pts.forEach((p) => {
+        seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${color}" stroke="var(--card)" stroke-width="1.3" onmousemove="showChartTip(event,'${esc(r.label)} · ${esc(p.col)}: ${p.val} ${esc(ds.unit)}')" onmouseleave="hideChartTip()" />`;
+      });
+    });
+  } else {
+    // Combo: First row = bars, remaining rows = lines
+    const barRow = ds.rows[0];
+    const barW = Math.min(28, xSlot * 0.45);
+    ds.columns.forEach((col, ci) => {
+      const val = barRow?.values[ci];
+      if (typeof val === 'number') {
+        const bh = Math.max(1, (Math.max(0, val) / maxVal) * plotH);
+        const bx = pad.left + ci * xSlot + xSlot / 2 - barW / 2;
+        const by = pad.top + plotH - bh;
+        seriesSvg += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${CHART_COLORS[0]}" fill-opacity="0.82" onmousemove="showChartTip(event,'[Cột] ${esc(barRow.label)} · ${esc(col)}: ${val} ${esc(ds.unit)}')" onmouseleave="hideChartTip()" />`;
+      }
+    });
+    ds.rows.slice(1).forEach((r, idx) => {
+      const color = CHART_COLORS[(idx + 1) % CHART_COLORS.length];
+      const pts = [];
+      ds.columns.forEach((col, ci) => {
+        const val = r.values[ci];
+        if (typeof val !== 'number') return;
+        const x = pad.left + ci * xSlot + xSlot / 2;
+        const y = pad.top + plotH - (Math.max(0, val) / maxVal) * plotH;
+        pts.push({ x, y, val, col });
+      });
+      if (pts.length > 1) {
+        seriesSvg += `<polyline fill="none" stroke="${color}" stroke-width="2.2" points="${pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}" />`;
+      }
+      pts.forEach((p) => {
+        seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${color}" stroke="var(--card)" stroke-width="1.3" onmousemove="showChartTip(event,'[Đường] ${esc(r.label)} · ${esc(p.col)}: ${p.val} ${esc(ds.secondaryUnit || ds.unit)}')" onmouseleave="hideChartTip()" />`;
+      });
+    });
+  }
+
+  const legend = ds.rows.map((r, ri) => `
+    <span style="display:inline-flex;align-items:center;gap:0.28rem;font-size:0.72rem;">
+      <span style="width:9px;height:9px;border-radius:2px;background:${CHART_COLORS[ri % CHART_COLORS.length]};"></span>
+      ${esc(r.label)}
+    </span>
+  `).join('');
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">
+      <text x="${pad.left}" y="13" font-size="10" font-weight="600" fill="var(--muted)">Đơn vị: ${esc(ds.unit)}</text>
+      ${grid}
+      <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top + plotH}" stroke="var(--line)" />
+      <line x1="${pad.left}" y1="${pad.top + plotH}" x2="${W - pad.right}" y2="${pad.top + plotH}" stroke="var(--line)" />
+      ${xLabels}
+      ${seriesSvg}
+    </svg>
+    <div style="display:flex;gap:0.7rem;flex-wrap:wrap;justify-content:center;margin-top:0.25rem;">${legend}</div>
+  `;
+}
+
+function renderDatasetAnalyticsTable(ds) {
+  if (ui.calcTab === 'structure') {
+    const colShares = ds.columns.map((_, ci) => calcStructure(ds.rows.map((r) => r.values[ci])));
+    return `
+      <div class="data-grid-wrap">
+        <table class="geo-table">
+          <thead>
+            <tr>
+              <th>Đối tượng</th>
+              ${ds.columns.map((c) => `<th>Cơ cấu ${esc(c)} (%)</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${ds.rows.map((r, ri) => `
+              <tr>
+                <td><strong>${esc(r.label)}</strong></td>
+                ${ds.columns.map((_, ci) => `<td class="mono">${colShares[ci][ri] !== null ? colShares[ci][ri] + '%' : '—'}</td>`).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="data-grid-wrap">
+      <table class="geo-table">
+        <thead>
+          <tr>
+            <th>Đối tượng</th>
+            ${ds.columns.map((c) => `<th>${esc(c)} (Gốc 100% / YoY)</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${ds.rows.map((r) => {
+            const g = calcGrowth(r.values);
+            return `
+              <tr>
+                <td><strong>${esc(r.label)}</strong></td>
+                ${g.map((cell) => `
+                  <td class="mono">${cell.indexPercent !== null ? cell.indexPercent + '%' : '—'}${cell.yoyPercent !== null ? ` (${cell.yoyPercent >= 0 ? '+' : ''}${cell.yoyPercent}%)` : ''}</td>
+                `).join('')}
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function showChartTip(ev, text) {
+  const tip = document.getElementById('chart-tooltip');
+  if (!tip) return;
+  tip.textContent = text;
+  tip.style.display = 'block';
+  tip.style.left = `${ev.clientX + 12}px`;
+  tip.style.top = `${ev.clientY - 26}px`;
+}
+function hideChartTip() {
+  const tip = document.getElementById('chart-tooltip');
+  if (tip) tip.style.display = 'none';
+}
+
+function updateDatasetCol(id, ci, val) {
+  state.datasets = state.datasets.map((d) => {
+    if (d.id !== id) return d;
+    const cols = [...d.columns];
+    cols[ci] = val.trim() || `Cột ${ci + 1}`;
+    return { ...d, columns: cols, updatedAt: new Date().toISOString() };
+  });
+  saveState();
+  renderData();
+}
+
+function updateDatasetRowLabel(id, ri, val) {
+  state.datasets = state.datasets.map((d) => {
+    if (d.id !== id) return d;
+    const rows = d.rows.map((r, idx) => (idx === ri ? { ...r, label: val } : r));
+    return { ...d, rows, updatedAt: new Date().toISOString() };
+  });
+  saveState();
+  renderData();
+}
+
+function updateDatasetCell(id, ri, ci, val) {
+  const num = val === '' ? null : Number(val);
+  state.datasets = state.datasets.map((d) => {
+    if (d.id !== id) return d;
+    const rows = d.rows.map((r, idx) => {
+      if (idx !== ri) return r;
+      const vals = [...r.values];
+      vals[ci] = Number.isFinite(num) ? num : null;
+      return { ...r, values: vals };
+    });
+    return { ...d, rows, updatedAt: new Date().toISOString() };
+  });
+  saveState();
+  renderData();
+}
+
+function addDatasetRow(id) {
+  state.datasets = state.datasets.map((d) =>
+    d.id === id ? { ...d, rows: [...d.rows, { label: `Mục ${d.rows.length + 1}`, values: d.columns.map(() => 0) }] } : d
+  );
+  saveState();
+  renderData();
+}
+
+function removeDatasetRow(id, ri) {
+  state.datasets = state.datasets.map((d) =>
+    d.id === id && d.rows.length > 1 ? { ...d, rows: d.rows.filter((_, i) => i !== ri) } : d
+  );
+  saveState();
+  renderData();
+}
+
+function addDatasetCol(id) {
+  state.datasets = state.datasets.map((d) =>
+    d.id === id
+      ? { ...d, columns: [...d.columns, `Năm ${d.columns.length + 1}`], rows: d.rows.map((r) => ({ ...r, values: [...r.values, 0] })) }
+      : d
+  );
+  saveState();
+  renderData();
+}
+
+function removeDatasetCol(id, ci) {
+  state.datasets = state.datasets.map((d) =>
+    d.id === id && d.columns.length > 1
+      ? { ...d, columns: d.columns.filter((_, i) => i !== ci), rows: d.rows.map((r) => ({ ...r, values: r.values.filter((_, i) => i !== ci) })) }
+      : d
+  );
+  saveState();
+  renderData();
+}
+
+function setDatasetChartType(id, ct) {
+  state.datasets = state.datasets.map((d) => (d.id === id ? { ...d, chartType: ct } : d));
+  saveState();
+  renderData();
+}
+
+function saveDatasetAnalysis(id, txt) {
+  state.datasets = state.datasets.map((d) => (d.id === id ? { ...d, analysis: txt } : d));
+  saveState();
+}
+
+function deleteDataset(id) {
+  state.datasets = state.datasets.filter((d) => d.id !== id);
+  saveState();
+  renderData();
+}
+
+function openDatasetModal(editId) {
+  const item = editId ? state.datasets.find((x) => x.id === editId) : null;
+  openModal(
+    item ? 'Cập nhật thông tin bảng số liệu' : 'Tạo bảng số liệu Địa lý mới',
+    `
+      <div class="grid-2">
+        <div><label class="lbl">Tên bảng số liệu *</label><input id="fd-title" value="${esc(item?.title || '')}" placeholder="Ví dụ: Cơ cấu GDP theo ngành" /></div>
+        <div><label class="lbl">Lĩnh vực</label>
+          <select id="fd-cat">
+            ${DATA_CATEGORIES.map((c) => `<option value="${esc(c)}" ${item?.category===c?'selected':''}>${esc(c)}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Đơn vị đo *</label><input id="fd-unit" value="${esc(item?.unit || '')}" placeholder="Tỉ đồng, triệu người, %..." /></div>
+        <div><label class="lbl">Giai đoạn / Năm</label><input id="fd-yr" value="${esc(item?.yearRange || '')}" placeholder="2020 - 2023" /></div>
+        <div><label class="lbl">Nguồn thống kê</label><input id="fd-src" value="${esc(item?.source || '')}" placeholder="Tổng cục Thống kê..." /></div>
+        <div><label class="lbl">Dạng biểu đồ mặc định</label>
+          <select id="fd-ct">
+            <option value="bar" ${item?.chartType==='bar'?'selected':''}>Biểu đồ cột</option>
+            <option value="line" ${item?.chartType==='line'?'selected':''}>Biểu đồ đường</option>
+            <option value="pie" ${item?.chartType==='pie'?'selected':''}>Biểu đồ tròn</option>
+            <option value="combo" ${item?.chartType==='combo'?'selected':''}>Biểu đồ kết hợp</option>
+          </select>
+        </div>
+      </div>
+      ${!item ? `
+        <div class="grid-2">
+          <div><label class="lbl">Các cột năm / chỉ tiêu (ngăn cách bằng dấu phẩy)</label><input id="fd-cols" value="2021, 2022, 2023" /></div>
+          <div><label class="lbl">Các đối tượng / hàng (ngăn cách bằng dấu phẩy)</label><input id="fd-rows" value="Nông lâm thủy sản, Công nghiệp xây dựng, Dịch vụ" /></div>
+        </div>
+      ` : ''}
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Hủy</button><button type="button" class="btn btn-ocean" onclick="saveDatasetForm('${esc(editId || '')}')">Lưu bảng số liệu</button>`
+  );
+}
+
+function saveDatasetForm(editId) {
+  const title = document.getElementById('fd-title').value.trim();
+  if (!title) { toast('Vui lòng nhập tên bảng số liệu.'); return; }
+  const existing = editId ? state.datasets.find((x) => x.id === editId) : null;
+  const now = new Date().toISOString();
+
+  let columns = existing?.columns;
+  let rows = existing?.rows;
+  if (!existing) {
+    columns = (document.getElementById('fd-cols').value || 'Năm 1, Năm 2').split(',').map((s) => s.trim()).filter(Boolean);
+    const rNames = (document.getElementById('fd-rows').value || 'Đối tượng 1, Đối tượng 2').split(',').map((s) => s.trim()).filter(Boolean);
+    rows = rNames.map((label) => ({ label, values: columns.map(() => 0) }));
+  }
+
+  const rec = {
+    id: existing?.id || uid('ds'),
+    title,
+    category: document.getElementById('fd-cat').value,
+    unit: document.getElementById('fd-unit').value.trim() || 'Đơn vị',
+    yearRange: document.getElementById('fd-yr').value.trim(),
+    source: document.getElementById('fd-src').value.trim(),
+    chartType: document.getElementById('fd-ct').value,
+    columns,
+    rows,
+    analysis: existing?.analysis || '',
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  };
+  if (existing) state.datasets = state.datasets.map((x) => (x.id === existing.id ? rec : x));
+  else state.datasets.unshift(rec);
+  ui.selectedDatasetId = rec.id;
+  logActivity(existing ? 'Cập nhật bảng số liệu' : 'Tạo bảng số liệu', rec.title);
+  saveState();
+  closeModal();
+  renderData();
+  toast('Đã lưu bảng số liệu.');
+}
+
+function linkDatasetToPractice(dsId) {
+  const ds = state.datasets.find((d) => d.id === dsId);
+  if (!ds) return;
+  const count = generateFromStores([ ], [], [ds]);
+  toast(count > 0 ? `Đã tạo ${count} câu hỏi phân tích số liệu từ "${ds.title}".` : 'Bảng cần tối thiểu 2 dòng có giá trị số để sinh câu hỏi.');
+  switchView('practice');
+}
+
+function askAiAboutDataset(dsId) {
+  ui.aiContextRef = `dataset:${dsId}`;
+  ui.aiMode = 'chart_analysis';
+  switchView('ai');
+}
+
+// ===================== 5. PRACTICE =====================
+function generateFromStores(lessons, atlasFeatures, datasets) {
+  let added = 0;
+  const existingIds = new Set(state.questions.map((q) => q.id));
+
+  datasets.forEach((ds) => {
+    if (!ds.rows || ds.rows.length < 2 || !ds.columns?.length) return;
+    const ci = ds.columns.length - 1;
+    const col = ds.columns[ci];
+    const valid = ds.rows.filter((r) => typeof r.values[ci] === 'number' && Number.isFinite(r.values[ci]));
+    if (valid.length >= 2) {
+      const sorted = [...valid].sort((a, b) => Number(b.values[ci]) - Number(a.values[ci]));
+      const qid = `gq-ds-max-${ds.id}-${ci}`;
+      if (!existingIds.has(qid)) {
+        state.questions.unshift({
+          id: qid,
+          type: 'data',
+          grade: 'Tổng hợp',
+          chapter: ds.category,
+          topic: ds.title,
+          prompt: `Căn cứ bảng số liệu "${ds.title}" (${col}), đối tượng nào có giá trị lớn nhất?`,
+          options: sorted.slice(0, 4).map((r) => r.label),
+          correctIndex: 0,
+          linkedDatasetId: ds.id,
+          methodGuide: `Đối chiếu các giá trị tại cột "${col}" (${ds.unit}) trong bảng số liệu kèm theo.`,
+          explanation: `${sorted[0].label} đạt ${sorted[0].values[ci]} ${ds.unit} (${col})${ds.source ? ` — Nguồn: ${ds.source}` : ''}.`,
+          source: ds.source,
+        });
+        existingIds.add(qid);
+        added++;
+      }
+    }
+  });
+
+  if (atlasFeatures.length >= 2) {
+    const pool = Array.from(new Set(atlasFeatures.map((f) => ATLAS_LAYERS.find((l) => l.id === f.layer)?.label || f.layer)));
+    if (pool.length >= 2) {
+      atlasFeatures.slice(0, 3).forEach((f) => {
+        const qid = `gq-atl-${f.id}`;
+        if (existingIds.has(qid)) return;
+        const ans = ATLAS_LAYERS.find((l) => l.id === f.layer)?.label || f.layer;
+        state.questions.unshift({
+          id: qid,
+          type: 'atlas',
+          grade: 'Atlat',
+          chapter: f.scope === 'vietnam' ? 'Atlat Việt Nam' : 'Thế giới',
+          topic: f.region || f.country || 'Địa danh',
+          prompt: `Địa danh "${f.name}" (${f.lat}°, ${f.lon}°) thuộc lớp bản đồ nào trong Atlat của bạn?`,
+          options: [ans, ...pool.filter((x) => x !== ans).slice(0, 3)],
+          correctIndex: 0,
+          linkedAtlasId: f.id,
+          methodGuide: 'Xác định ký hiệu và lớp bản đồ chuyên đề trong mục Atlat.',
+          explanation: `${f.name} thuộc lớp ${ans}${f.summary ? `. ${f.summary}` : ''}`,
+          source: f.source,
+        });
+        existingIds.add(qid);
+        added++;
+      });
+    }
+  }
+
+  if (lessons.length >= 2) {
+    const pool = Array.from(new Set(lessons.map((l) => l.domain)));
+    if (pool.length >= 2) {
+      lessons.slice(0, 3).forEach((l) => {
+        const qid = `gq-les-${l.id}`;
+        if (existingIds.has(qid)) return;
+        state.questions.unshift({
+          id: qid,
+          type: 'mcq',
+          grade: l.grade,
+          chapter: l.chapter,
+          topic: l.topic,
+          prompt: `Bài học "${l.title}" thuộc mảng kiến thức Địa lý nào?`,
+          options: [l.domain, ...pool.filter((x) => x !== l.domain).slice(0, 3)],
+          correctIndex: 0,
+          methodGuide: 'Phân loại đối tượng nghiên cứu trọng tâm của bài học.',
+          explanation: `${l.title} thuộc mảng ${l.domain}.`,
+          source: l.source,
+        });
+        existingIds.add(qid);
+        added++;
+      });
+    }
+  }
+
+  if (added > 0) {
+    logActivity('Sinh câu hỏi luyện tập', `${added} câu từ dữ liệu đã lưu`);
+    saveState();
+  }
+  return added;
+}
+
+const QUESTION_TYPE_LABELS = {
+  mcq: 'Trắc nghiệm',
+  tf: 'Đúng / Sai',
+  short: 'Trả lời ngắn',
+  atlas: 'Đọc Atlat',
+  data: 'Bảng số liệu',
+};
+
+function renderPractice() {
+  const el = document.getElementById('view-practice');
+  const topics = Array.from(new Set(state.questions.map((q) => q.topic).filter(Boolean)));
+  const grades = Array.from(new Set(state.questions.map((q) => q.grade).filter(Boolean)));
+
+  const filtered = state.questions.filter((q) => {
+    if (ui.pType && q.type !== ui.pType) return false;
+    if (ui.pTopic && q.topic !== ui.pTopic) return false;
+    if (ui.pGrade && q.grade !== ui.pGrade) return false;
+    return true;
+  });
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Luyện tập Địa Lý</h1>
+        <div class="sub">Trắc nghiệm, đúng/sai, trả lời ngắn, đọc Atlat và phân tích bảng số liệu kèm hướng dẫn phương pháp</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ocean btn-sm" id="geo-ai-q-btn" onclick="genGeoQuizAI()">✨ Sinh câu hỏi AI</button>
+        <button type="button" class="btn btn-moss btn-sm" onclick="handleGeneratePractice()">Sinh từ dữ liệu đã lưu</button>
+        <button type="button" class="btn btn-ocean btn-sm" onclick="openQuestionModal()">+ Thêm câu hỏi</button>
+        <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('practice')">Nhập Excel</button>
+      </div>
+    </div>
+
+    <div class="filter-bar" style="grid-template-columns:repeat(3,minmax(130px,1fr)) auto;">
+      <select onchange="ui.pType=this.value;renderPractice()">
+        <option value="">Tất cả dạng câu hỏi</option>
+        ${Object.entries(QUESTION_TYPE_LABELS).map(([k, lbl]) => `<option value="${k}" ${ui.pType===k?'selected':''}>${lbl}</option>`).join('')}
+      </select>
+      <select onchange="ui.pGrade=this.value;renderPractice()">
+        <option value="">Tất cả lớp</option>
+        ${grades.map((g) => `<option value="${esc(g)}" ${ui.pGrade===g?'selected':''}>${esc(g)}</option>`).join('')}
+      </select>
+      <select onchange="ui.pTopic=this.value;renderPractice()">
+        <option value="">Tất cả chủ đề</option>
+        ${topics.map((t) => `<option value="${esc(t)}" ${ui.pTopic===t?'selected':''}>${esc(t)}</option>`).join('')}
+      </select>
+      <span class="tag num">${filtered.length} câu</span>
+    </div>
+
+    ${state.questions.length === 0 ? `
+      <div class="empty-box">
+        <h3>Chưa có câu hỏi luyện tập nào</h3>
+        <p>Thêm câu hỏi thủ công, nhập từ file Excel mẫu, hoặc sinh tự động từ Bảng số liệu / Atlat / Bài học bạn đã lưu.</p>
+        <div class="btn-row" style="justify-content:center;">
+          <button type="button" class="btn btn-ocean btn-sm" onclick="openQuestionModal()">+ Thêm câu hỏi</button>
+          <button type="button" class="btn btn-moss btn-sm" onclick="handleGeneratePractice()">Sinh từ dữ liệu đã lưu</button>
+          <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('practice')">Nhập Excel</button>
+        </div>
+      </div>
+    ` : `
+      <div style="display:flex;flex-direction:column;gap:0.7rem;">
+        ${filtered.map((q, idx) => renderPracticeCard(q, idx)).join('')}
+      </div>
+    `}
+  `;
+}
+
+function renderPracticeCard(q, idx) {
+  const ans = ui.practiceAnswers[q.id];
+  const checked = ui.practiceChecked[q.id];
+  const verdict = checked ? gradeQuestion(q, ans) : null;
+  const linkedDs = q.linkedDatasetId ? state.datasets.find((d) => d.id === q.linkedDatasetId) : null;
+
+  return `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:0.45rem;flex-wrap:wrap;margin-bottom:0.4rem;">
+        <div class="meta-line">
+          <strong class="num">Câu ${idx + 1}</strong>
+          <span class="tag tag-ocean">${esc(QUESTION_TYPE_LABELS[q.type] || q.type)}</span>
+          <span class="tag">${esc(q.grade)}</span>
+          <span class="tag">${esc(q.topic)}</span>
+        </div>
+        <button type="button" class="btn btn-xs btn-danger" onclick="deleteQuestion('${esc(q.id)}')">Xóa</button>
+      </div>
+
+      <p style="font-weight:600;margin-bottom:0.5rem;">${esc(q.prompt)}</p>
+
+      ${linkedDs ? `
+        <div class="data-grid-wrap" style="margin-bottom:0.55rem;">
+          <table class="geo-table">
+            <thead><tr><th>${esc(linkedDs.title)} (${esc(linkedDs.unit)})</th>${linkedDs.columns.map((c) => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+            <tbody>${linkedDs.rows.map((r) => `<tr><td>${esc(r.label)}</td>${r.values.map((v) => `<td class="mono">${v ?? '—'}</td>`).join('')}</tr>`).join('')}</tbody>
+          </table>
+        </div>
+      ` : ''}
+
+      ${renderQuestionInput(q, ans, checked, 'practice')}
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.55rem;flex-wrap:wrap;gap:0.4rem;">
+        <button type="button" class="btn btn-sm btn-ocean" onclick="checkPracticeAnswer('${esc(q.id)}')">Kiểm tra đáp án</button>
+        ${checked ? `<span class="tag ${verdict.isCorrect ? 'tag-moss' : 'tag-danger'}">${verdict.isCorrect ? 'Chính xác' : 'Chưa đúng'}</span>` : ''}
+      </div>
+
+      ${checked ? `
+        <div style="margin-top:0.5rem;padding:0.55rem 0.68rem;border-radius:6px;background:var(--paper);font-size:0.78rem;">
+          ${q.methodGuide ? `<div><strong>Phương pháp:</strong> ${esc(q.methodGuide)}</div>` : ''}
+          ${q.explanation ? `<div style="margin-top:0.2rem;"><strong>Giải thích:</strong> ${esc(q.explanation)}</div>` : ''}
+          ${q.type === 'short' && q.correctAnswerText ? `<div style="margin-top:0.2rem;"><strong>Đáp án chuẩn:</strong> ${esc(q.correctAnswerText)}</div>` : ''}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderQuestionInput(q, ans, revealCorrect, modePrefix) {
+  if (q.type === 'tf') {
+    const sel = ans?.selectedBool;
+    return `
+      <div class="grid-2">
+        ${[true, false].map((val) => {
+          const isSel = sel === val;
+          const cls = revealCorrect
+            ? (val === q.correctBool ? 'ok' : isSel ? 'bad' : '')
+            : (isSel ? 'selected' : '');
+          return `<button type="button" class="opt-btn ${cls}" onclick="setAnswer('${modePrefix}','${esc(q.id)}',{type:'tf',selectedBool:${val}})">${val ? 'Đúng' : 'Sai'}</button>`;
+        }).join('')}
+      </div>
+    `;
+  }
+  if (q.type === 'short') {
+    return `
+      <input value="${esc(ans?.textAnswer || '')}" placeholder="Nhập câu trả lời ngắn của bạn..." oninput="setAnswer('${modePrefix}','${esc(q.id)}',{type:'short',textAnswer:this.value},true)" />
+    `;
+  }
+  const letters = ['A', 'B', 'C', 'D'];
+  return `
+    <div style="display:flex;flex-direction:column;gap:0.35rem;">
+      ${(q.options || []).map((opt, oi) => {
+        const isSel = ans?.selectedIndex === oi;
+        const cls = revealCorrect
+          ? (oi === q.correctIndex ? 'ok' : isSel ? 'bad' : '')
+          : (isSel ? 'selected' : '');
+        return `
+          <button type="button" class="opt-btn ${cls}" onclick="setAnswer('${modePrefix}','${esc(q.id)}',{type:'${esc(q.type)}',selectedIndex:${oi}})">
+            <strong class="mono">${letters[oi] || oi + 1}.</strong> <span>${esc(opt)}</span>
+          </button>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function setAnswer(modePrefix, qId, payload, silent) {
+  if (modePrefix === 'practice') {
+    ui.practiceAnswers[qId] = payload;
+    if (!silent) renderPractice();
+  } else if (ui.activeTest) {
+    ui.activeTest.answers[qId] = payload;
+    if (!silent) renderTest();
+  }
+}
+
+function checkPracticeAnswer(qId) {
+  ui.practiceChecked[qId] = true;
+  renderPractice();
+}
+
+function handleGeneratePractice() {
+  const n = generateFromStores(state.lessons, state.atlasFeatures, state.datasets);
+  if (n === 0) {
+    toast('Cần ít nhất 1 bảng số liệu (≥ 2 dòng số), hoặc ≥ 2 địa danh Atlat / ≥ 2 bài học khác mảng để sinh câu hỏi.');
+  } else {
+    toast(`Đã sinh ${n} câu hỏi mới từ dữ liệu của bạn.`);
+  }
+  renderPractice();
+}
+
+function deleteQuestion(id) {
+  state.questions = state.questions.filter((q) => q.id !== id);
+  saveState();
+  renderPractice();
+}
+
+function openQuestionModal() {
+  openModal(
+    'Thêm câu hỏi Địa lý',
+    `
+      <div class="grid-2">
+        <div><label class="lbl">Dạng câu hỏi</label>
+          <select id="fq-type" onchange="toggleGeoQFields()">
+            <option value="mcq">Trắc nghiệm (A/B/C/D)</option>
+            <option value="tf">Đúng / Sai</option>
+            <option value="short">Trả lời ngắn</option>
+            <option value="atlas">Đọc Atlat / Địa danh</option>
+            <option value="data">Phân tích số liệu / Biểu đồ</option>
+          </select>
+        </div>
+        <div><label class="lbl">Chủ đề</label><input id="fq-topic" placeholder="Khí hậu, Dân cư..." /></div>
+        <div><label class="lbl">Lớp</label><input id="fq-grade" value="Lớp 12" /></div>
+        <div><label class="lbl">Chương</label><input id="fq-chap" value="Chuyên đề" /></div>
+      </div>
+      <div><label class="lbl">Nội dung câu hỏi *</label><textarea id="fq-prompt" rows="2"></textarea></div>
+      <div id="fq-dyn"></div>
+      <div class="grid-2">
+        <div><label class="lbl">Hướng dẫn phương pháp</label><textarea id="fq-method" rows="2"></textarea></div>
+        <div><label class="lbl">Lời giải &amp; Giải thích</label><textarea id="fq-exp" rows="2"></textarea></div>
+      </div>
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Hủy</button><button type="button" class="btn btn-ocean" onclick="saveGeoQuestion()">Lưu câu hỏi</button>`
+  );
+  toggleGeoQFields();
+}
+
+function toggleGeoQFields() {
+  const t = document.getElementById('fq-type').value;
+  const box = document.getElementById('fq-dyn');
+  if (!box) return;
+  if (t === 'tf') {
+    box.innerHTML = `<div><label class="lbl">Đáp án đúng</label><select id="fq-tf"><option value="true">Đúng</option><option value="false">Sai</option></select></div>`;
+  } else if (t === 'short') {
+    box.innerHTML = `<div><label class="lbl">Đáp án ngắn chuẩn *</label><input id="fq-short" placeholder="Ví dụ: 300 người/km2" /></div>`;
+  } else {
+    box.innerHTML = `
+      <div class="grid-2">
+        <div><label class="lbl">Phương án A</label><input id="fq-a" /></div>
+        <div><label class="lbl">Phương án B</label><input id="fq-b" /></div>
+        <div><label class="lbl">Phương án C</label><input id="fq-c" /></div>
+        <div><label class="lbl">Phương án D</label><input id="fq-d" /></div>
+      </div>
+      <div style="margin-top:0.35rem;"><label class="lbl">Đáp án đúng</label>
+        <select id="fq-ans"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+      </div>
+    `;
+  }
+}
+
+function saveGeoQuestion() {
+  const type = document.getElementById('fq-type').value;
+  const prompt = document.getElementById('fq-prompt').value.trim();
+  if (!prompt) { toast('Vui lòng nhập nội dung câu hỏi.'); return; }
+  const q = {
+    id: uid('gq'),
+    type,
+    grade: document.getElementById('fq-grade').value.trim() || 'Khác',
+    chapter: document.getElementById('fq-chap').value.trim() || 'Chuyên đề',
+    topic: document.getElementById('fq-topic').value.trim() || 'Địa lý',
+    prompt,
+    methodGuide: document.getElementById('fq-method').value.trim(),
+    explanation: document.getElementById('fq-exp').value.trim(),
+  };
+  if (type === 'tf') {
+    q.correctBool = document.getElementById('fq-tf').value === 'true';
+  } else if (type === 'short') {
+    const ans = document.getElementById('fq-short').value.trim();
+    if (!ans) { toast('Nhập đáp án ngắn chuẩn.'); return; }
+    q.correctAnswerText = ans;
+    q.acceptedKeywords = ans.split(/[;,]/).map((s) => s.trim()).filter(Boolean);
+  } else {
+    q.options = [
+      document.getElementById('fq-a').value.trim(),
+      document.getElementById('fq-b').value.trim(),
+      document.getElementById('fq-c').value.trim(),
+      document.getElementById('fq-d').value.trim(),
+    ].filter(Boolean);
+    if (q.options.length < 2) { toast('Nhập tối thiểu 2 phương án.'); return; }
+    q.correctIndex = Math.min(q.options.length - 1, Number(document.getElementById('fq-ans').value) || 0);
+  }
+  state.questions.unshift(q);
+  logActivity('Thêm câu hỏi', q.topic);
+  saveState();
+  closeModal();
+  renderPractice();
+  toast('Đã lưu câu hỏi.');
+}
+
+// ===================== 6. TEST (TIMED EXAM GENERATOR & REVIEW) =====================
+function formatClock(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function renderTest() {
+  const el = document.getElementById('view-test');
+  if (ui.activeTest) {
+    const t = ui.activeTest;
+    const q = t.questions[t.currentIdx];
+    const answeredCount = t.questions.filter((item) => t.answers[item.id] !== undefined).length;
+    el.innerHTML = `
+      <div class="section-head">
+        <div>
+          <h1>Đang làm bài kiểm tra</h1>
+          <div class="sub">${esc(t.label)} · Đã trả lời ${answeredCount}/${t.questions.length} câu</div>
+        </div>
+        <div class="btn-row">
+          <span id="test-clock" class="tag tag-ocean mono" style="font-size:0.9rem;padding:0.28rem 0.65rem;">${formatClock(t.remainingSec)}</span>
+          <button type="button" class="btn btn-moss btn-sm" onclick="submitGeoTest()">Nộp bài</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:0.75rem;">
+        <div class="q-nav-grid" style="margin-bottom:0.65rem;">
+          ${t.questions.map((item, idx) => `
+            <button type="button" class="q-idx-btn ${idx === t.currentIdx ? 'current' : t.answers[item.id] ? 'answered' : ''}" onclick="ui.activeTest.currentIdx=${idx};renderTest()">${idx + 1}</button>
+          `).join('')}
+        </div>
+        <div class="meta-line" style="margin-bottom:0.4rem;">
+          <strong class="num">Câu ${t.currentIdx + 1}/${t.questions.length}</strong>
+          <span class="tag tag-ocean">${esc(QUESTION_TYPE_LABELS[q.type] || q.type)}</span>
+          <span class="tag">${esc(q.topic)}</span>
+        </div>
+        <p style="font-weight:600;margin-bottom:0.55rem;">${esc(q.prompt)}</p>
+        ${renderQuestionInput(q, t.answers[q.id], false, 'test')}
+        <div style="display:flex;justify-content:space-between;margin-top:0.65rem;">
+          <button type="button" class="btn btn-sm" ${t.currentIdx === 0 ? 'disabled' : ''} onclick="ui.activeTest.currentIdx--;renderTest()">Câu trước</button>
+          <button type="button" class="btn btn-sm btn-ocean" ${t.currentIdx >= t.questions.length - 1 ? 'disabled' : ''} onclick="ui.activeTest.currentIdx++;renderTest()">Câu tiếp</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const grades = Array.from(new Set(state.questions.map((q) => q.grade).filter(Boolean)));
+  const chapters = Array.from(new Set(state.questions.map((q) => q.chapter).filter(Boolean)));
+  const topics = Array.from(new Set(state.questions.map((q) => q.topic).filter(Boolean)));
+  const pool = state.questions.filter((q) => {
+    if (ui.tGrade && q.grade !== ui.tGrade) return false;
+    if (ui.tChapter && q.chapter !== ui.tChapter) return false;
+    if (ui.tTopic && q.topic !== ui.tTopic) return false;
+    if (ui.tType && q.type !== ui.tType) return false;
+    return true;
+  });
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Kiểm tra Địa Lý</h1>
+        <div class="sub">Tạo đề theo lớp, chương, chủ đề hoặc đề tổng hợp có đồng hồ đếm giờ &amp; thống kê kiến thức cần ôn</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-sand btn-sm" onclick="openExcelModal('test')">Nhập đề Excel</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:0.85rem;">
+      <div class="grid-3" style="margin-bottom:0.6rem;">
+        <div><label class="lbl">Lớp</label>
+          <select onchange="ui.tGrade=this.value;renderTest()">
+            <option value="">Tổng hợp tất cả lớp</option>
+            ${grades.map((g) => `<option value="${esc(g)}" ${ui.tGrade===g?'selected':''}>${esc(g)}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Chương</label>
+          <select onchange="ui.tChapter=this.value;renderTest()">
+            <option value="">Tất cả chương</option>
+            ${chapters.map((c) => `<option value="${esc(c)}" ${ui.tChapter===c?'selected':''}>${esc(c)}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Chủ đề</label>
+          <select onchange="ui.tTopic=this.value;renderTest()">
+            <option value="">Tất cả chủ đề</option>
+            ${topics.map((t) => `<option value="${esc(t)}" ${ui.tTopic===t?'selected':''}>${esc(t)}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Dạng câu hỏi</label>
+          <select onchange="ui.tType=this.value;renderTest()">
+            <option value="">Tổng hợp nhiều dạng</option>
+            ${Object.entries(QUESTION_TYPE_LABELS).map(([k, lbl]) => `<option value="${k}" ${ui.tType===k?'selected':''}>${lbl}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Số câu hỏi (khả dụng: ${pool.length})</label>
+          <input type="number" min="1" max="${Math.max(1, pool.length)}" value="${Math.min(ui.tCount, Math.max(1, pool.length))}" onchange="ui.tCount=Math.max(1,Number(this.value)||5)" />
+        </div>
+        <div><label class="lbl">Thời gian làm bài (phút)</label>
+          <input type="number" min="1" max="90" value="${ui.tMinutes}" onchange="ui.tMinutes=Math.max(1,Number(this.value)||10)" />
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+        <span class="meta-line">Ngân hàng hiện có <strong class="num">${pool.length}</strong> câu hỏi phù hợp cấu hình.</span>
+        <button type="button" class="btn btn-ocean" ${pool.length === 0 ? 'disabled' : ''} onclick="startGeoTest()">Bắt đầu làm bài kiểm tra</button>
+      </div>
+    </div>
+
+    ${ui.lastTestResult ? renderTestResultSummary(ui.lastTestResult) : ''}
+
+    ${state.testResults.length ? `
+      <div class="card" style="margin-top:0.75rem;">
+        <h2 style="font-size:0.94rem;margin-bottom:0.45rem;">Lịch sử kết quả kiểm tra</h2>
+        <div class="data-grid-wrap">
+          <table class="geo-table">
+            <thead><tr><th>Đề bài</th><th>Điểm</th><th>Đúng/Tổng</th><th>Cần ôn tập</th><th>Thời gian</th></tr></thead>
+            <tbody>
+              ${state.testResults.slice(0, 6).map((r) => `
+                <tr>
+                  <td>${esc(r.label)}</td>
+                  <td class="mono"><strong>${r.score10}/10</strong></td>
+                  <td class="mono">${r.correct}/${r.total}</td>
+                  <td>${r.weakTopics?.length ? esc(r.weakTopics.join(', ')) : 'Tốt'}</td>
+                  <td class="mono">${esc(r.at)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ` : ''}
+  `;
+}
+
+function startGeoTest() {
+  const pool = state.questions.filter((q) => {
+    if (ui.tGrade && q.grade !== ui.tGrade) return false;
+    if (ui.tChapter && q.chapter !== ui.tChapter) return false;
+    if (ui.tTopic && q.topic !== ui.tTopic) return false;
+    if (ui.tType && q.type !== ui.tType) return false;
+    return true;
+  });
+  if (!pool.length) { toast('Chưa có câu hỏi phù hợp. Hãy thêm hoặc nhập từ Excel.'); return; }
+  const count = Math.min(pool.length, Math.max(1, ui.tCount));
+  const picked = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+  ui.activeTest = {
+    label: ui.tTopic || ui.tChapter || ui.tGrade || 'Đề tổng hợp Địa lý',
+    questions: picked,
+    answers: {},
+    currentIdx: 0,
+    remainingSec: Math.max(60, ui.tMinutes * 60),
+  };
+  clearInterval(ui.testTimerHandle);
+  ui.testTimerHandle = setInterval(() => {
+    if (!ui.activeTest) { clearInterval(ui.testTimerHandle); return; }
+    ui.activeTest.remainingSec--;
+    const clk = document.getElementById('test-clock');
+    if (clk) clk.textContent = formatClock(Math.max(0, ui.activeTest.remainingSec));
+    if (ui.activeTest.remainingSec <= 0) submitGeoTest();
+  }, 1000);
+  renderTest();
+}
+
+function submitGeoTest() {
+  if (!ui.activeTest) return;
+  clearInterval(ui.testTimerHandle);
+  const t = ui.activeTest;
+  let correct = 0;
+  const weakSet = new Set();
+  const details = t.questions.map((q) => {
+    const res = gradeQuestion(q, t.answers[q.id]);
+    if (res.isCorrect) correct++;
+    else if (q.topic) weakSet.add(q.topic);
+    return { q, ans: t.answers[q.id], isCorrect: res.isCorrect };
+  });
+  const total = t.questions.length;
+  const score10 = roundGeo((correct / Math.max(1, total)) * 10, 1);
+  const resultRec = {
+    id: uid('res'),
+    label: t.label,
+    score10,
+    correct,
+    total,
+    weakTopics: Array.from(weakSet),
+    at: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN'),
+    details,
+  };
+  ui.lastTestResult = resultRec;
+  state.testResults.unshift({
+    id: resultRec.id, label: resultRec.label, score10, correct, total, weakTopics: resultRec.weakTopics, at: resultRec.at,
+  });
+  logActivity('Hoàn thành bài kiểm tra', `${resultRec.label}: ${score10}/10`);
+  ui.activeTest = null;
+  saveState();
+  renderTest();
+  toast(`Đã nộp bài: ${score10}/10 (${correct}/${total} câu đúng).`);
+}
+
+function renderTestResultSummary(res) {
+  return `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.6rem;">
+        <div>
+          <h2 style="font-size:1.05rem;">Kết quả: <span class="mono" style="color:var(--ocean);">${res.score10}/10</span> (${res.correct}/${res.total} câu đúng)</h2>
+          <div class="meta-line">
+            ${res.weakTopics.length ? `Cần ôn tập thêm: <strong>${esc(res.weakTopics.join(', '))}</strong>` : 'Bạn trả lời chính xác toàn bộ các chủ đề trong đề.'}
+          </div>
+        </div>
+        <button type="button" class="btn btn-sm" onclick="ui.lastTestResult=null;renderTest()">Đóng kết quả</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.45rem;">
+        ${(res.details || []).map((d, i) => `
+          <div style="padding:0.5rem 0.65rem;border:1px solid var(--line);border-radius:6px;background:${d.isCorrect ? 'var(--moss-bg)' : 'var(--danger-bg)'};font-size:0.78rem;">
+            <div><strong>Câu ${i + 1}:</strong> ${esc(d.q.prompt)} <span class="tag">${d.isCorrect ? 'Đúng' : 'Sai'}</span></div>
+            ${d.q.explanation ? `<div style="margin-top:0.2rem;color:var(--muted);">${esc(d.q.explanation)}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ===================== 7. GEOGRAPHY AI ASSISTANT =====================
+function buildLinkedAiContext() {
+  const parts = [];
+  if (ui.aiContextRef) {
+    const [kind, id] = ui.aiContextRef.split(':');
+    if (kind === 'lesson') {
+      const l = state.lessons.find((x) => x.id === id);
+      if (l) parts.push(`[Bài học: ${l.title} | Lớp ${l.grade} | ${l.domain} | Năm: ${l.yearRef || 'N/A'} | Nguồn: ${l.source || 'N/A'}]\nTrọng tâm: ${l.summary}\nÝ chính: ${l.keyPoints}\nSố liệu: ${l.dataNotes}`);
+    } else if (kind === 'atlas') {
+      const f = state.atlasFeatures.find((x) => x.id === id);
+      if (f) parts.push(`[Atlat: ${f.name} (${f.lat}, ${f.lon}) | Vùng: ${f.region} | Quốc gia: ${f.country} | Năm: ${f.yearRef || 'N/A'} | Nguồn: ${f.source || 'N/A'}]\nChỉ số: ${f.metricsText}\nMô tả: ${f.summary}`);
+    } else if (kind === 'dataset') {
+      const d = state.datasets.find((x) => x.id === id);
+      if (d) {
+        const hdr = `Đối tượng | ${d.columns.join(' | ')}`;
+        const rows = d.rows.map((r) => `${r.label} | ${r.values.map((v) => v ?? '').join(' | ')}`).join('\n');
+        parts.push(`[Bảng số liệu: ${d.title} | Lĩnh vực: ${d.category} | Đơn vị: ${d.unit} | Giai đoạn: ${d.yearRange} | Nguồn: ${d.source}]\n${hdr}\n${rows}${d.analysis ? '\nNhận xét sẵn có: ' + d.analysis : ''}`);
+      }
+    }
+  }
+  if (ui.aiExtraDocText) {
+    parts.push(`[Tài liệu đính kèm: ${ui.aiExtraDocName}]\n${ui.aiExtraDocText.slice(0, 8000)}`);
+  }
+  return parts.join('\n\n');
+}
+
+function renderMarkdownLite(txt) {
+  const lines = String(txt || '').split('\n');
+  let html = '';
+  let inTable = false;
+  let tableRows = [];
+
+  function flushTable() {
+    if (!tableRows.length) return;
+    const cleanRows = tableRows.filter((r) => !/^\|[\s:-]+\|$/.test(r.trim()));
+    if (cleanRows.length) {
+      html += '<table><thead><tr>' + cleanRows[0].split('|').slice(1, -1).map((c) => `<th>${esc(c.trim())}</th>`).join('') + '</tr></thead><tbody>';
+      cleanRows.slice(1).forEach((r) => {
+        html += '<tr>' + r.split('|').slice(1, -1).map((c) => `<td>${esc(c.trim())}</td>`).join('') + '</tr>';
+      });
+      html += '</tbody></table>';
+    }
+    tableRows = [];
+    inTable = false;
+  }
+
+  lines.forEach((raw) => {
+    const line = raw.trimEnd();
+    if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+      inTable = true;
+      tableRows.push(line.trim());
+      return;
+    }
+    if (inTable) flushTable();
+    let formatted = esc(line)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`(.+?)`/g, '<code class="mono">$1</code>');
+    if (line.startsWith('### ')) html += `<h4 style="margin-top:0.35rem;">${formatted.slice(4)}</h4>`;
+    else if (line.startsWith('## ')) html += `<h3 style="margin-top:0.4rem;">${formatted.slice(3)}</h3>`;
+    else if (line.startsWith('- ') || line.startsWith('* ')) html += `<div>• ${formatted.slice(2)}</div>`;
+    else if (!line.trim()) html += '<div style="height:0.3rem;"></div>';
+    else html += `<div>${formatted}</div>`;
+  });
+  if (inTable) flushTable();
+  return html;
+}
+
+function renderAi() {
+  const el = document.getElementById('view-ai');
+  const contextOptions = [
+    ...state.datasets.map((d) => ({ val: `dataset:${d.id}`, lbl: `[Số liệu] ${d.title}` })),
+    ...state.lessons.map((l) => ({ val: `lesson:${l.id}`, lbl: `[Bài học] ${l.title}` })),
+    ...state.atlasFeatures.map((a) => ({ val: `atlas:${a.id}`, lbl: `[Atlat] ${a.name}` })),
+  ];
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Trợ lý Địa Lý AI</h1>
+        <div class="sub">Giải bài tập, đọc ảnh bản đồ/Atlat/biểu đồ, tính chỉ số và phân tích hiện tượng theo từng năm</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-sm" onclick="ui.aiMessages=[];ui.aiImage=null;ui.aiExtraDocText='';renderAi()">Xóa hội thoại</button>
+      </div>
+    </div>
+
+    <div class="ai-layout">
+      <div class="card" style="display:flex;flex-direction:column;gap:0.55rem;">
+        <div>
+          <label class="lbl">Chế độ trợ lý</label>
+          <select onchange="ui.aiMode=this.value">
+            <option value="tutor_chat" ${ui.aiMode==='tutor_chat'?'selected':''}>Hỏi đáp Địa lý tổng hợp</option>
+            <option value="solve_step_by_step" ${ui.aiMode==='solve_step_by_step'?'selected':''}>Giải bài tập từng bước</option>
+            <option value="chart_analysis" ${ui.aiMode==='chart_analysis'?'selected':''}>Phân tích Atlat, bảng số liệu &amp; biểu đồ</option>
+            <option value="geo_calc" ${ui.aiMode==='geo_calc'?'selected':''}>Tính chỉ số địa lý &amp; trình bày cách tính</option>
+            <option value="phenomenon_analysis" ${ui.aiMode==='phenomenon_analysis'?'selected':''}>Phân tích nguyên nhân – đặc điểm – hệ quả</option>
+            <option value="mindmap_timeline" ${ui.aiMode==='mindmap_timeline'?'selected':''}>Bảng tổng hợp &amp; Sơ đồ tư duy</option>
+            <option value="exam_guide" ${ui.aiMode==='exam_guide'?'selected':''}>Phương pháp làm bài thi Địa lý</option>
+            <option value="quiz_generate" ${ui.aiMode==='quiz_generate'?'selected':''}>Tạo câu hỏi ôn tập</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="lbl">Liên kết dữ liệu đã lưu</label>
+          <select onchange="ui.aiContextRef=this.value">
+            <option value="">-- Không liên kết --</option>
+            ${contextOptions.map((o) => `<option value="${esc(o.val)}" ${ui.aiContextRef===o.val?'selected':''}>${esc(o.lbl)}</option>`).join('')}
+          </select>
+        </div>
+
+        <div>
+          <label class="lbl">Đọc ảnh bản đồ / biểu đồ hoặc file (.pdf, .docx, .txt)</label>
+          <input type="file" accept="image/*,.pdf,.docx,.txt,.csv" onchange="uploadAiAttachment(this)" />
+          ${ui.aiImage ? `<div class="meta-line" style="margin-top:0.25rem;"><span class="tag tag-ocean">Đã đính kèm ảnh</span><button type="button" class="btn btn-xs" onclick="ui.aiImage=null;renderAi()">Gỡ</button></div>` : ''}
+          ${ui.aiExtraDocName ? `<div class="meta-line" style="margin-top:0.25rem;"><span class="tag tag-moss">${esc(ui.aiExtraDocName)}</span><button type="button" class="btn btn-xs" onclick="ui.aiExtraDocText='';ui.aiExtraDocName='';renderAi()">Gỡ</button></div>` : ''}
+        </div>
+
+        <div style="border-top:1px solid var(--line);padding-top:0.5rem;display:flex;flex-direction:column;gap:0.32rem;">
+          <div class="kpi-label">Tác vụ nhanh</div>
+          <button type="button" class="btn btn-xs" onclick="runAiPreset('chart_analysis','Nhận xét, so sánh và giải thích chi tiết bảng số liệu / biểu đồ đính kèm theo từng mốc năm và đơn vị.')">Nhận xét &amp; so sánh biểu đồ</button>
+          <button type="button" class="btn btn-xs" onclick="runAiPreset('geo_calc','Tính các chỉ số địa lý (cơ cấu %, mật độ dân số, tốc độ tăng trưởng, bình quân) từ dữ liệu đã cung cấp và nêu rõ công thức.')">Tính chỉ số địa lý</button>
+          <button type="button" class="btn btn-xs" onclick="runAiPreset('phenomenon_analysis','Phân tích nguyên nhân, đặc điểm nhận diện và hệ quả của hiện tượng địa lý đang hỏi.')">Phân tích hiện tượng</button>
+          <button type="button" class="btn btn-xs" onclick="runAiPreset('mindmap_timeline','Tạo bảng tổng hợp từ khóa, sơ đồ tư duy phân nhánh và câu hỏi ôn tập ngắn.')">Bảng tổng hợp &amp; Sơ đồ tư duy</button>
+          <button type="button" class="btn btn-xs" onclick="runAiPreset('exam_guide','Hướng dẫn từng bước phương pháp đọc Atlat, chọn dạng biểu đồ và trả lời câu hỏi Địa lý.')">Phương pháp làm bài thi</button>
+        </div>
+      </div>
+
+      <div class="chat-box">
+        <div id="ai-msgs" class="chat-msgs">
+          ${ui.aiMessages.length === 0 ? `
+            <div class="meta-line" style="margin:auto;text-align:center;max-width:420px;">
+              Nhập câu hỏi Địa lý, chọn bảng số liệu/bài học liên kết bên trái hoặc tải ảnh bản đồ – Atlat – biểu đồ để Trợ lý phân tích chính xác theo từng năm và nguồn dữ liệu.
+            </div>
+          ` : ui.aiMessages.map((m) => `
+            <div class="msg-bubble ${m.role === 'user' ? 'msg-user' : m.isError ? 'msg-err' : 'msg-ai'}">
+              ${m.role === 'user' || m.isError ? esc(m.content) : renderMarkdownLite(m.content)}
+            </div>
+          `).join('')}
+        </div>
+        <div class="chat-compose">
+          <textarea id="ai-prompt-inp" rows="2" placeholder="Nhập câu hỏi Địa lý..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGeoAi();}">${esc(ui.aiPrompt)}</textarea>
+          <button type="button" class="btn btn-moss" ${ui.aiBusy ? 'disabled' : ''} onclick="sendGeoAi()">${ui.aiBusy ? 'Đang xử lý...' : 'Gửi'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  const box = document.getElementById('ai-msgs');
+  if (box) box.scrollTop = box.scrollHeight;
+}
+
+async function uploadAiAttachment(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const dataUrl = await readFileDataUrl(file);
+    if (file.type.startsWith('image/')) {
+      ui.aiImage = { mimeType: file.type, dataBase64: dataUrl };
+      toast(`Đã nạp ảnh "${file.name}".`);
+      renderAi();
+    } else {
+      const res = await fetch('/api/geography/parse-document', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, mimeType: file.type, fileBase64: dataUrl }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || 'Không đọc được tệp.');
+      ui.aiExtraDocText = d.text || '';
+      ui.aiExtraDocName = file.name;
+      toast(`Đã đọc nội dung từ "${file.name}".`);
+      renderAi();
+    }
+  } catch (e) { toast(e.message); }
+}
+
+function runAiPreset(mode, promptText) {
+  ui.aiMode = mode;
+  ui.aiPrompt = promptText;
+  sendGeoAi();
+}
+
+async function genGeoQuizAI() {
+  if (!window.SchoolHubAI) { toast('Chưa nạp cầu nối AI.'); return; }
+  const topic = ui.pTopic || prompt('Nhập chủ đề Địa lý muốn AI tạo câu hỏi (vd: Địa hình Việt Nam, Khí hậu nhiệt đới ẩm gió mùa, Dân cư & Đô thị hóa):', 'Địa lý tự nhiên & Khí hậu Việt Nam');
+  if (!topic) return;
+  const btn = document.getElementById('geo-ai-q-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang tạo đề...'; }
+  try {
+    const res = await window.SchoolHubAI.generateQuiz({
+      subjectId: 'geography',
+      topic,
+      count: 4,
+      contextText: buildLinkedAiContext(),
+    });
+    const qs = Array.isArray(res.questions) ? res.questions : [];
+    if (!qs.length) { toast('AI chưa tạo được câu hỏi.'); return; }
+    qs.forEach((q, idx) => {
+      state.questions.unshift({
+        id: uid('gq_ai_' + idx),
+        type: 'mcq',
+        grade: ui.pGrade || 'Lớp 12',
+        chapter: 'Ôn tập AI',
+        topic: q.topic || topic,
+        prompt: q.question,
+        options: Array.isArray(q.options) ? q.options : [],
+        correctIndex: Math.max(0, Number(q.correctIndex) || 0),
+        methodGuide: 'Đọc kỹ từ khóa địa lý và đối chiếu Atlat/số liệu liên quan.',
+        explanation: q.explanation || '',
+      });
+    });
+    logActivity('Sinh câu hỏi Địa lý bằng AI', `${qs.length} câu (${topic})`);
+    saveState();
+    renderPractice();
+    toast(`Đã tạo ${qs.length} câu hỏi Địa lý bằng AI!`);
+  } catch (e) {
+    toast('Lỗi AI: ' + (e.message || 'Không tạo được câu hỏi.'));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Sinh câu hỏi AI'; }
+  }
+}
+
+async function sendGeoAi() {
+  const inp = document.getElementById('ai-prompt-inp');
+  const prompt = (inp ? inp.value : ui.aiPrompt).trim();
+  if (!prompt && !ui.aiImage) { toast('Nhập câu hỏi hoặc đính kèm ảnh.'); return; }
+  const userText = prompt || 'Hãy phân tích ảnh bản đồ / Atlat / biểu đồ đính kèm.';
+  ui.aiPrompt = '';
+  const cleanMsgs = ui.aiMessages.filter((m) => !m.isError).slice(-9).map((m) => ({ role: m.role, content: m.content }));
+  cleanMsgs.push({ role: 'user', content: userText });
+
+  ui.aiMessages.push({ role: 'user', content: userText });
+  const assistantMsg = { role: 'assistant', content: 'Đang phân tích bằng Gemini AI...' };
+  ui.aiMessages.push(assistantMsg);
+  const assistantIdx = ui.aiMessages.length - 1;
+  ui.aiBusy = true;
+  renderAi();
+
+  const imgToSend = ui.aiImage;
+  try {
+    let replyText = '';
+    if (window.SchoolHubAI && window.SchoolHubAI.streamAssist) {
+      replyText = await window.SchoolHubAI.streamAssist({
+        subjectId: 'geography',
+        mode: ui.aiMode,
+        prompt: userText,
+        messages: cleanMsgs,
+        contextText: buildLinkedAiContext(),
+        image: imgToSend,
+        onDelta: (_d, full) => {
+          ui.aiMessages[assistantIdx].content = full;
+          const msgsBox = document.getElementById('ai-msgs');
+          const bubbles = msgsBox ? msgsBox.querySelectorAll('.msg-bubble') : null;
+          const lastBubble = bubbles && bubbles.length ? bubbles[bubbles.length - 1] : null;
+          if (lastBubble) {
+            lastBubble.innerHTML = renderMarkdownLite(full);
+            msgsBox.scrollTop = msgsBox.scrollHeight;
+          }
+        },
+      });
+    } else {
+      const res = await fetch('/api/ai/subject-assist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subjectId: 'geography',
+          mode: ui.aiMode,
+          prompt: userText,
+          messages: cleanMsgs,
+          contextText: buildLinkedAiContext(),
+          image: imgToSend,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Lỗi dịch vụ AI.');
+      replyText = data.text || '';
+    }
+    ui.aiMessages[assistantIdx].content = replyText;
+  } catch (e) {
+    ui.aiMessages[assistantIdx] = {
+      role: 'assistant',
+      content: `⚠ Không thể phản hồi lúc này: ${e.message}`,
+      isError: true,
+    };
+  } finally {
+    ui.aiBusy = false;
+    renderAi();
+  }
+}
+
+// ===================== EXCEL IMPORT MODAL (ALL 5 MODULES) =====================
+function openExcelModal(mod) {
+  ui.excelPreview = { moduleKey: mod || 'knowledge', rows: [], dataset: null };
+  renderExcelModal();
+}
+
+function renderExcelModal() {
+  const { moduleKey, rows, dataset } = ui.excelPreview;
+  const count = moduleKey === 'data' ? (dataset ? dataset.rows.length : 0) : rows.length;
+
+  let previewHtml = `<div class="meta-line">Chọn file Excel (.xlsx, .xls) để tự động đọc, phân loại, xem trước và chỉnh sửa trước khi lưu.</div>`;
+  if (moduleKey === 'data' && dataset) {
+    previewHtml = `
+      <div class="grid-2">
+        <div><label class="lbl">Tên bảng số liệu</label><input value="${esc(dataset.title)}" onchange="ui.excelPreview.dataset.title=this.value" /></div>
+        <div><label class="lbl">Đơn vị</label><input value="${esc(dataset.unit)}" onchange="ui.excelPreview.dataset.unit=this.value" /></div>
+      </div>
+      <div class="data-grid-wrap" style="max-height:240px;">
+        <table class="geo-table">
+          <thead><tr><th>Đối tượng</th>${dataset.columns.map((c) => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+          <tbody>
+            ${dataset.rows.map((r, ri) => `
+              <tr>
+                <td><input value="${esc(r.label)}" onchange="ui.excelPreview.dataset.rows[${ri}].label=this.value" /></td>
+                ${r.values.map((v, ci) => `<td><input class="mono" type="number" step="any" value="${v ?? ''}" onchange="ui.excelPreview.dataset.rows[${ri}].values[${ci}]=this.value===''?null:Number(this.value)" /></td>`).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else if (rows.length > 0) {
+    previewHtml = `
+      <div class="meta-line"><strong>Xem trước &amp; chỉnh sửa (${rows.length} dòng) trước khi lưu:</strong></div>
+      <div class="data-grid-wrap" style="max-height:240px;">
+        <table class="geo-table">
+          <thead><tr><th>#</th><th>Tên / Câu hỏi</th><th>Phân loại / Tọa độ</th><th>Chủ đề / Nguồn</th><th></th></tr></thead>
+          <tbody>
+            ${rows.map((r, i) => `
+              <tr>
+                <td class="mono">${i + 1}</td>
+                <td><input value="${esc(r.title || r.name || r.prompt || '')}" onchange="updateXlCell(${i},'${r.name!==undefined?'name':r.prompt!==undefined?'prompt':'title'}',this.value)" /></td>
+                <td><input value="${esc(r.domain || r.layer || r.type || '')}" onchange="updateXlCell(${i},'${r.layer!==undefined?'layer':r.type!==undefined?'type':'domain'}',this.value)" /></td>
+                <td><input value="${esc(r.topic || r.region || r.source || '')}" onchange="updateXlCell(${i},'${r.region!==undefined?'region':'topic'}',this.value)" /></td>
+                <td><button type="button" class="btn btn-xs" onclick="ui.excelPreview.rows.splice(${i},1);renderExcelModal()">×</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  openModal(
+    'Nhập dữ liệu Excel (.xlsx, .xls)',
+    `
+      <div class="grid-2" style="align-items:end;">
+        <div>
+          <label class="lbl">Mục nhận dữ liệu</label>
+          <select onchange="ui.excelPreview.moduleKey=this.value;ui.excelPreview.rows=[];ui.excelPreview.dataset=null;renderExcelModal()">
+            <option value="knowledge" ${moduleKey==='knowledge'?'selected':''}>Kiến thức Địa lý</option>
+            <option value="atlas" ${moduleKey==='atlas'?'selected':''}>Atlat (Địa danh &amp; Tọa độ)</option>
+            <option value="data" ${moduleKey==='data'?'selected':''}>Dữ liệu &amp; Biểu đồ</option>
+            <option value="practice" ${moduleKey==='practice'?'selected':''}>Luyện tập (Câu hỏi)</option>
+            <option value="test" ${moduleKey==='test'?'selected':''}>Kiểm tra (Ngân hàng đề)</option>
+          </select>
+        </div>
+        <div>
+          <a class="btn btn-sand" style="text-decoration:none;justify-content:center;width:100%;" href="/api/geography/excel-template?module=${esc(moduleKey)}" download>Tải file Excel mẫu (.xlsx)</a>
+        </div>
+      </div>
+
+      <div>
+        <label class="lbl">Tải lên file Excel (.xlsx, .xls)</label>
+        <input type="file" accept=".xlsx,.xls" onchange="handleExcelUpload(this)" />
+      </div>
+
+      ${previewHtml}
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Đóng</button><button type="button" class="btn btn-ocean" ${count === 0 ? 'disabled' : ''} onclick="confirmSaveExcel()">Xác nhận lưu (${count})</button>`
+  );
+}
+
+function updateXlCell(idx, field, val) {
+  if (ui.excelPreview.rows[idx]) ui.excelPreview.rows[idx][field] = val;
+}
+
+async function handleExcelUpload(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const dataUrl = await readFileDataUrl(file);
+    const res = await fetch('/api/geography/parse-excel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName: file.name, moduleKey: ui.excelPreview.moduleKey, fileBase64: dataUrl, title: file.name.replace(/\.xlsx?$/i, '') }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Không đọc được file Excel.');
+    if (ui.excelPreview.moduleKey === 'data') {
+      ui.excelPreview.dataset = d.dataset || null;
+      ui.excelPreview.rows = [];
+    } else {
+      ui.excelPreview.rows = d.rows || [];
+      ui.excelPreview.dataset = null;
+    }
+    renderExcelModal();
+    toast('Đã đọc dữ liệu xem trước từ Excel.');
+  } catch (e) { toast(e.message); }
+}
+
+function confirmSaveExcel() {
+  const { moduleKey, rows, dataset } = ui.excelPreview;
+  if (moduleKey === 'data' && dataset) {
+    state.datasets.unshift(dataset);
+    ui.selectedDatasetId = dataset.id;
+    logActivity('Nhập bảng số liệu Excel', dataset.title);
+    saveState();
+    closeModal();
+    switchView('data');
+    toast(`Đã lưu bảng số liệu "${dataset.title}".`);
+    return;
+  }
+  if (!rows.length) return;
+  if (moduleKey === 'knowledge') {
+    state.lessons = [...rows, ...state.lessons];
+  } else if (moduleKey === 'atlas') {
+    state.atlasFeatures = [...rows, ...state.atlasFeatures];
+  } else if (moduleKey === 'practice' || moduleKey === 'test') {
+    state.questions = [...rows, ...state.questions];
+  }
+  logActivity(`Nhập Excel (${moduleKey})`, `${rows.length} dòng`);
+  saveState();
+  closeModal();
+  switchView(moduleKey);
+  toast(`Đã nhập ${rows.length} mục từ Excel.`);
+}
+
+// Host Bridge Commands
+if (window.SchoolHubAI) {
+  window.SchoolHubAI.onHostCommand((msg) => {
+    if (msg.type === 'host:inject-quiz' && msg.payload && Array.isArray(msg.payload.questions)) {
+      msg.payload.questions.forEach((q, idx) => {
+        state.questions.unshift({
+          id: uid('gq_host_' + idx),
+          type: 'mcq',
+          grade: 'Lớp 12',
+          chapter: 'Ôn tập AI',
+          topic: q.topic || msg.payload.topic || 'Địa lý AI',
+          prompt: q.question,
+          options: Array.isArray(q.options) ? q.options : [],
+          correctIndex: Math.max(0, Number(q.correctIndex) || 0),
+          methodGuide: 'Đối chiếu Atlat và kiến thức Địa lý trọng tâm.',
+          explanation: q.explanation || '',
+        });
+      });
+      saveState();
+      switchView('practice');
+      toast(`Đã nạp ${msg.payload.questions.length} câu hỏi AI vào Luyện tập.`);
+    } else if (msg.type === 'host:inject-cards' && msg.payload && Array.isArray(msg.payload.cards)) {
+      msg.payload.cards.forEach((c, idx) => {
+        state.lessons.unshift({
+          id: uid('gl_host_' + idx),
+          title: c.front,
+          grade: 'Lớp 12',
+          chapter: 'Ghi nhớ nhanh AI',
+          topic: msg.payload.topic || 'Địa lý AI',
+          domain: 'Tự nhiên',
+          summary: c.back,
+          keyPoints: c.example || '',
+          dataNotes: c.tip || '',
+          yearRef: '',
+          source: 'Gemini AI',
+        });
+      });
+      saveState();
+      switchView('knowledge');
+      toast(`Đã nạp ${msg.payload.cards.length} thẻ kiến thức AI.`);
+    }
+  });
+}
+
+// Init
+renderCurrentView();
+emitGeoContext(ui.view);
+</script>
+</body>
+</html>

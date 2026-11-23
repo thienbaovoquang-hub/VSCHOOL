@@ -1,0 +1,2342 @@
+# SCHOOLHUB – COMPLETE SYSTEM AUDIT, FEATURE ENHANCEMENT & PREMIUM UI/UX OVERHAUL
+
+## MỤC TIÊU: HOÀN THIỆN TOÀN BỘ HỆ SINH THÁI SCHOOLHUB
+
+Bạn đang tiếp tục phát triển dự án SCHOOLHUB hiện tại trong Google AI Studio Build Mode.
+
+Tôi muốn bạn tiến hành một đợt **kiểm toán, cải thiện, nâng cấp và hoàn thiện toàn diện hệ thống**, bao gồm:
+
+1. Toàn bộ chức năng của 8 ứng dụng chính.
+2. Logic nghiệp vụ và quy trình xử lý.
+3. Cơ sở dữ liệu và sự liên kết giữa các module.
+4. Hệ thống đăng nhập, phân quyền và bảo mật.
+5. Trải nghiệm sử dụng của từng vai trò.
+6. Giao diện Desktop theo phong cách Windows 11.
+7. Giao diện bên trong từng ứng dụng.
+8. Hiệu năng, khả năng mở rộng và tính ổn định.
+9. Các chức năng AI và khả năng tự động hóa.
+10. Kiểm thử và sửa lỗi toàn hệ thống.
+
+Tôi không muốn một website chỉ có giao diện đẹp nhưng chức năng sơ sài, thiếu logic hoặc hoạt động không đầy đủ.
+
+Tôi muốn một hệ thống chuyên nghiệp, có thể sử dụng thực tế trong môi trường trường THPT, dễ sử dụng ngay cả với người lần đầu tiếp xúc.
+
+**NGUYÊN TẮC CỐT LÕI: FUNCTIONAL COMPLETENESS – BUSINESS LOGIC – DATA CONSISTENCY – USER EXPERIENCE – SECURITY – PERFORMANCE.**
+
+---
+
+# PHẦN I. QUY TẮC KIỂM TOÁN VÀ NÂNG CẤP HỆ THỐNG
+
+## 1. Kiểm tra toàn bộ source code trước khi chỉnh sửa
+
+Hãy đọc và phân tích toàn bộ project hiện tại.
+
+Không được chỉ kiểm tra một vài màn hình hoặc một vài component.
+
+Cần kiểm tra:
+
+- Cấu trúc source code.
+- Danh sách ứng dụng và module.
+- Các component giao diện.
+- Các chức năng đã triển khai.
+- Các nút và thao tác.
+- Các form nhập liệu.
+- Các bảng dữ liệu.
+- Các luồng chuyển đổi màn hình.
+- Các API.
+- Firebase Authentication.
+- Firestore.
+- Storage.
+- Cloud Functions hoặc backend nếu có.
+- Phân quyền.
+- Các listener và trạng thái dữ liệu.
+- Logic xử lý nghiệp vụ.
+- Tính năng Import/Export.
+- Các kết nối giữa các ứng dụng.
+- Các lỗi trong console.
+- Những thành phần đang sử dụng dữ liệu hardcode.
+- Những chức năng mới chỉ có giao diện nhưng chưa hoạt động.
+
+## 2. Đánh giá từng tính năng
+
+Mỗi tính năng phải được đánh giá riêng biệt.
+
+Sử dụng các trạng thái:
+
+| Trạng thái | Ý nghĩa |
+|---|---|
+| Hoàn chỉnh | Đã triển khai và hoạt động đúng |
+| Cần cải thiện | Đã hoạt động nhưng còn thiếu hoặc chưa tối ưu |
+| Chưa hoàn chỉnh | Có giao diện hoặc logic nhưng chưa đủ quy trình |
+| Chưa triển khai | Chưa có chức năng thực tế |
+| Có lỗi | Hoạt động sai, không ổn định hoặc có lỗi |
+| Chưa xác minh | Chưa đủ điều kiện kiểm tra |
+
+Với từng tính năng, hãy xác định:
+
+1. Tính năng hiện đang làm được những gì?
+2. Người dùng thực hiện thao tác như thế nào?
+3. Dữ liệu được lấy từ đâu?
+4. Dữ liệu được lưu ở đâu?
+5. Những vai trò nào được sử dụng?
+6. Có những bước xử lý nào?
+7. Có những trường hợp ngoại lệ nào?
+8. Còn thiếu chức năng gì?
+9. Có lỗi hoặc nguy cơ nào?
+10. Cần cải thiện và nâng cấp những gì?
+11. Tiêu chí nào chứng minh tính năng đã hoạt động đúng?
+
+Không được đánh giá một tính năng là hoàn chỉnh chỉ vì nó có một giao diện đẹp hoặc nút bấm có thể click.
+
+## 3. Không được tự nhận đã hoàn thành
+
+Không được:
+
+- Tạo nút giả.
+- Tạo bảng dữ liệu chỉ chứa dữ liệu mẫu.
+- Sử dụng số liệu hardcode thay cho database.
+- Tạo biểu đồ giả.
+- Giả lập quy trình nghiệp vụ bằng animation.
+- Tự tạo học sinh, giáo viên hoặc tài khoản.
+- Tự tạo giao dịch, điểm số và thông báo mẫu.
+- Hiển thị trạng thái thành công khi dữ liệu chưa được lưu.
+- Để các thao tác không có phản hồi hoặc không có xử lý lỗi.
+
+Nếu một tích hợp cần phần cứng hoặc dịch vụ bên ngoài chưa được kết nối, phải thể hiện rõ trạng thái chưa kết nối, không được giả vờ tích hợp thành công.
+
+## 4. Nguyên tắc nâng cấp
+
+- Giữ nguyên các chức năng đang hoạt động tốt.
+- Giữ nguyên dữ liệu thực.
+- Không phá vỡ cấu trúc dữ liệu hiện tại.
+- Không xóa tài khoản thực.
+- Không tự ý thay thế công nghệ đang hoạt động ổn định.
+- Không xây dựng lại toàn bộ hệ thống nếu chỉ cần sửa một module.
+- Tái sử dụng component và logic chung.
+- Không tạo chức năng trùng lặp.
+- Không tạo thêm ứng dụng thứ 9.
+- Không biến các tính năng con thành ứng dụng độc lập.
+
+---
+
+# PHẦN II. CẤU TRÚC 8 ỨNG DỤNG CHÍNH
+
+SchoolHub có đúng 8 ứng dụng chính.
+
+Mỗi ứng dụng chứa các nhóm chức năng nhỏ. Khi mở ứng dụng, người dùng chuyển đổi giữa những chức năng này bằng thanh tab nằm phía trên nội dung cửa sổ.
+
+Cấu trúc:
+
+1. Quản trị hệ thống.
+2. Quản lý nhà trường.
+3. Học tập & giảng dạy.
+4. Thư viện thông minh.
+5. Dịch vụ học sinh.
+6. Thông tin & truyền thông.
+7. Cơ sở vật chất.
+8. Phân tích & AI.
+
+Không được tự ý tách các module con thành những ứng dụng mới.
+
+# APP 01 – QUẢN TRỊ HỆ THỐNG
+
+Tên: Quản trị hệ thống.
+
+Mục tiêu: Quản lý tài khoản, vai trò, quyền truy cập, cấu hình và tình trạng hoạt động của toàn bộ SchoolHub.
+
+## 1. Tổng quan hệ thống
+
+### Chức năng
+
+- Tổng số tài khoản.
+- Số học sinh.
+- Số giáo viên.
+- Số nhân viên.
+- Tình trạng tài khoản.
+- Phân bố người dùng theo vai trò.
+- Hoạt động gần đây.
+- Tình trạng các dịch vụ.
+- Các công việc quản trị cần xử lý.
+
+### Cách hoạt động
+
+Dữ liệu phải được tổng hợp từ database thực tế.
+
+Khi dữ liệu thay đổi, dashboard phải cập nhật tương ứng.
+
+### Nâng cấp
+
+- Cho phép lọc theo năm học khi cần.
+- Phân biệt tài khoản đang hoạt động, bị khóa và chưa kích hoạt.
+- Có liên kết nhanh đến danh sách chi tiết.
+- Có cảnh báo lỗi dịch vụ.
+- Không tạo dữ liệu giả khi database trống.
+- Các số liệu phải truy vết được nguồn dữ liệu.
+
+## 2. Quản lý người dùng
+
+### Chức năng
+
+- Tạo tài khoản.
+- Chỉnh sửa thông tin.
+- Kích hoạt tài khoản.
+- Khóa hoặc mở khóa.
+- Vô hiệu hóa tài khoản.
+- Gán vai trò.
+- Gán phạm vi truy cập.
+- Tìm kiếm.
+- Lọc.
+- Phân trang.
+- Xem lịch sử tài khoản.
+- Đặt lại mật khẩu theo quy trình an toàn.
+- Quản lý phiên đăng nhập nếu hệ thống hỗ trợ.
+
+### Cách hoạt động
+
+Tài khoản đăng nhập phải được liên kết với hồ sơ người dùng tương ứng.
+
+Không được tạo tài khoản và hồ sơ nghiệp vụ rời rạc, không liên kết.
+
+Phải phân biệt:
+
+- Tài khoản xác thực.
+- Hồ sơ học sinh.
+- Hồ sơ giáo viên.
+- Hồ sơ nhân viên.
+- Vai trò và quyền.
+- Phạm vi dữ liệu được truy cập.
+
+### Nâng cấp
+
+- Kiểm tra trùng email, mã học sinh, mã nhân viên.
+- Kiểm tra tính hợp lệ trước khi lưu.
+- Có xác nhận trước thao tác nguy hiểm.
+- Không cho xóa nhầm tài khoản có dữ liệu lịch sử.
+- Có quy trình vô hiệu hóa thay vì xóa cứng trong trường hợp cần bảo tồn lịch sử.
+- Có cơ chế xử lý tài khoản chưa liên kết hồ sơ.
+
+## 3. Phân quyền
+
+### Vai trò chính
+
+- Admin.
+- Ban giám hiệu.
+- Giáo viên chủ nhiệm.
+- Giáo viên bộ môn.
+- Nhân viên.
+- Thủ thư.
+- Nhân viên tư vấn.
+- Nhân viên cơ sở vật chất.
+- Học sinh.
+
+Có thể mở rộng hoặc kết hợp nhiều vai trò tùy theo cấu hình.
+
+### Các loại quyền
+
+- View.
+- Create.
+- Edit.
+- Delete.
+- Approve.
+- Assign.
+- Export.
+- Import.
+- Manage.
+
+### Cách hoạt động
+
+Phân quyền phải kết hợp:
+
+1. Vai trò người dùng.
+2. Quyền của vai trò.
+3. Phạm vi dữ liệu.
+4. Nhiệm vụ được phân công.
+5. Trạng thái và ngữ cảnh của bản ghi.
+
+Ví dụ:
+
+- GVCN chỉ được quản lý học sinh thuộc lớp được phân công.
+- GVBM chỉ được quản lý điểm và bài tập của môn, lớp được phân công.
+- Thủ thư được quản lý dữ liệu thư viện.
+- Học sinh chỉ được xem hồ sơ cá nhân và các thông tin được phép.
+- Nhân viên tư vấn chỉ được truy cập hồ sơ tư vấn được phân công.
+- Admin quản trị hệ thống nhưng không mặc nhiên được truy cập hồ sơ tư vấn nhạy cảm nếu không được cấp quyền.
+
+### Nâng cấp
+
+- Có giao diện ma trận phân quyền.
+- Có thể xem quyền hiệu lực của một tài khoản.
+- Có thể kiểm tra người dùng được phép làm gì.
+- Có lịch sử thay đổi quyền.
+- Không chỉ ẩn nút trên giao diện.
+- Backend và Firestore Security Rules phải thực hiện kiểm tra quyền thực tế.
+- Có kiểm tra truy cập trái phép.
+
+## 4. Cài đặt hệ thống
+
+- Thông tin trường học.
+- Logo.
+- Tên hệ thống.
+- Năm học hiện tại.
+- Cấu hình học kỳ.
+- Thiết lập thông báo.
+- Thiết lập quy tắc thư viện.
+- Thiết lập quy tắc nhập dữ liệu.
+- Tùy chỉnh giao diện.
+- Cài đặt tài khoản.
+- Quản lý tích hợp.
+- Cài đặt thông báo.
+- Cấu hình các dịch vụ AI.
+
+Không hiển thị cấu hình nhạy cảm hoặc secret ở frontend.
+
+## 5. Nhật ký hoạt động
+
+Theo dõi:
+
+- Người thao tác.
+- Thời gian.
+- Hành động.
+- Đối tượng dữ liệu.
+- Giá trị trước và sau khi thay đổi khi phù hợp.
+- Nguồn thao tác.
+- Kết quả thành công hoặc thất bại.
+
+Không cho phép người dùng thông thường chỉnh sửa hoặc xóa nhật ký.
+
+## 6. Quản lý sao lưu và khôi phục
+
+- Theo dõi trạng thái backup.
+- Kiểm tra lần backup gần nhất.
+- Kiểm tra tính toàn vẹn bản sao lưu.
+- Quy trình khôi phục có xác nhận.
+- Có phân quyền riêng.
+- Có nhật ký thao tác.
+
+Nếu môi trường hiện tại chưa hỗ trợ backup thực, phải hiển thị rõ và xây dựng tích hợp phù hợp, không tạo trạng thái backup giả.
+
+---
+
+# APP 02 – QUẢN LÝ NHÀ TRƯỜNG
+
+Mục tiêu: Quản lý hồ sơ, tổ chức lớp học, nhân sự và cơ cấu giáo dục của trường.
+
+## 1. Quản lý học sinh
+
+### Chức năng cơ bản
+
+- Danh sách học sinh.
+- Tạo hồ sơ.
+- Chỉnh sửa hồ sơ.
+- Tìm kiếm.
+- Lọc.
+- Phân trang.
+- Import Excel/CSV.
+- Export Excel/CSV.
+- Xem hồ sơ chi tiết.
+- Quản lý trạng thái học sinh.
+- Tra cứu mã học sinh.
+
+### Hồ sơ học sinh
+
+Chia thành các nhóm:
+
+**Thông tin cá nhân**
+- Mã học sinh.
+- Họ và tên.
+- Ngày sinh.
+- Giới tính nếu nhà trường có nhu cầu quản lý.
+- Ảnh đại diện.
+- Thông tin liên hệ.
+
+**Thông tin học tập**
+- Lớp hiện tại.
+- Năm học.
+- Lịch sử lớp.
+- Kết quả học tập.
+- Điểm danh.
+- Hoạt động học tập.
+
+**Thông tin phụ huynh**
+- Họ tên người liên hệ.
+- Mối quan hệ.
+- Số điện thoại.
+- Thông tin cần thiết để liên hệ.
+
+**Thông tin hệ thống**
+- Mã học sinh.
+- Trạng thái hồ sơ.
+- Tài khoản liên kết.
+- Thời gian tạo.
+- Người cập nhật gần nhất.
+
+### Nâng cấp
+
+- Mã học sinh duy nhất.
+- Kiểm tra hồ sơ trùng.
+- Kiểm tra dữ liệu nhập.
+- Hồ sơ có lịch sử thay đổi.
+- Hỗ trợ chuyển lớp.
+- Hỗ trợ chuyển trường hoặc kết thúc học.
+- Bảo toàn lịch sử các năm học cũ.
+- Không ghi đè nhầm lịch sử học tập.
+- Có liên kết tới điểm danh, thư viện và dịch vụ học sinh.
+
+## 2. Quản lý giáo viên
+
+### Chức năng
+
+- Hồ sơ giáo viên.
+- Mã giáo viên.
+- Thông tin liên hệ.
+- Tổ chuyên môn.
+- Môn giảng dạy.
+- Lớp được phân công.
+- Vai trò GVCN.
+- Lịch công tác.
+- Trạng thái công tác.
+- Tài khoản liên kết.
+
+### Nâng cấp
+
+- Một giáo viên có thể dạy nhiều lớp.
+- Một giáo viên có thể đảm nhận nhiều môn nếu phù hợp.
+- Một lớp chỉ có GVCN theo quy định cấu hình.
+- Lịch sử phân công phải được lưu.
+- Không làm mất các phân công năm học cũ khi thay đổi năm học.
+
+## 3. Quản lý nhân viên
+
+- Hồ sơ nhân viên.
+- Bộ phận.
+- Chức vụ.
+- Công việc phụ trách.
+- Tài khoản.
+- Vai trò.
+- Trạng thái công tác.
+
+Có thể phân biệt nhân viên thư viện, văn phòng, tư vấn, thiết bị và các bộ phận khác.
+
+## 4. Quản lý lớp học
+
+### Chức năng
+
+- Tạo lớp.
+- Sửa lớp.
+- Xóa hoặc lưu trữ lớp theo quy định.
+- Danh sách học sinh.
+- GVCN.
+- Danh sách giáo viên bộ môn.
+- Sĩ số.
+- Phòng học.
+- Năm học.
+- Trạng thái lớp.
+
+### Nâng cấp
+
+- Không trộn dữ liệu học sinh của nhiều năm học.
+- Có lịch sử sĩ số.
+- Có lịch sử GVCN.
+- Hỗ trợ chuyển học sinh giữa lớp.
+- Kiểm tra điều kiện chuyển lớp.
+- Có thống kê số lượng học sinh.
+- Có kiểm tra phân công hợp lệ.
+
+## 5. Năm học và học kỳ
+
+- Tạo năm học.
+- Cấu hình ngày bắt đầu và kết thúc.
+- Tạo học kỳ.
+- Cấu hình thời gian học kỳ.
+- Chọn năm học hiện tại.
+- Chuyển trạng thái năm học.
+- Lưu trữ năm học cũ.
+- Tra cứu dữ liệu lịch sử.
+
+Không được xóa dữ liệu năm học cũ khi khởi tạo năm học mới.
+
+## 6. Hồ sơ tổng hợp
+
+Mỗi học sinh có một hồ sơ thống nhất, liên kết với:
+
+- Lớp.
+- Điểm danh.
+- Điểm số.
+- Bài tập.
+- Thư viện.
+- Khảo sát.
+- Hoạt động.
+- Các yêu cầu và đơn từ.
+- Tài khoản cá nhân.
+
+Các dữ liệu nhạy cảm chỉ được hiển thị theo quyền, không đưa toàn bộ thông tin vào một hồ sơ mà mọi người đều xem được.
+
+---
+
+# APP 03 – HỌC TẬP & GIẢNG DẠY
+
+Mục tiêu: Quản lý hoạt động dạy và học, kết nối giáo viên, học sinh, lớp học, môn học và kết quả học tập.
+
+## 1. Thời khóa biểu
+
+### Chức năng
+
+- Tạo thời khóa biểu.
+- Chỉnh sửa.
+- Xem theo lớp.
+- Xem theo giáo viên.
+- Xem theo phòng.
+- Xem theo ngày.
+- Xem theo tuần.
+- Xem theo học kỳ.
+- Xuất và in.
+- Công bố lịch.
+- Quản lý lịch sử thay đổi.
+
+### Cách hoạt động
+
+Một tiết học liên kết với:
+
+- Lớp.
+- Môn học.
+- Giáo viên.
+- Phòng học.
+- Thứ.
+- Tiết.
+- Thời gian.
+- Học kỳ.
+- Năm học.
+
+### Nâng cấp bắt buộc
+
+- Kiểm tra trùng giờ giáo viên.
+- Kiểm tra trùng phòng.
+- Kiểm tra trùng lớp.
+- Kiểm tra thời gian hợp lệ.
+- Có cảnh báo khi xung đột.
+- Có cơ chế chỉnh sửa nhanh.
+- Có lịch sử phiên bản.
+- Khi công bố lịch mới, thông báo tới người bị ảnh hưởng.
+- Người dùng chỉ xem lịch thuộc phạm vi được phép.
+
+## 2. Điểm danh
+
+### Chức năng
+
+- Điểm danh theo lớp.
+- Điểm danh theo tiết.
+- Điểm danh theo buổi.
+- Ghi nhận có mặt.
+- Ghi nhận vắng mặt.
+- Ghi nhận đi muộn.
+- Ghi nhận có phép hoặc không phép.
+- Chỉnh sửa kết quả theo quyền.
+- Xem lịch sử.
+- Thống kê chuyên cần.
+
+### Cách hoạt động
+
+Giáo viên chọn lớp, ngày và tiết hoặc buổi học.
+
+Hệ thống lấy danh sách học sinh đúng theo lớp và thời điểm đó.
+
+Giáo viên cập nhật trạng thái từng học sinh.
+
+Dữ liệu được lưu cùng:
+
+- Mã học sinh.
+- Lớp.
+- Ngày.
+- Tiết hoặc buổi.
+- Giáo viên thực hiện.
+- Thời gian cập nhật.
+- Trạng thái.
+
+### Nâng cấp
+
+- Hỗ trợ điểm danh nhanh cả lớp.
+- Có thể chọn trạng thái theo nhóm.
+- Cảnh báo bản ghi trùng.
+- Không cho sửa dữ liệu đã khóa nếu không có quyền.
+- Có lịch sử chỉnh sửa.
+- Có thống kê theo học sinh, lớp, tháng, học kỳ.
+- Liên kết với đơn xin nghỉ.
+- Phân biệt nghỉ có phép và không phép dựa trên trạng thái đã được duyệt.
+
+## 3. Điểm số và kết quả học tập
+
+### Chức năng
+
+- Quản lý môn học.
+- Cấu hình loại điểm.
+- Nhập điểm.
+- Chỉnh sửa điểm.
+- Xem theo học sinh.
+- Xem theo lớp.
+- Xem theo môn.
+- Tính điểm trung bình theo cấu hình.
+- Thống kê kết quả.
+- Công bố điểm.
+- Xuất bảng điểm.
+
+### Cách hoạt động
+
+Điểm phải liên kết với:
+
+- Học sinh.
+- Môn học.
+- Lớp.
+- Giáo viên phụ trách.
+- Năm học.
+- Học kỳ.
+- Loại đánh giá.
+- Thời điểm đánh giá.
+
+### Nâng cấp
+
+- Cấu hình trọng số theo quy định nhà trường.
+- Kiểm tra giới hạn điểm.
+- Kiểm tra dữ liệu trống.
+- Có lịch sử sửa điểm.
+- Có trạng thái nháp và đã công bố.
+- Giáo viên chỉ được sửa điểm trong phạm vi phụ trách.
+- Không tự ý tính lại điểm lịch sử khi thay đổi cấu hình.
+- Cần kiểm tra tính đúng đắn của công thức trước khi công bố.
+
+## 4. Bài tập
+
+### Chức năng
+
+- Tạo bài tập.
+- Giao cho lớp.
+- Giao cho nhóm học sinh.
+- Chọn môn học.
+- Đặt thời hạn.
+- Đính kèm tài liệu.
+- Học sinh nộp bài.
+- Giáo viên nhận xét.
+- Chấm điểm.
+- Theo dõi tiến độ.
+
+### Cách hoạt động
+
+Giáo viên tạo bài tập và lựa chọn đối tượng được giao.
+
+Học sinh nhận thông báo, xem yêu cầu và nộp bài.
+
+Giáo viên xem bài nộp, nhận xét và trả kết quả.
+
+### Nâng cấp
+
+- Trạng thái nháp, đã giao, đang thực hiện, đã nộp, quá hạn, đã chấm.
+- Kiểm tra định dạng và dung lượng tệp.
+- Hỗ trợ nộp lại khi được phép.
+- Ghi nhận thời gian nộp.
+- Phân biệt nộp đúng hạn và trễ hạn.
+- Chỉ người có quyền mới xem bài nộp.
+- Có thông báo khi giáo viên trả kết quả.
+
+## 5. Học liệu
+
+- Tải lên tài liệu.
+- Phân loại theo môn.
+- Phân loại theo lớp.
+- Chia sẻ học liệu.
+- Tìm kiếm.
+- Tải xuống.
+- Xem trước.
+- Quản lý phiên bản.
+- Quyền truy cập tài liệu.
+
+Không cho phép học sinh truy cập tài liệu nội bộ hoặc tài liệu chưa được công bố.
+
+## 6. Phân tích học tập
+
+- Thống kê chuyên cần.
+- Thống kê kết quả học tập.
+- So sánh tiến độ theo thời gian.
+- Tổng hợp theo lớp.
+- Tổng hợp theo môn.
+- Theo dõi bài tập.
+- Phát hiện dữ liệu bất thường để giáo viên xem xét.
+
+AI chỉ hỗ trợ phân tích và gợi ý. Không tự động kết luận hoặc gắn nhãn tiêu cực đối với học sinh.
+
+---
+
+# APP 04 – THƯ VIỆN THÔNG MINH
+
+Mục tiêu: Quản lý toàn bộ hoạt động thư viện, hỗ trợ tra cứu, mượn và trả sách bằng Barcode/RFID.
+
+## 1. Danh mục sách
+
+### Chức năng
+
+- Thêm sách.
+- Sửa thông tin.
+- Phân loại.
+- Tìm kiếm.
+- Lọc.
+- Import.
+- Export.
+- Xem chi tiết.
+- Quản lý tác giả.
+- Nhà xuất bản.
+- Năm xuất bản.
+- ISBN.
+- Thể loại.
+- Hình ảnh bìa.
+- Mô tả.
+
+### Nâng cấp
+
+Phải phân biệt:
+
+- Đầu sách.
+- Từng bản sao vật lý.
+
+Ví dụ: một đầu sách có 20 bản sao thì phải quản lý 20 bản sao riêng biệt.
+
+Không được chỉ quản lý số lượng tổng hợp mà không kiểm soát trạng thái của từng bản sao.
+
+## 2. Quản lý bản sao sách
+
+Mỗi bản sao cần có:
+
+- Copy ID.
+- Book ID.
+- Barcode.
+- RFID UID nếu được gán.
+- Trạng thái.
+- Vị trí lưu trữ.
+- Ngày nhập.
+- Tình trạng vật lý.
+
+Các trạng thái có thể gồm:
+
+- Available.
+- Borrowed.
+- Reserved.
+- Overdue.
+- Damaged.
+- Lost.
+- Under maintenance.
+
+Phải bảo đảm trạng thái được cập nhật đồng bộ sau giao dịch.
+
+## 3. RFID và Barcode
+
+### Quy trình mượn sách
+
+1. Nhân viên mở giao diện giao dịch mượn.
+2. Quét thẻ RFID của học sinh.
+3. Hệ thống tra cứu hồ sơ học sinh.
+4. Hiển thị thông tin người mượn.
+5. Kiểm tra điều kiện được phép mượn.
+6. Quét mã Barcode/RFID của từng bản sao sách.
+7. Kiểm tra tình trạng bản sao.
+8. Hiển thị danh sách sách dự kiến mượn.
+9. Nhân viên xác nhận.
+10. Hệ thống tạo giao dịch.
+11. Cập nhật trạng thái bản sao.
+12. Cập nhật lịch sử mượn.
+13. Gửi thông báo xác nhận.
+
+### Quy trình trả sách
+
+1. Tra cứu người mượn hoặc giao dịch.
+2. Quét bản sao sách.
+3. Kiểm tra sách đang được mượn bởi ai.
+4. Ghi nhận thời điểm trả.
+5. Kiểm tra tình trạng sách.
+6. Cập nhật trạng thái bản sao.
+7. Cập nhật giao dịch.
+8. Thông báo kết quả.
+
+### Nâng cấp
+
+- Chống quét trùng.
+- Chống giao dịch đồng thời làm sai trạng thái.
+- Có xác nhận trước khi hoàn tất giao dịch.
+- Có lịch sử giao dịch.
+- Có xử lý lỗi quét.
+- Có khả năng hoàn tác hoặc điều chỉnh theo quyền.
+- Có chế độ kiểm tra thiết bị.
+- Có trạng thái thiết bị kết nối hoặc chưa kết nối.
+
+Không giả vờ đã kết nối đầu đọc RFID nếu thiết bị chưa được tích hợp thật.
+
+Nếu dùng đầu đọc dạng bàn phím HID, phải xử lý dữ liệu quét hợp lý.
+
+Nếu cần Web Serial hoặc cầu nối cục bộ, hãy kiểm tra khả năng tương thích trình duyệt và xây dựng adapter phù hợp.
+
+## 4. Mượn sách
+
+- Tạo giao dịch.
+- Chọn người mượn.
+- Chọn các bản sao sách.
+- Kiểm tra giới hạn mượn.
+- Kiểm tra điều kiện mượn.
+- Đặt hạn trả.
+- Xác nhận.
+- In hoặc xem phiếu mượn.
+- Xem lịch sử.
+
+Các giới hạn phải cấu hình được thay vì hardcode.
+
+## 5. Trả sách
+
+- Tra cứu giao dịch.
+- Quét sách.
+- Ghi nhận ngày trả.
+- Kiểm tra tình trạng.
+- Xử lý sách hỏng hoặc mất.
+- Cập nhật trạng thái.
+- Hoàn thành giao dịch.
+
+## 6. Đặt trước
+
+- Học sinh tìm kiếm sách.
+- Gửi yêu cầu đặt trước.
+- Kiểm tra bản sao có thể đặt.
+- Xếp thứ tự theo quy tắc thư viện.
+- Thông báo khi sách sẵn sàng.
+- Quản lý thời hạn nhận sách.
+- Tự động hết hạn đặt trước khi phù hợp.
+
+## 7. Gia hạn
+
+- Gửi yêu cầu gia hạn.
+- Kiểm tra điều kiện.
+- Kiểm tra yêu cầu đặt trước của người khác.
+- Kiểm tra quy định thư viện.
+- Duyệt hoặc từ chối.
+- Cập nhật hạn trả.
+
+## 8. Quá hạn, hỏng và mất sách
+
+- Danh sách sách quá hạn.
+- Thông báo nhắc trả.
+- Tiếp nhận báo hỏng.
+- Ghi nhận sách mất.
+- Xử lý theo chính sách thư viện.
+- Lưu hồ sơ xử lý.
+
+Nếu có phí hoặc quy định xử lý, tất cả phải do nhà trường cấu hình. Không tự đặt mức phạt.
+
+## 9. Kiểm kê
+
+- Kiểm tra danh sách đầu sách.
+- Kiểm tra bản sao thực tế.
+- Quét Barcode/RFID.
+- Đối chiếu dữ liệu.
+- Phát hiện bản sao thiếu.
+- Phát hiện bản sao sai vị trí.
+- Lưu biên bản kiểm kê.
+
+## 10. Thống kê thư viện
+
+- Số đầu sách.
+- Số bản sao.
+- Số sách đang mượn.
+- Số sách còn sẵn.
+- Số giao dịch.
+- Sách quá hạn.
+- Sách được mượn nhiều.
+- Tần suất sử dụng thư viện.
+
+Không dùng số liệu giả.
+
+---
+
+# APP 05 – DỊCH VỤ HỌC SINH
+
+Mục tiêu: Tạo một kênh giao tiếp và hỗ trợ giữa học sinh với nhà trường, bảo đảm dễ sử dụng và an toàn thông tin.
+
+## 1. Khảo sát
+
+### Chức năng
+
+- Tạo khảo sát.
+- Tạo câu hỏi.
+- Chọn loại câu hỏi.
+- Chọn đối tượng tham gia.
+- Chọn thời gian.
+- Công bố khảo sát.
+- Theo dõi lượt tham gia.
+- Xem kết quả.
+- Export dữ liệu.
+- Phân tích AI.
+
+### Loại câu hỏi
+
+- Một lựa chọn.
+- Nhiều lựa chọn.
+- Câu trả lời ngắn.
+- Đoạn văn.
+- Thang điểm.
+- Đánh giá mức độ.
+- Ngày tháng.
+- Câu hỏi bắt buộc.
+
+### Cách hoạt động
+
+Người tạo khảo sát xác định đối tượng tham gia.
+
+Học sinh nhận khảo sát trên tài khoản.
+
+Người dùng trả lời và gửi.
+
+Hệ thống kiểm tra điều kiện, lưu câu trả lời và cập nhật tiến độ.
+
+### Nâng cấp
+
+- Khảo sát ẩn danh.
+- Khảo sát có định danh.
+- Chỉ cho gửi một lần hoặc nhiều lần theo cấu hình.
+- Lưu bản nháp nếu cần.
+- Kiểm soát thời hạn.
+- Không để người xử lý suy ra danh tính người tham gia khảo sát ẩn danh thông qua dữ liệu phân tích thông thường.
+- Tách biệt thông tin nhận dạng với dữ liệu phản hồi khi cần.
+- Có báo cáo thống kê dễ hiểu.
+
+## 2. Phản ánh và kiến nghị
+
+### Chức năng
+
+- Gửi phản ánh.
+- Gửi kiến nghị.
+- Báo cáo vấn đề cơ sở vật chất.
+- Báo cáo vấn đề môi trường học đường.
+- Gửi đề xuất cải thiện.
+- Theo dõi tiến độ.
+- Nhận phản hồi.
+- Đánh giá kết quả xử lý.
+
+### Cách hoạt động
+
+1. Học sinh chọn nhóm vấn đề.
+2. Nhập nội dung.
+3. Có thể đính kèm tệp hoặc hình ảnh.
+4. Chọn hình thức định danh hoặc ẩn danh nếu chính sách cho phép.
+5. Gửi phản ánh.
+6. Hệ thống cấp mã tra cứu.
+7. Người phụ trách tiếp nhận.
+8. Phân công xử lý.
+9. Cập nhật trạng thái.
+10. Gửi phản hồi.
+11. Hoàn thành và lưu lịch sử.
+
+### Trạng thái
+
+- Submitted.
+- Received.
+- Reviewing.
+- In Progress.
+- Waiting for Information.
+- Resolved.
+- Closed.
+
+### Nâng cấp
+
+- Có mã tra cứu.
+- Có thời điểm tiếp nhận.
+- Có người phụ trách.
+- Có nhật ký cập nhật.
+- Có mức độ ưu tiên.
+- Có quy trình chuyển cấp.
+- Giới hạn người được xem danh tính người gửi.
+- Bảo vệ dữ liệu nhạy cảm.
+- AI chỉ hỗ trợ phân loại và tóm tắt, không tự kết luận ai vi phạm.
+
+## 3. Tư vấn học đường
+
+### Nhóm tư vấn
+
+- Tư vấn học tập.
+- Tư vấn phương pháp học.
+- Tư vấn định hướng nghề nghiệp.
+- Tư vấn tâm lý và hỗ trợ tinh thần.
+- Hỗ trợ khó khăn trong môi trường học đường.
+
+### Chức năng
+
+- Đăng ký tư vấn.
+- Chọn hình thức hỗ trợ.
+- Đặt lịch.
+- Chọn thời gian phù hợp.
+- Chỉ định hoặc phân công người tư vấn.
+- Trao đổi riêng tư.
+- Theo dõi lịch hẹn.
+- Cập nhật trạng thái.
+- Quản lý hồ sơ tư vấn theo quyền.
+
+### Cách hoạt động
+
+Học sinh gửi yêu cầu.
+
+Hệ thống chỉ chuyển yêu cầu tới nhân sự được phân công.
+
+Nhân viên tư vấn xác nhận và sắp xếp lịch.
+
+Học sinh nhận thông báo.
+
+Quá trình tư vấn được quản lý theo quyền riêng.
+
+### Nâng cấp bắt buộc
+
+- Phân quyền cực kỳ chặt chẽ.
+- Không hiển thị hồ sơ tư vấn trong dashboard chung.
+- Không để Admin hoặc giáo viên bất kỳ tự động xem nội dung tư vấn.
+- Có lịch sử truy cập.
+- Có bảo mật tệp đính kèm.
+- Có giới hạn thời gian lưu dữ liệu theo chính sách.
+- AI không thay thế chuyên viên tư vấn.
+- Những tình huống cần hỗ trợ trực tiếp phải được chuyển tới người có trách nhiệm phù hợp.
+- Không dùng dữ liệu tư vấn để tạo đánh giá hoặc xếp hạng học sinh.
+
+## 4. Đơn từ và xin nghỉ
+
+### Chức năng
+
+- Tạo đơn xin nghỉ.
+- Chọn thời gian.
+- Nhập lý do.
+- Đính kèm tài liệu nếu cần.
+- Gửi đơn.
+- Theo dõi trạng thái.
+- Rút đơn khi được phép.
+- Duyệt hoặc từ chối.
+- Ghi nhận lịch sử xử lý.
+
+### Quy trình
+
+Học sinh tạo đơn.
+
+Đơn được chuyển đến người có trách nhiệm theo quy định trường.
+
+Người duyệt xem thông tin và đưa ra quyết định.
+
+Hệ thống cập nhật trạng thái và thông báo.
+
+Nếu được duyệt, thông tin phải liên kết với điểm danh để tránh nhập trùng hoặc mâu thuẫn.
+
+### Nâng cấp
+
+- Quy trình duyệt theo vai trò.
+- Thời gian duyệt.
+- Lịch sử quyết định.
+- Lý do từ chối.
+- Chống gửi đơn trùng.
+- Kiểm tra ngày nghỉ hợp lệ.
+- Cập nhật điểm danh đúng phạm vi.
+
+## 5. Trung tâm hỗ trợ
+
+- Câu hỏi thường gặp.
+- Hướng dẫn sử dụng.
+- Gửi yêu cầu hỗ trợ kỹ thuật.
+- Theo dõi trạng thái.
+- Phản hồi hỗ trợ.
+
+Không gộp yêu cầu hỗ trợ kỹ thuật với hồ sơ tư vấn tâm lý.
+
+---
+
+# APP 06 – THÔNG TIN & TRUYỀN THÔNG
+
+Mục tiêu: Quản lý toàn bộ thông tin, thông báo và hoạt động được phân phối trong nhà trường.
+
+## 1. Thông báo
+
+### Chức năng
+
+- Tạo thông báo.
+- Chỉnh sửa.
+- Lưu nháp.
+- Gửi duyệt.
+- Công bố.
+- Lên lịch gửi.
+- Ghim thông báo.
+- Đính kèm tài liệu.
+- Thu hồi thông báo nếu được phép.
+- Theo dõi lượt xem.
+
+### Đối tượng
+
+- Toàn trường.
+- Ban giám hiệu.
+- Giáo viên.
+- Nhân viên.
+- Một hoặc nhiều lớp.
+- Nhóm học sinh.
+- Cá nhân.
+
+### Cách hoạt động
+
+Người tạo chọn đối tượng.
+
+Hệ thống kiểm tra quyền gửi.
+
+Nếu cần phê duyệt, thông báo chuyển tới người duyệt.
+
+Sau khi được duyệt, thông báo được phân phối đến đúng đối tượng.
+
+Các thông báo quan trọng được hiển thị trong Notification Center.
+
+### Nâng cấp
+
+- Phân loại mức độ quan trọng.
+- Theo dõi đã đọc/chưa đọc.
+- Thống kê tỷ lệ tiếp cận.
+- Có bản nháp và lịch sử chỉnh sửa.
+- Không gửi trùng.
+- Không gửi tới người ngoài phạm vi.
+- Có thông báo tự động khi lịch học thay đổi, đơn được duyệt hoặc giao dịch thư viện hoàn thành.
+
+## 2. Sự kiện
+
+- Tạo sự kiện.
+- Chọn thời gian.
+- Địa điểm.
+- Người phụ trách.
+- Đối tượng tham gia.
+- Đính kèm thông tin.
+- Đăng ký tham gia khi cần.
+- Cập nhật hoặc hủy sự kiện.
+- Theo dõi người tham gia.
+
+## 3. Lịch hoạt động
+
+- Xem theo tháng.
+- Xem theo tuần.
+- Xem theo ngày.
+- Lọc theo loại.
+- Lọc theo lớp hoặc nhóm.
+- Đồng bộ sự kiện với Dashboard.
+- Nhắc lịch.
+- Cảnh báo trùng thời gian khi phù hợp.
+
+## 4. Quản lý gửi và phê duyệt
+
+- Phân quyền người tạo.
+- Phân quyền người duyệt.
+- Quy trình duyệt nhiều cấp khi cần.
+- Lịch sử duyệt.
+- Lịch gửi.
+- Trạng thái phân phối.
+- Xử lý lỗi gửi.
+
+## 5. Notification Center
+
+Được truy cập nhanh từ Taskbar.
+
+### Chức năng
+
+- Danh sách thông báo.
+- Chưa đọc.
+- Đã đọc.
+- Đánh dấu đã đọc.
+- Đánh dấu tất cả đã đọc.
+- Lọc theo nhóm.
+- Xem chi tiết.
+- Điều hướng tới ứng dụng liên quan.
+
+### Nâng cấp
+
+Thông báo phải có liên kết tới đối tượng nghiệp vụ gốc khi phù hợp.
+
+Ví dụ:
+
+- Có thông báo đơn xin nghỉ được duyệt → mở đơn tương ứng.
+- Có thông báo sách đến hạn trả → mở giao dịch thư viện.
+- Có thông báo lịch học thay đổi → mở thời khóa biểu.
+
+Trước khi điều hướng phải kiểm tra lại quyền truy cập.
+
+---
+
+# APP 07 – CƠ SỞ VẬT CHẤT
+
+Mục tiêu: Quản lý phòng học, thiết bị, tài sản, bảo trì và các vấn đề liên quan đến điều kiện cơ sở vật chất.
+
+## 1. Tổng quan
+
+- Tổng số phòng.
+- Tổng số thiết bị.
+- Thiết bị đang sử dụng.
+- Thiết bị cần sửa chữa.
+- Yêu cầu bảo trì.
+- Yêu cầu chưa xử lý.
+- Các vấn đề cần chú ý.
+
+## 2. Quản lý phòng học
+
+- Tạo phòng.
+- Mã phòng.
+- Tên phòng.
+- Vị trí.
+- Sức chứa.
+- Loại phòng.
+- Tình trạng.
+- Thiết bị đi kèm.
+- Lịch sử sử dụng.
+
+### Nâng cấp
+
+- Kiểm tra sức chứa.
+- Không cho phân phòng trùng trong cùng khoảng thời gian.
+- Có thể liên kết với thời khóa biểu.
+- Quản lý trạng thái phòng đang sử dụng, bảo trì hoặc ngừng sử dụng.
+
+## 3. Quản lý thiết bị và tài sản
+
+### Dữ liệu
+
+- Mã tài sản.
+- Tên thiết bị.
+- Loại thiết bị.
+- Nhà cung cấp nếu cần.
+- Ngày nhập.
+- Vị trí.
+- Người hoặc bộ phận phụ trách.
+- Tình trạng.
+- Thời hạn bảo hành nếu có.
+
+### Chức năng
+
+- Thêm thiết bị.
+- Sửa thông tin.
+- Phân loại.
+- Tìm kiếm.
+- Kiểm kê.
+- Chuyển vị trí.
+- Ghi nhận tình trạng.
+- Quản lý lịch sử sửa chữa.
+- Ngừng sử dụng.
+
+## 4. Báo hỏng
+
+### Quy trình
+
+1. Người dùng chọn thiết bị hoặc phòng học.
+2. Mô tả vấn đề.
+3. Đính kèm ảnh nếu cần.
+4. Gửi yêu cầu.
+5. Hệ thống tiếp nhận.
+6. Phân công nhân viên.
+7. Kiểm tra.
+8. Cập nhật kết quả.
+9. Hoàn tất.
+
+Học sinh và giáo viên chỉ được báo cáo, không được chỉnh sửa hồ sơ tài sản nếu không có quyền.
+
+## 5. Bảo trì và sửa chữa
+
+- Tạo yêu cầu bảo trì.
+- Phân công nhân viên.
+- Chọn mức độ ưu tiên.
+- Thời gian dự kiến.
+- Ghi nhận tiến độ.
+- Ghi nhận linh kiện hoặc chi phí nếu có.
+- Xác nhận hoàn thành.
+- Lưu lịch sử.
+
+### Nâng cấp
+
+- Quy trình xử lý rõ ràng.
+- Tránh hai nhân viên cùng xử lý trùng một yêu cầu.
+- Có cảnh báo quá hạn.
+- Có nhật ký.
+- Có báo cáo theo thiết bị.
+- Có lịch bảo trì định kỳ nếu trường có nhu cầu.
+
+## 6. Kiểm kê và báo cáo
+
+- Kiểm kê tài sản.
+- Đối chiếu dữ liệu.
+- Theo dõi tài sản thiếu.
+- Theo dõi tài sản hỏng.
+- Báo cáo tình trạng phòng.
+- Báo cáo sửa chữa.
+- Xuất Excel.
+
+---
+
+# APP 08 – PHÂN TÍCH & AI
+
+Mục tiêu: Tổng hợp dữ liệu, cung cấp báo cáo và hỗ trợ công việc bằng AI.
+
+Đây là ứng dụng phục vụ phân tích, không thay thế các nghiệp vụ gốc trong 7 ứng dụng còn lại.
+
+## 1. Dashboard tổng hợp
+
+- Thống kê học sinh.
+- Thống kê lớp học.
+- Thống kê giáo viên.
+- Kết quả học tập.
+- Chuyên cần.
+- Hoạt động thư viện.
+- Khảo sát.
+- Cơ sở vật chất.
+- Hoạt động nhà trường.
+
+### Nâng cấp
+
+- Chọn năm học.
+- Chọn học kỳ.
+- Chọn lớp.
+- Chọn môn.
+- Chọn khoảng thời gian.
+- So sánh các giai đoạn.
+- Drill-down từ số liệu tổng quan xuống dữ liệu chi tiết.
+- Xuất báo cáo.
+- Cập nhật dữ liệu theo nguồn thật.
+
+Không tạo chart nếu chưa có dữ liệu.
+
+## 2. Báo cáo
+
+Các loại báo cáo:
+
+- Báo cáo học sinh.
+- Báo cáo lớp.
+- Báo cáo điểm danh.
+- Báo cáo điểm số.
+- Báo cáo thư viện.
+- Báo cáo khảo sát.
+- Báo cáo phản ánh.
+- Báo cáo cơ sở vật chất.
+- Báo cáo thông báo.
+- Báo cáo hoạt động chung.
+
+### Nâng cấp
+
+- Có bộ lọc.
+- Có mẫu báo cáo.
+- Có thời gian thống kê.
+- Có nguồn dữ liệu.
+- Có ngày tạo.
+- Có người tạo.
+- Xuất Excel/CSV/PDF khi được hỗ trợ.
+- Có thể lưu mẫu báo cáo.
+- Có phân quyền dữ liệu.
+
+## 3. Phân tích AI
+
+AI có thể hỗ trợ:
+
+- Tóm tắt báo cáo.
+- Phân tích xu hướng.
+- So sánh số liệu.
+- Phát hiện dữ liệu bất thường.
+- Tóm tắt kết quả khảo sát.
+- Gợi ý cải thiện hoạt động.
+- Phân tích mức độ chuyên cần.
+- Phân tích hoạt động thư viện.
+- Hỗ trợ tổng hợp báo cáo.
+- Giải thích biểu đồ.
+- Tra cứu thông tin theo quyền.
+
+### Nguyên tắc
+
+- Chỉ sử dụng dữ liệu thực tế mà người dùng có quyền truy cập.
+- Không tự bịa số liệu.
+- Phân biệt dữ liệu thực, suy luận và đề xuất.
+- Hiển thị thời gian và nguồn dữ liệu khi phù hợp.
+- Không đưa toàn bộ cơ sở dữ liệu học sinh lên prompt.
+- Chỉ truy xuất trường dữ liệu cần thiết.
+- Không đưa hồ sơ tư vấn nhạy cảm vào phân tích tổng hợp.
+- Không tự quyết định hạnh kiểm, kỷ luật hoặc đánh giá con người.
+- Không tự thay đổi điểm số, hồ sơ hoặc phân quyền.
+- Mọi hành động thay đổi dữ liệu phải có xác nhận và kiểm tra quyền.
+
+## 4. Trợ lý AI
+
+### Chức năng
+
+- Hỏi đáp thông tin nhà trường.
+- Tra cứu dữ liệu được phép.
+- Hỗ trợ giáo viên.
+- Hỗ trợ học sinh.
+- Hỗ trợ công việc quản trị.
+- Hướng dẫn sử dụng SchoolHub.
+- Giải thích các chức năng.
+- Tạo bản nháp thông báo.
+- Hỗ trợ tổng hợp báo cáo.
+
+### Nâng cấp
+
+Trợ lý AI phải hiểu vai trò hiện tại.
+
+Ví dụ:
+
+- Học sinh chỉ được hỏi về thông tin cá nhân, thời khóa biểu, điểm và thông báo được phép xem.
+- GVCN chỉ tra cứu phạm vi lớp phụ trách.
+- GVBM chỉ tra cứu phạm vi lớp và môn được phân công.
+- Thủ thư chỉ truy cập dữ liệu thư viện.
+- Ban giám hiệu truy cập báo cáo theo quyền.
+- Admin không tự động được truy cập dữ liệu tư vấn riêng tư.
+
+Nếu không có dữ liệu, AI phải nói rõ không tìm thấy dữ liệu thay vì tự đưa ra câu trả lời giả định.
+
+## 5. Import & Export dữ liệu
+
+Đây là trung tâm hỗ trợ nhập/xuất dữ liệu, nhưng từng ứng dụng vẫn phải có nút Import/Export ngay tại nơi phù hợp.
+
+### Import
+
+- Chọn loại dữ liệu.
+- Tải file.
+- Kiểm tra định dạng.
+- Đọc dữ liệu.
+- Chọn sheet.
+- Ánh xạ cột.
+- Kiểm tra dữ liệu bắt buộc.
+- Kiểm tra trùng.
+- Xem trước.
+- Báo lỗi từng dòng.
+- Xác nhận nhập.
+- Lưu dữ liệu.
+- Tạo báo cáo kết quả.
+
+### Export
+
+- Chọn loại dữ liệu.
+- Lọc dữ liệu.
+- Chọn cột.
+- Chọn định dạng.
+- Xuất file.
+- Theo dõi trạng thái.
+- Ghi nhận lịch sử.
+
+### Nâng cấp
+
+- Có template riêng cho từng module.
+- Template phải đồng bộ với schema thực tế.
+- Không ghi đè dữ liệu không liên quan.
+- Có xử lý lỗi từng dòng.
+- Có chống nhập trùng.
+- Có giao dịch hoặc cơ chế rollback khi quá trình nhập gặp lỗi nghiêm trọng.
+- Phân quyền Export theo dữ liệu.
+- Không đưa dữ liệu nhạy cảm vào file xuất nếu không được phép.
+
+---
+
+# PHẦN III. LIÊN KẾT TOÀN BỘ 8 ỨNG DỤNG
+
+Đây là yêu cầu rất quan trọng.
+
+Không xây dựng 8 ứng dụng hoạt động độc lập.
+
+Tất cả phải sử dụng dữ liệu thống nhất và có thể trao đổi dữ liệu với nhau.
+
+## 1. Hồ sơ học sinh là trung tâm
+
+Một học sinh phải có định danh thống nhất.
+
+Hồ sơ đó liên kết với:
+
+- Lớp học.
+- Năm học.
+- Thời khóa biểu.
+- Điểm danh.
+- Điểm số.
+- Bài tập.
+- Học liệu.
+- Thư viện.
+- Khảo sát.
+- Đơn từ.
+- Thông báo.
+- Các dịch vụ học sinh.
+
+Không tạo nhiều hồ sơ riêng cho cùng một học sinh trong từng app.
+
+## 2. Liên kết với giáo viên
+
+Thông tin giáo viên liên kết với:
+
+- Môn học.
+- Lớp.
+- Phân công giảng dạy.
+- Thời khóa biểu.
+- Điểm danh.
+- Điểm số.
+- Bài tập.
+- Thông báo.
+
+## 3. Quy trình liên ứng dụng
+
+### Quy trình A – Học sinh mới
+
+Nhà trường tạo hồ sơ học sinh.
+
+Hệ thống gán mã học sinh.
+
+Học sinh được xếp lớp.
+
+Tài khoản có thể được tạo và liên kết.
+
+Học sinh được cấp quyền theo vai trò.
+
+Thông tin xuất hiện ở các ứng dụng liên quan theo đúng quyền.
+
+Không tạo bản ghi trùng lặp.
+
+### Quy trình B – Thay đổi thời khóa biểu
+
+Giáo viên hoặc người có quyền chỉnh sửa.
+
+Hệ thống kiểm tra xung đột.
+
+Nếu hợp lệ, lưu phiên bản mới.
+
+Thông báo tới lớp và giáo viên bị ảnh hưởng.
+
+Desktop Overview cập nhật thông tin.
+
+### Quy trình C – Xin nghỉ
+
+Học sinh gửi đơn.
+
+Người có trách nhiệm tiếp nhận.
+
+Đơn được duyệt hoặc từ chối.
+
+Nếu được duyệt, trạng thái liên kết với điểm danh.
+
+GVCN có thể theo dõi phạm vi lớp.
+
+Học sinh nhận thông báo.
+
+### Quy trình D – Mượn sách
+
+Học sinh quét thẻ.
+
+Hệ thống xác định hồ sơ.
+
+Thủ thư quét sách.
+
+Kiểm tra điều kiện.
+
+Tạo giao dịch.
+
+Cập nhật trạng thái bản sao.
+
+Gửi thông báo.
+
+Thống kê thư viện cập nhật.
+
+### Quy trình E – Phản ánh cơ sở vật chất
+
+Người dùng gửi phản ánh.
+
+Hệ thống nhận yêu cầu.
+
+Nếu đúng nhóm cơ sở vật chất, chuyển sang ứng dụng Cơ sở vật chất.
+
+Nhân viên tiếp nhận.
+
+Tạo yêu cầu bảo trì nếu cần.
+
+Cập nhật tiến độ.
+
+Người gửi nhận thông báo.
+
+### Quy trình F – Khảo sát
+
+Người có quyền tạo khảo sát.
+
+Chọn nhóm đối tượng.
+
+Hệ thống phân phối thông báo.
+
+Người dùng trả lời.
+
+Hệ thống lưu kết quả.
+
+Báo cáo cập nhật.
+
+AI phân tích dữ liệu đã được phép sử dụng.
+
+### Quy trình G – Báo cáo quản trị
+
+Dữ liệu được lấy từ các module gốc.
+
+Ứng dụng Phân tích & AI tổng hợp.
+
+Kết quả có nguồn và thời gian.
+
+Người dùng có thể xem dữ liệu chi tiết theo quyền.
+
+## 4. Cơ chế đồng bộ
+
+Sử dụng những cơ chế phù hợp như:
+
+- Shared data model.
+- Centralized identifiers.
+- Event-driven workflows.
+- Backend validation.
+- Transaction hoặc batch write phù hợp.
+- Idempotency.
+- Audit logs.
+- Notification events.
+
+Mỗi sự kiện cần có:
+
+- Event ID.
+- Event type.
+- Actor.
+- Timestamp.
+- Source module.
+- Related record IDs.
+- Target users hoặc nhóm nhận.
+- Processing status.
+
+Không để một thao tác tạo nhiều thông báo hoặc nhiều giao dịch trùng lặp.
+
+---
+
+# PHẦN IV. NÂNG CẤP TOÀN BỘ HỆ THỐNG DỮ LIỆU
+
+## 1. Nguyên tắc dữ liệu
+
+- Dữ liệu phải có định danh ổn định.
+- Có kiểm tra trùng.
+- Có kiểm tra quan hệ.
+- Có trạng thái bản ghi.
+- Có người tạo và cập nhật.
+- Có thời gian tạo và cập nhật.
+- Có lịch sử cần thiết.
+- Không lưu lặp cùng một thông tin ở nhiều nơi.
+- Không tự tạo dữ liệu mẫu.
+- Không lấy dữ liệu hardcode làm nguồn thống kê.
+
+## 2. Phân biệt các nhóm dữ liệu
+
+Phải phân biệt:
+
+- Authentication Account.
+- User Profile.
+- Student Profile.
+- Teacher Profile.
+- Staff Profile.
+- Role.
+- Permission.
+- Assignment.
+- Academic Year.
+- Class Enrollment.
+- Academic Record.
+- Transaction.
+- Notification.
+- Audit Log.
+
+## 3. Chất lượng dữ liệu
+
+Bổ sung:
+
+- Validation.
+- Referential Integrity.
+- Duplicate Detection.
+- Import Validation.
+- Data Consistency Checks.
+- Error Reporting.
+- Soft Delete khi cần.
+- Data History.
+- Backup and Recovery.
+
+## 4. Cập nhật dữ liệu
+
+Không được để dữ liệu trên giao diện khác với dữ liệu trong database.
+
+Sau khi thêm, sửa hoặc xóa:
+
+- Database được cập nhật.
+- Giao diện cập nhật đúng.
+- Các module phụ thuộc được cập nhật khi cần.
+- Không refresh toàn bộ website một cách không cần thiết.
+
+---
+
+# PHẦN V. HOÀN THIỆN ĐĂNG NHẬP VÀ PHÂN QUYỀN
+
+## 1. Đăng nhập
+
+- Đăng nhập.
+- Đăng xuất.
+- Quên mật khẩu.
+- Đặt lại mật khẩu.
+- Trạng thái tài khoản.
+- Quản lý phiên.
+- Xử lý hết hạn phiên.
+- Liên kết tài khoản và hồ sơ.
+- Chuyển vai trò nếu một tài khoản có nhiều vai trò và được phép.
+
+## 2. Sau khi đăng nhập
+
+Hệ thống xác định:
+
+- Người dùng.
+- Vai trò.
+- Phạm vi quyền.
+- Ứng dụng được sử dụng.
+- Tab được phép.
+- Dữ liệu được phép xem.
+
+Desktop hiển thị nội dung phù hợp.
+
+## 3. Bảo mật
+
+- Kiểm tra quyền ở backend.
+- Firestore Security Rules.
+- Storage Rules.
+- Kiểm tra dữ liệu đầu vào.
+- Chống truy cập trái phép.
+- Không lưu secret ở frontend.
+- Audit các thay đổi quan trọng.
+- Bảo vệ dữ liệu cá nhân của học sinh.
+- Giới hạn dữ liệu truy xuất theo nhu cầu.
+- Bảo vệ các hồ sơ tư vấn và phản ánh nhạy cảm.
+
+Không được cho phép người dùng truy cập dữ liệu chỉ bằng cách thay đổi URL, tham số hoặc ID bản ghi.
+
+---
+
+# PHẦN VI. WINDOWS 11 DESKTOP – NÂNG CẤP TRẢI NGHIỆM TOÀN DIỆN
+
+Giữ nguyên định hướng Desktop 8 ứng dụng đã thống nhất.
+
+Tôi muốn giao diện trông giống một môi trường Desktop thực sự, không phải website quản lý thông thường.
+
+## 1. Desktop Layout
+
+Chia thành ba thành phần:
+
+### Bên trái
+
+8 icon ứng dụng:
+
+1. Quản trị hệ thống.
+2. Nhà trường.
+3. Học tập.
+4. Thư viện.
+5. Dịch vụ học sinh.
+6. Truyền thông.
+7. Cơ sở vật chất.
+8. Phân tích & AI.
+
+Yêu cầu:
+
+- Icon riêng biệt.
+- Gradient riêng.
+- Tên hiển thị ngắn.
+- Sắp xếp gọn.
+- Không có Sidebar truyền thống.
+- Không có icon ứng dụng con.
+
+### Bên phải
+
+Hiển thị:
+
+- Welcome Banner.
+- Thông tin ngày giờ.
+- Widget quan trọng.
+- Lịch sắp tới.
+- Thông báo mới.
+- Hoạt động gần đây.
+
+Không quá nhiều card.
+
+Không có đoạn mô tả dài.
+
+### Bên dưới
+
+Taskbar cố định.
+
+## 2. Taskbar
+
+Cần có:
+
+- Start.
+- Search.
+- Task View.
+- Running Apps.
+- Notification Center.
+- Quick Settings.
+- Ngày giờ.
+- Tài khoản.
+
+Taskbar tự động cập nhật theo các cửa sổ đang mở.
+
+## 3. Window Manager
+
+Mỗi app mở thành một cửa sổ riêng.
+
+Hỗ trợ:
+
+- Open.
+- Close.
+- Minimize.
+- Maximize.
+- Restore.
+- Drag.
+- Resize.
+- Z-index.
+- Window Stacking.
+- Snap Half.
+- Snap Quarter.
+- Snap Preview.
+- Taskbar Preview.
+- Double-click Title Bar.
+
+Cửa sổ phải giữ trạng thái và dữ liệu khi thu nhỏ.
+
+## 4. App Window
+
+Mỗi ứng dụng có:
+
+1. Title Bar.
+2. Tab Navigation.
+3. Compact Toolbar.
+4. Main Content.
+
+Các tab phải được tổ chức gọn, rõ và phù hợp từng ứng dụng.
+
+Không tạo Sidebar lớn bên trong App Window.
+
+---
+
+# PHẦN VII. REDESIGN TOÀN BỘ UI/UX
+
+Tôi muốn giao diện đẹp hơn đáng kể so với hiện tại.
+
+Định hướng:
+
+- Windows 11 Fluent Design.
+- Mica Material.
+- Acrylic.
+- Liquid Glass.
+- Glassmorphism.
+- Aurora Gradient.
+- Mesh Gradient.
+- Spatial UI.
+- Fluid Motion.
+- Modern Minimalism.
+
+## 1. Bảng màu
+
+Ưu tiên các màu sáng, tươi mát và có chiều sâu:
+
+- Ice Blue.
+- Sky Blue.
+- Cyan.
+- Aqua.
+- Mint.
+- Turquoise.
+- Lavender.
+- Soft Violet.
+- Pink.
+- Peach.
+- White Mist.
+
+Mỗi app có màu nhận diện riêng nhưng vẫn tuân theo Design System chung.
+
+## 2. Gradient
+
+Tăng cường hiệu ứng gradient có kiểm soát:
+
+- Linear Gradient.
+- Radial Gradient.
+- Mesh Gradient.
+- Aurora Gradient.
+- Gradient Border.
+- Gradient Overlay.
+- Ambient Glow.
+
+Không áp dụng gradient ngẫu nhiên lên mọi thành phần.
+
+Gradient phải tạo chiều sâu, định hướng thị giác và phân biệt thành phần.
+
+## 3. Glass và Blur
+
+Áp dụng hợp lý cho:
+
+- Taskbar.
+- Start Menu.
+- Window.
+- Title Bar.
+- Popup.
+- Dropdown.
+- Modal.
+- Context Menu.
+- Notification Center.
+- Quick Settings.
+- Floating Toolbar.
+
+Hiệu ứng:
+
+- Backdrop Blur.
+- Transparency.
+- Frosted Glass.
+- Inner Highlight.
+- Soft Border.
+- Glass Reflection.
+- Ambient Lighting.
+- Soft Shadow.
+
+Nội dung phải luôn dễ đọc.
+
+Không lạm dụng backdrop-filter khiến máy tính bị lag.
+
+## 4. Kích thước
+
+Tôi muốn giao diện compact.
+
+- Card thấp và gọn.
+- Toolbar nhỏ.
+- Icon rõ.
+- Khoảng cách hợp lý.
+- Không quá nhiều padding.
+- Không để banner chiếm quá nhiều không gian.
+- Không để các bảng dữ liệu có hàng quá cao.
+- Không có khoảng trống vô nghĩa.
+
+## 5. Tối giản nội dung
+
+Áp dụng nguyên tắc:
+
+**Less Text – More Clarity – Visual First.**
+
+Loại bỏ:
+
+- Đoạn giới thiệu dài.
+- Các câu giải thích lặp.
+- Tiêu đề phụ không cần thiết.
+- Những card trùng chức năng.
+- Các nút không có tác dụng.
+- Những nhãn thừa.
+- Các mô tả chỉ mang tính trang trí.
+
+Ưu tiên:
+
+- Icon.
+- Tên ngắn.
+- Tooltip.
+- Trạng thái trực quan.
+- Popup chi tiết.
+- Context Menu.
+- Biểu đồ rõ ràng.
+
+Không loại bỏ những hướng dẫn cần thiết đối với thao tác quan trọng.
+
+## 6. Animation
+
+Nâng cấp:
+
+- Hover.
+- Focus.
+- Active.
+- Select.
+- Open.
+- Close.
+- Minimize.
+- Maximize.
+- Restore.
+- Drag.
+- Resize.
+- Snap.
+- Tab switching.
+- Popup.
+- Notification.
+- Loading.
+
+Animation phải thống nhất, mượt và nhanh.
+
+Hỗ trợ `prefers-reduced-motion`.
+
+## 7. Responsive
+
+Ưu tiên Desktop.
+
+Đảm bảo các độ phân giải:
+
+- 1920 × 1080.
+- 1600 × 900.
+- 1440 × 900.
+- 1366 × 768.
+- 1280 × 720.
+
+Desktop chính không được xuất hiện cuộn trang ngoài.
+
+Nội dung chi tiết bên trong app có thể cuộn nếu cần.
+
+Trên Mobile/Tablet phải có bố cục thích hợp, không ép sử dụng Window Manager desktop theo cách gây khó thao tác.
+
+---
+
+# PHẦN VIII. TRẢI NGHIỆM NGƯỜI DÙNG VÀ TÍNH NĂNG DÙNG CHUNG
+
+## 1. Global Search
+
+Một ô Search thống nhất giúp tìm:
+
+- Ứng dụng.
+- Chức năng.
+- Học sinh.
+- Giáo viên.
+- Lớp học.
+- Sách.
+- Thông báo.
+- Sự kiện.
+- Hồ sơ khác theo quyền.
+
+Kết quả phải được giới hạn theo quyền truy cập.
+
+## 2. Quick Actions
+
+Mỗi vai trò có các thao tác nhanh phù hợp.
+
+Ví dụ:
+
+- Admin: tạo tài khoản, phân quyền.
+- BGH: tạo thông báo, xem báo cáo.
+- GVCN: điểm danh, xem lớp, xử lý đơn.
+- GVBM: nhập điểm, giao bài.
+- Thủ thư: mượn sách, trả sách.
+- Học sinh: xem lịch học, gửi đơn, tra cứu sách.
+
+## 3. Notification
+
+Mọi thông báo quan trọng phải được tạo từ sự kiện nghiệp vụ thực.
+
+Ví dụ:
+
+- Đơn được duyệt.
+- Điểm được công bố.
+- Thời khóa biểu thay đổi.
+- Bài tập sắp đến hạn.
+- Sách sắp tới hạn trả.
+- Thông báo mới.
+- Yêu cầu sửa chữa được xử lý.
+
+Không tạo thông báo giả.
+
+## 4. Empty, Loading và Error States
+
+Mọi module phải có:
+
+- Empty State.
+- Loading State.
+- Error State.
+- Success Feedback.
+- Confirmation Dialog.
+
+Database trống phải hiển thị hướng dẫn tạo dữ liệu đầu tiên.
+
+Không tự điền dữ liệu mẫu.
+
+---
+
+# PHẦN IX. TIÊU CHUẨN CHẤT LƯỢNG CHO MỖI TÍNH NĂNG
+
+Mọi tính năng trong 8 app phải đạt các tiêu chí sau:
+
+## 1. Functional Completeness
+
+Có đủ các thao tác cần thiết:
+
+- Xem.
+- Tạo.
+- Sửa.
+- Xóa hoặc lưu trữ phù hợp.
+- Tìm kiếm.
+- Lọc.
+- Sắp xếp.
+- Phân trang.
+- Nhập/xuất khi cần.
+
+## 2. Business Logic
+
+- Quy trình rõ ràng.
+- Trạng thái hợp lệ.
+- Kiểm tra điều kiện.
+- Không tạo bản ghi sai.
+- Không xảy ra dữ liệu trùng.
+- Xử lý ngoại lệ.
+- Lịch sử thay đổi.
+
+## 3. Data Integrity
+
+- Dữ liệu đúng.
+- Liên kết đúng.
+- Không mất dữ liệu.
+- Không lưu trùng.
+- Có validation.
+- Đồng bộ giữa các app.
+
+## 4. Permission
+
+- Đúng người.
+- Đúng vai trò.
+- Đúng phạm vi.
+- Đúng hành động.
+- Không truy cập trái phép.
+
+## 5. UX
+
+- Dễ hiểu.
+- Dễ tìm.
+- Ít thao tác.
+- Phản hồi nhanh.
+- Ít chữ.
+- Trạng thái rõ ràng.
+- Có hướng dẫn khi cần.
+
+## 6. Error Handling
+
+- Lỗi được phát hiện.
+- Có thông báo dễ hiểu.
+- Không mất dữ liệu đang nhập.
+- Có thể thử lại khi phù hợp.
+- Có ghi nhận lỗi kỹ thuật.
+
+## 7. Performance
+
+- Tải nhanh.
+- Không render thừa.
+- Không listener trùng.
+- Không memory leak.
+- Phân trang dữ liệu.
+- Tối ưu hình ảnh.
+- Animation hợp lý.
+
+---
+
+# PHẦN X. KIỂM THỬ TOÀN DIỆN
+
+Không chỉ kiểm tra từng màn hình. Phải kiểm tra luồng nghiệp vụ đầu cuối.
+
+## 1. Kiểm thử ứng dụng
+
+Với mỗi ứng dụng:
+
+- Kiểm tra mở app.
+- Kiểm tra tab.
+- Kiểm tra thao tác.
+- Kiểm tra dữ liệu.
+- Kiểm tra lỗi.
+- Kiểm tra quyền.
+- Kiểm tra tìm kiếm.
+- Kiểm tra lọc.
+- Kiểm tra responsive.
+- Kiểm tra trạng thái rỗng.
+
+## 2. Kiểm thử liên ứng dụng
+
+- Tạo học sinh → xuất hiện đúng trong các module liên quan.
+- Chuyển lớp → cập nhật dữ liệu đúng.
+- Đổi thời khóa biểu → thông báo đúng.
+- Duyệt đơn nghỉ → điểm danh cập nhật đúng.
+- Mượn sách → trạng thái bản sao thay đổi đúng.
+- Trả sách → trạng thái bản sao trở về đúng.
+- Gửi phản ánh cơ sở vật chất → chuyển đúng bộ phận.
+- Hoàn thành bảo trì → cập nhật trạng thái tài sản.
+- Công bố khảo sát → người đúng đối tượng nhận được.
+- Tạo thông báo → người đúng đối tượng nhìn thấy.
+- Tạo báo cáo → dữ liệu lấy từ nguồn thực.
+
+## 3. Kiểm thử phân quyền
+
+Tạo test cho từng vai trò.
+
+Phải kiểm tra cả truy cập trực tiếp qua API và database, không chỉ kiểm tra giao diện.
+
+## 4. Kiểm thử hiệu năng
+
+- Mở nhiều cửa sổ.
+- Chuyển đổi giữa các cửa sổ.
+- Thu nhỏ và khôi phục.
+- Kéo và resize.
+- Snap.
+- Tải bảng dữ liệu lớn.
+- Mở nhiều ứng dụng.
+- Tải dashboard.
+- Kiểm tra listener và memory.
+
+## 5. Kiểm thử bảo mật
+
+- Truy cập trái phép.
+- Sửa ID để xem bản ghi khác.
+- Tải tệp không được phép.
+- Thay đổi quyền từ frontend.
+- Truy cập dữ liệu tư vấn.
+- Truy cập dữ liệu lớp khác.
+- Export dữ liệu ngoài phạm vi.
+
+---
+
+# PHẦN XI. CÁCH THỨC TRIỂN KHAI
+
+Tôi muốn bạn chủ động phân tích, phát hiện thiếu sót và đề xuất cải thiện, không chờ tôi phải chỉ từng lỗi.
+
+Thực hiện theo các giai đoạn sau:
+
+## GIAI ĐOẠN 1 – FULL SYSTEM AUDIT
+
+Kiểm tra toàn bộ hệ thống.
+
+Tạo bảng đánh giá gồm:
+
+| App | Tính năng | Hiện trạng | Thiếu sót | Mức độ ưu tiên | Hướng cải thiện |
+|---|---|---|---|---|---|
+
+Phân loại:
+
+- Critical.
+- High.
+- Medium.
+- Low.
+
+Không được bỏ qua tính năng chỉ vì nó đang có giao diện.
+
+## GIAI ĐOẠN 2 – ARCHITECTURE & DATA
+
+- Sửa kiến trúc.
+- Sửa logic dữ liệu.
+- Chuẩn hóa ID.
+- Kiểm tra quan hệ.
+- Chuẩn hóa trạng thái.
+- Kiểm tra phân quyền.
+- Sửa lỗi đồng bộ.
+
+## GIAI ĐOẠN 3 – FEATURE COMPLETION
+
+Hoàn thiện từng tính năng trong 8 ứng dụng.
+
+Ưu tiên:
+
+1. Lỗi nghiêm trọng.
+2. Tính năng chưa có logic.
+3. Tính năng thiếu quy trình.
+4. Tính năng hoạt động nhưng chưa tối ưu.
+5. Nâng cấp trải nghiệm.
+
+## GIAI ĐOẠN 4 – CROSS-APP INTEGRATION
+
+Hoàn thiện các luồng dữ liệu giữa các app.
+
+## GIAI ĐOẠN 5 – UI/UX REDESIGN
+
+Cải thiện toàn bộ giao diện, hiệu ứng, bố cục, typography, icon và animation.
+
+## GIAI ĐOẠN 6 – PERFORMANCE & SECURITY
+
+Tối ưu hiệu năng và kiểm tra bảo mật.
+
+## GIAI ĐOẠN 7 – FINAL TESTING
+
+Chạy kiểm thử và sửa lỗi còn lại.
+
+---
+
+# PHẦN XII. CƠ CHẾ LÀM VIỆC VỚI GOOGLE AI STUDIO
+
+Đây là dự án lớn, vì vậy phải làm việc theo từng giai đoạn có kiểm soát.
+
+Các quy tắc bắt buộc:
+
+1. Không chỉ trả về một bản phân tích rồi dừng lại.
+2. Phải thực sự chỉnh sửa source code.
+3. Sau mỗi giai đoạn, phải kiểm tra phần vừa triển khai.
+4. Không làm hỏng tính năng ở các app khác.
+5. Không tự tạo dữ liệu mẫu.
+6. Không xóa dữ liệu thực.
+7. Không tạo thêm ứng dụng thứ 9.
+8. Không thay thế backend thật bằng mock data.
+9. Không tuyên bố hoàn thiện nếu chưa kiểm thử.
+10. Khi không thể hoàn thành một phần do thiếu API, thiết bị hoặc dịch vụ bên ngoài, phải nêu chính xác giới hạn đó và hoàn thiện những phần có thể làm.
+
+Ưu tiên sửa theo thứ tự từ kiến trúc và dữ liệu, đến nghiệp vụ, rồi mới hoàn thiện giao diện.
+
+Không thay đổi quá nhiều thành phần phụ thuộc cùng lúc nếu chưa kiểm thử.
+
+Không để việc nâng cấp UI làm hỏng logic nghiệp vụ.
+
+---
+
+# PHẦN XIII. TIÊU CHÍ NGHIỆM THU CUỐI CÙNG
+
+SchoolHub chỉ được xem là hoàn thiện khi:
+
+### Về ứng dụng
+
+- Có đúng 8 ứng dụng chính.
+- Các app có đầy đủ tính năng theo đặc tả.
+- Các tính năng con có tab riêng.
+- Không có chức năng trùng lặp.
+- Mỗi chức năng có quy trình rõ ràng.
+
+### Về nghiệp vụ
+
+- Thao tác thực sự hoạt động.
+- Dữ liệu được lưu chính xác.
+- Các trạng thái được quản lý đúng.
+- Có validation.
+- Có xử lý ngoại lệ.
+- Các ứng dụng liên kết được với nhau.
+
+### Về dữ liệu
+
+- Không có dữ liệu giả.
+- Không tự tạo tài khoản.
+- Không tạo học sinh hoặc giáo viên mẫu.
+- Không sử dụng thống kê hardcode.
+- Có kiểm soát tính toàn vẹn.
+
+### Về bảo mật
+
+- Đăng nhập hoạt động.
+- Phân quyền đúng.
+- Dữ liệu được giới hạn theo phạm vi.
+- Hồ sơ tư vấn được bảo vệ.
+- Có audit log.
+- Backend thực hiện kiểm tra quyền.
+
+### Về UI
+
+- Windows 11 Desktop Experience.
+- 8 icon ứng dụng.
+- Taskbar hoạt động.
+- Window Manager thực tế.
+- Banner và widget gọn.
+- Không phải cuộn Desktop.
+- Các app có giao diện riêng.
+- Có Gradient.
+- Có Liquid Glass.
+- Có Blur.
+- Có animation mượt.
+- Ít chữ.
+- Dễ sử dụng.
+
+### Về hiệu năng
+
+- Không lag nghiêm trọng.
+- Không render dư thừa.
+- Không memory leak.
+- Không mở listener không cần thiết.
+- Không lỗi khi sử dụng nhiều cửa sổ.
+- Responsive hợp lý.
+
+---
+
+# YÊU CẦU CUỐI CÙNG
+
+Hãy bắt đầu kiểm tra toàn bộ dự án hiện tại.
+
+Tôi muốn bạn đóng vai trò như một đội ngũ phát triển sản phẩm chuyên nghiệp, tự đánh giá chất lượng từng tính năng, tìm ra những gì còn thiếu, bổ sung những gì cần thiết và nâng cấp toàn bộ hệ thống.
+
+Đừng chỉ làm đúng những gì tôi đã liệt kê. Hãy chủ động phát hiện những thiếu sót hợp lý mà một hệ thống quản lý trường THPT chuyên nghiệp cần có, nhưng không tự thêm tính năng phức tạp không mang lại giá trị thực tế.
+
+Mọi tính năng phải có mục đích rõ ràng, quy trình hợp lý, dữ liệu chính xác, phân quyền phù hợp và giao diện dễ sử dụng.
+
+**Mục tiêu cuối cùng: SCHOOLHUB PHẢI TRỞ THÀNH MỘT HỆ SINH THÁI TRƯỜNG HỌC THÔNG MINH HOÀN CHỈNH, LIÊN KẾT, CHUYÊN NGHIỆP, HIỆN ĐẠI VÀ CÓ THỂ TRIỂN KHAI SỬ DỤNG THỰC TẾ.**

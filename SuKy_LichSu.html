@@ -1,0 +1,2605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sử Ký – Kho lưu trữ Lịch sử</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF6EF;
+      --paper: #F2EADF;
+      --card: #FFFDF9;
+      --ink: #221C18;
+      --muted: #6E6257;
+      --wine: #782A32;
+      --wine-bg: #F5E6E8;
+      --moss: #364E3F;
+      --moss-bg: #E6EDE8;
+      --bronze: #8A6237;
+      --bronze-bg: #F3EAD9;
+      --line: #DDD2C2;
+      --r: 10px;
+      --f-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+      --f-lit: 'Newsreader', Georgia, serif;
+      --f-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #171310;
+      --paper: #231D18;
+      --card: #1E1915;
+      --ink: #F2EBE0;
+      --muted: #B6A795;
+      --wine: #C25963;
+      --wine-bg: rgba(194, 89, 99, 0.18);
+      --moss: #4E7A60;
+      --moss-bg: rgba(78, 122, 96, 0.2);
+      --bronze: #C99D62;
+      --bronze-bg: rgba(201, 157, 98, 0.16);
+      --line: #3C322A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 18% 10%, rgba(138, 98, 55, 0.06), transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(120, 42, 50, 0.05), transparent 40%);
+      color: var(--ink);
+      font-family: var(--f-ui);
+      font-size: 13.5px;
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, .serif { font-family: var(--f-serif); font-weight: 700; letter-spacing: -0.01em; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    /* Compact Header */
+    header {
+      position: sticky; top: 0; z-index: 40;
+      background: color-mix(in srgb, var(--bg) 93%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-wrap {
+      max-width: 1180px; margin: 0 auto; padding: 0.58rem 1rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: 0.55rem; cursor: pointer; user-select: none;
+    }
+    .seal {
+      width: 30px; height: 30px; border: 1.5px solid var(--wine); border-radius: 6px;
+      display: grid; place-items: center; color: var(--wine);
+      font-family: var(--f-serif); font-size: 1.05rem; font-weight: 700;
+      background: var(--wine-bg);
+    }
+    .brand-title { font-family: var(--f-serif); font-size: 1.38rem; font-weight: 700; line-height: 1; }
+    .brand-sub { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+    nav.main-nav {
+      display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: none; border: 1px solid transparent; padding: 0.42rem 0.72rem; border-radius: 7px;
+      color: var(--muted); font-family: var(--f-ui); font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 0.36rem;
+      white-space: nowrap; transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    }
+    .nav-btn:hover { background: var(--paper); color: var(--ink); }
+    .nav-btn.active { background: var(--moss); color: #fff; }
+    .nav-btn.ai-tab.active { background: var(--wine); color: #fff; }
+
+    .hdr-actions { display: flex; align-items: center; gap: 0.4rem; }
+
+    main { max-width: 1180px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+    .view { display: none; animation: fadeSlide 0.22s ease; }
+    .view.active { display: block; }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+    .section-head {
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+      padding-bottom: 0.7rem; margin-bottom: 1rem; border-bottom: 1px solid var(--line);
+    }
+    .section-head h1 { font-size: 1.75rem; line-height: 1.08; }
+    .section-head .sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
+
+    /* Controls */
+    .btn {
+      background: var(--card); border: 1px solid var(--line); color: var(--ink);
+      padding: 0.44rem 0.8rem; border-radius: 7px; font-family: var(--f-ui);
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; transition: 0.15s;
+    }
+    .btn:hover { background: var(--paper); border-color: var(--bronze); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-moss { background: var(--moss); border-color: var(--moss); color: #fff; }
+    .btn-moss:hover { filter: brightness(0.92); background: var(--moss); }
+    .btn-wine { background: var(--wine); border-color: var(--wine); color: #fff; }
+    .btn-wine:hover { filter: brightness(0.92); background: var(--wine); }
+    .btn-bronze { background: var(--bronze); border-color: var(--bronze); color: #fff; }
+    .btn-bronze:hover { filter: brightness(0.92); background: var(--bronze); }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.74rem; }
+
+    input, select, textarea {
+      width: 100%; padding: 0.46rem 0.68rem; border: 1px solid var(--line); border-radius: 7px;
+      background: var(--card); color: var(--ink); font-family: var(--f-ui); font-size: 0.82rem;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--bronze); }
+    label.lbl { display: block; font-size: 0.74rem; font-weight: 600; color: var(--muted); margin-bottom: 0.25rem; }
+
+    /* Cards & Grids */
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 0.95rem 1rem; position: relative;
+    }
+    .card-arch {
+      border-top: 2.5px solid var(--bronze);
+    }
+    .card-click { cursor: pointer; transition: border-color 0.16s, transform 0.16s; }
+    .card-click:hover { border-color: var(--bronze); transform: translateY(-1px); }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+    @media (max-width: 900px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+    .filter-bar {
+      display: grid; grid-template-columns: 1.5fr repeat(4, minmax(110px, 1fr)) auto; gap: 0.5rem;
+      margin-bottom: 1rem; align-items: center;
+    }
+    @media (max-width: 900px) {
+      .filter-bar { grid-template-columns: repeat(2, 1fr); }
+      .filter-bar input[type="search"] { grid-column: 1 / -1; }
+    }
+
+    .meta-line {
+      font-size: 0.75rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center;
+    }
+    .tag {
+      display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.71rem; font-weight: 600;
+      padding: 0.14rem 0.46rem; border-radius: 5px; background: var(--paper); color: var(--muted); border: 1px solid var(--line);
+    }
+    .tag-wine { background: var(--wine-bg); color: var(--wine); border-color: transparent; }
+    .tag-moss { background: var(--moss-bg); color: var(--moss); border-color: transparent; }
+    .tag-bronze { background: var(--bronze-bg); color: var(--bronze); border-color: transparent; }
+
+    /* Empty state */
+    .empty-box {
+      background: var(--card); border: 1px dashed var(--bronze); border-radius: var(--r);
+      padding: 1.75rem 1.25rem; text-align: center; max-width: 560px; margin: 0.5rem auto;
+    }
+    .empty-box h3 { font-size: 1.35rem; margin-bottom: 0.3rem; }
+    .empty-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.9rem; }
+    .empty-actions { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+
+    /* KPI Strip */
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 0.75rem 0.9rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .kpi-val { font-family: var(--f-serif); font-size: 1.75rem; font-weight: 700; line-height: 1; color: var(--wine); }
+    .kpi-lbl { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+
+    /* Museum Reader */
+    .reader-grid { display: grid; grid-template-columns: 1fr 310px; gap: 1rem; align-items: start; }
+    @media (max-width: 900px) { .reader-grid { grid-template-columns: 1fr; } }
+    .arch-sheet {
+      background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--wine);
+      border-radius: var(--r); padding: 1.2rem 1.3rem;
+    }
+    .arch-block {
+      margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid var(--line);
+    }
+    .arch-block h4 {
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--bronze); margin-bottom: 0.25rem; font-weight: 700;
+    }
+    .arch-block p { font-family: var(--f-lit); font-size: 0.95rem; white-space: pre-line; }
+    .hl-item {
+      background: var(--bronze-bg); border-left: 2.5px solid var(--bronze);
+      padding: 0.45rem 0.6rem; border-radius: 0 6px 6px 0; font-size: 0.79rem;
+      display: flex; justify-content: space-between; gap: 0.4rem; align-items: flex-start;
+    }
+
+    /* Chronological Timeline Rail */
+    .tl-layout { display: grid; grid-template-columns: 1.25fr 1fr; gap: 1rem; align-items: start; }
+    @media (max-width: 900px) { .tl-layout { grid-template-columns: 1fr; } }
+    .tl-rail { position: relative; padding-left: 1.4rem; border-left: 2px solid var(--bronze); display: flex; flex-direction: column; gap: 0.7rem; }
+    .tl-node {
+      position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 0.75rem 0.9rem; cursor: pointer; transition: 0.15s;
+    }
+    .tl-node::before {
+      content: ''; position: absolute; left: -1.78rem; top: 1rem;
+      width: 11px; height: 11px; border-radius: 50%; background: var(--bg);
+      border: 2.5px solid var(--wine);
+    }
+    .tl-node.selected { border-color: var(--wine); background: color-mix(in srgb, var(--wine-bg) 45%, var(--card)); }
+    .tl-node.selected::before { background: var(--wine); }
+    .tl-date { font-family: var(--f-serif); font-size: 1.05rem; font-weight: 700; color: var(--wine); }
+
+    /* Archive cards */
+    .arc-thumb {
+      width: 100%; height: 140px; object-fit: cover; border-radius: 7px; border: 1px solid var(--line);
+      background: var(--paper); margin-bottom: 0.6rem; display: block;
+    }
+
+    /* Practice */
+    .q-opt {
+      display: flex; align-items: center; gap: 0.55rem; width: 100%; text-align: left;
+      padding: 0.55rem 0.75rem; border: 1px solid var(--line); border-radius: 7px;
+      background: var(--card); color: var(--ink); cursor: pointer; font-size: 0.83rem; transition: 0.15s;
+    }
+    .q-opt:hover { border-color: var(--bronze); background: var(--paper); }
+    .q-opt.picked { border-color: var(--moss); background: var(--moss-bg); font-weight: 600; }
+    .q-opt.ok { border-color: #2E6F40; background: var(--moss-bg); }
+    .q-opt.bad { border-color: var(--wine); background: var(--wine-bg); }
+    .match-row { display: grid; grid-template-columns: 1fr 190px; gap: 0.5rem; align-items: center; }
+    @media (max-width: 620px) { .match-row { grid-template-columns: 1fr; } }
+
+    /* AI Assistant */
+    .ai-layout { display: grid; grid-template-columns: 280px 1fr; gap: 1rem; align-items: start; }
+    @media (max-width: 860px) { .ai-layout { grid-template-columns: 1fr; } }
+    .chat-box {
+      min-height: 320px; max-height: 520px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 0.65rem; padding: 0.85rem;
+      background: var(--paper); border: 1px solid var(--line); border-radius: var(--r);
+    }
+    .msg {
+      padding: 0.65rem 0.85rem; border-radius: 9px; font-size: 0.84rem; line-height: 1.55; max-width: 92%;
+    }
+    .msg.user { align-self: flex-end; background: var(--moss); color: #fff; }
+    .msg.ai { align-self: flex-start; background: var(--card); border: 1px solid var(--line); width: 100%; max-width: 100%; }
+    .msg.err { align-self: flex-start; background: var(--wine-bg); border: 1px solid var(--wine); color: var(--wine); }
+    .msg table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; font-size: 0.79rem; }
+    .msg th, .msg td { border: 1px solid var(--line); padding: 0.38rem 0.55rem; text-align: left; }
+    .msg th { background: var(--paper); font-weight: 700; }
+    .msg ul, .msg ol { padding-left: 1.2rem; margin: 0.35rem 0; }
+    .msg h3, .msg h4 { font-family: var(--f-serif); margin: 0.45rem 0 0.2rem; color: var(--wine); }
+    .badge-fact { display: inline-block; background: var(--moss-bg); color: var(--moss); font-weight: 700; padding: 0 0.35rem; border-radius: 4px; font-size: 0.75rem; }
+    .badge-source { display: inline-block; background: var(--bronze-bg); color: var(--bronze); font-weight: 700; padding: 0 0.35rem; border-radius: 4px; font-size: 0.75rem; }
+    .badge-claim { display: inline-block; background: var(--wine-bg); color: var(--wine); font-weight: 700; padding: 0 0.35rem; border-radius: 4px; font-size: 0.75rem; }
+
+    /* Modal */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 90; background: rgba(20, 16, 12, 0.58);
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--bronze);
+      border-radius: 12px; width: 100%; max-width: 780px; max-height: 90vh;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .modal-hd {
+      padding: 0.8rem 1rem; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    }
+    .modal-bd { padding: 1rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
+    .modal-ft {
+      padding: 0.75rem 1rem; border-top: 1px solid var(--line);
+      display: flex; justify-content: flex-end; gap: 0.5rem; background: var(--paper);
+    }
+
+    .preview-table-wrap { max-height: 290px; overflow: auto; border: 1px solid var(--line); border-radius: 7px; }
+    .preview-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+    .preview-table th, .preview-table td { border: 1px solid var(--line); padding: 0.32rem 0.45rem; }
+    .preview-table th { background: var(--paper); position: sticky; top: 0; text-align: left; }
+    .preview-table input { padding: 0.2rem 0.35rem; font-size: 0.75rem; border-radius: 4px; }
+
+    .toast {
+      position: fixed; bottom: 1rem; right: 1rem; z-index: 120;
+      background: var(--ink); color: var(--bg); padding: 0.55rem 0.9rem;
+      border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+      opacity: 0; pointer-events: none; transform: translateY(8px); transition: 0.2s;
+    }
+    .toast.show { opacity: 1; transform: none; }
+  </style>
+  <script src="/assets/aistudio/subject-ai-bridge.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <div class="brand" onclick="switchView('home')">
+      <div class="seal" aria-hidden="true">史</div>
+      <div>
+        <div class="brand-title">Sử Ký</div>
+        <div class="brand-sub">Bảo tàng &amp; Kho lưu trữ Lịch sử</div>
+      </div>
+    </div>
+
+    <nav class="main-nav" aria-label="Điều hướng môn Lịch sử">
+      <button type="button" class="nav-btn active" data-view="home" onclick="switchView('home')"><span class="ico" data-ico="home"></span>Trang chủ</button>
+      <button type="button" class="nav-btn" data-view="history" onclick="switchView('history')"><span class="ico" data-ico="book"></span>Kho sử</button>
+      <button type="button" class="nav-btn" data-view="timeline" onclick="switchView('timeline')"><span class="ico" data-ico="clock"></span>Dòng thời gian</button>
+      <button type="button" class="nav-btn" data-view="archive" onclick="switchView('archive')"><span class="ico" data-ico="archive"></span>Tư liệu</button>
+      <button type="button" class="nav-btn" data-view="practice" onclick="switchView('practice')"><span class="ico" data-ico="check"></span>Luyện tập</button>
+      <button type="button" class="nav-btn ai-tab" data-view="ai" onclick="switchView('ai')"><span class="ico" data-ico="spark"></span>Trợ lý AI</button>
+    </nav>
+
+    <div class="hdr-actions">
+      <button type="button" class="btn btn-sm" onclick="openExcelModal('history')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 1. HOME -->
+  <section id="view-home" class="view active"></section>
+  <!-- 2. HISTORY KNOWLEDGE BASE -->
+  <section id="view-history" class="view"></section>
+  <!-- 3. TIMELINE & EVENTS -->
+  <section id="view-timeline" class="view"></section>
+  <!-- 4. ARCHIVE -->
+  <section id="view-archive" class="view"></section>
+  <!-- 5. PRACTICE & ASSESSMENT -->
+  <section id="view-practice" class="view"></section>
+  <!-- 6. AI ASSISTANT -->
+  <section id="view-ai" class="view"></section>
+</main>
+
+<!-- SHARED MODAL -->
+<div id="modal-backdrop" class="modal-bg" onclick="if(event.target===this) closeModal()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-hd">
+      <h3 id="modal-title" style="font-size:1.3rem;"></h3>
+      <button type="button" class="btn btn-sm" onclick="closeModal()">Đóng</button>
+    </div>
+    <div id="modal-body" class="modal-bd"></div>
+    <div id="modal-foot" class="modal-ft"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ===================== INLINE SVG ICON SYSTEM (ZERO EXTERNAL CDN) =====================
+const SVGS = {
+  home: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>',
+  book: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  clock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  archive: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/></svg>',
+  check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+  spark: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
+  upload: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+  plus: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  star: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  link: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+};
+
+function hydrateIcons() {
+  document.querySelectorAll('.ico[data-ico]').forEach((el) => {
+    const k = el.getAttribute('data-ico');
+    if (SVGS[k]) el.innerHTML = SVGS[k];
+  });
+}
+
+// ===================== STATE (EMPTY BY DEFAULT - NO SEED DATA) =====================
+const STORAGE_KEY = 'suky_history_v1';
+const DEFAULT_STATE = {
+  lessons: [],
+  events: [],
+  archive: [],
+  questions: [],
+  results: [],
+};
+
+let state = loadState();
+let ui = {
+  activeView: 'home',
+  selectedLessonId: null,
+  selectedEventId: null,
+  historyFilters: { q: '', grade: '', chapter: '', era: '', topic: '', onlySaved: false },
+  timelineFilters: { q: '', era: '', country: '', region: '', topic: '' },
+  archiveFilters: { q: '', kind: '', era: '', country: '', figure: '', topic: '' },
+  practice: {
+    grade: '', chapter: '', topic: '', type: '',
+    timerMin: 0,
+    activeQuiz: null, // { questions, answers, startedAt, endAt, timerId }
+    lastAttempt: null,
+  },
+  ai: {
+    mode: 'event_analysis',
+    linkedType: '',
+    linkedId: '',
+    attachment: null, // { kind: 'image'|'doc', name, mimeType?, dataBase64?, text? }
+    messages: [],
+    loading: false,
+  },
+  excelPreview: {
+    moduleKey: 'history',
+    rows: [],
+  },
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(DEFAULT_STATE);
+    const parsed = JSON.parse(raw);
+    return {
+      lessons: Array.isArray(parsed.lessons) ? parsed.lessons : [],
+      events: Array.isArray(parsed.events) ? parsed.events : [],
+      archive: Array.isArray(parsed.archive) ? parsed.archive : [],
+      questions: Array.isArray(parsed.questions) ? parsed.questions : [],
+      results: Array.isArray(parsed.results) ? parsed.results : [],
+    };
+  } catch {
+    return structuredClone(DEFAULT_STATE);
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    toast('Bộ nhớ trình duyệt đầy — hãy thu gọn ảnh đính kèm.');
+  }
+}
+
+function esc(val) {
+  return String(val ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function uid(prefix) {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+// ===================== DATE PARSING & LINKING =====================
+const ROMAN_MAP = { I:1,II:2,III:3,IV:4,V:5,VI:6,VII:7,VIII:8,IX:9,X:10,XI:11,XII:12,XIII:13,XIV:14,XV:15,XVI:16,XVII:17,XVIII:18,XIX:19,XX:20,XXI:21 };
+
+function parseHistoricalSortYear(raw) {
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+  const str = String(raw ?? '').trim();
+  if (!str) return null;
+  const isBce = /\b(tcn|bc|bce)\b/i.test(str) || /^\s*-\s*\d/.test(str);
+  const iso = /^(\d{1,4})-(\d{1,2})-(\d{1,2})$/.exec(str);
+  if (iso) return Number(iso[1]) + (Number(iso[2]) - 1) / 12 + (Number(iso[3]) - 1) / 372;
+  const dmy = /(\d{1,2})[/-](\d{1,2})[/-](\d{1,4})/.exec(str);
+  if (dmy) {
+    const base = isBce ? -Number(dmy[3]) : Number(dmy[3]);
+    return base + (Number(dmy[2]) - 1) / 12 + (Number(dmy[1]) - 1) / 372;
+  }
+  const my = /(\d{1,2})[/-](\d{3,4})/.exec(str);
+  if (my) {
+    const base = isBce ? -Number(my[2]) : Number(my[2]);
+    return base + (Number(my[1]) - 1) / 12;
+  }
+  const cent = /(?:thế\s*kỷ|tk)\s+([ivxlcdm]+|\d{1,2})/i.exec(str);
+  if (cent) {
+    const tok = cent[1].toUpperCase();
+    const n = ROMAN_MAP[tok] ?? Number(tok);
+    if (Number.isFinite(n) && n >= 1 && n <= 50) {
+      const sy = (n - 1) * 100 + 1;
+      return isBce ? -sy : sy;
+    }
+  }
+  const ym = /-?\d{1,5}/.exec(str);
+  if (ym) {
+    const n = Number(ym[0]);
+    if (!Number.isFinite(n)) return null;
+    return n < 0 ? n : (isBce ? -n : n);
+  }
+  return null;
+}
+
+function getMergedTimelineEvents() {
+  const linkedLessonIds = new Set(state.events.map((e) => e.linkedLessonId).filter(Boolean));
+  const syncedFromLessons = state.lessons
+    .filter((l) => l.syncToTimeline && !linkedLessonIds.has(l.id))
+    .map((l) => ({
+      id: `tl-lesson-${l.id}`,
+      title: l.title,
+      timeMarker: l.timeMarker || 'Chưa rõ mốc',
+      sortYear: l.sortYear ?? parseHistoricalSortYear(l.timeMarker),
+      era: l.era || 'Chưa phân loại',
+      country: 'Việt Nam / Chung',
+      region: 'Kho sử',
+      topic: l.topic || l.chapter || 'Bài học',
+      context: l.context || '',
+      progression: l.progression || '',
+      result: l.result || '',
+      significance: l.significance || '',
+      figures: l.figures || [],
+      source: l.source || '',
+      linkedLessonId: l.id,
+      relatedEventIds: l.relatedEventIds || [],
+      isAutoFromLesson: true,
+    }));
+
+  const combined = [
+    ...state.events.map((e) => ({
+      ...e,
+      sortYear: e.sortYear ?? parseHistoricalSortYear(e.timeMarker),
+      relatedEventIds: Array.isArray(e.relatedEventIds) ? e.relatedEventIds : [],
+    })),
+    ...syncedFromLessons,
+  ];
+
+  return combined.sort((a, b) => {
+    if (a.sortYear !== null && b.sortYear !== null && a.sortYear !== b.sortYear) return a.sortYear - b.sortYear;
+    if (a.sortYear !== null && b.sortYear === null) return -1;
+    if (a.sortYear === null && b.sortYear !== null) return 1;
+    return String(a.title || '').localeCompare(String(b.title || ''), 'vi');
+  });
+}
+
+function uniqueVals(arr, getter) {
+  const set = new Set();
+  arr.forEach((item) => {
+    const v = getter(item);
+    if (Array.isArray(v)) v.forEach((x) => x && set.add(x));
+    else if (v) set.add(v);
+  });
+  return Array.from(set).sort((a, b) => a.localeCompare(b, 'vi'));
+}
+
+// ===================== NAVIGATION =====================
+function emitHistContext(viewId) {
+  if (!window.SchoolHubAI) return;
+  const names = {
+    home: 'Trang chủ Sử Ký',
+    history: 'Kho sử & Bài học',
+    timeline: 'Dòng thời gian Lịch sử',
+    archive: 'Kho tư liệu lịch sử',
+    practice: 'Luyện tập & Kiểm tra Sử',
+    ai: 'Trợ lý Lịch sử AI',
+  };
+  const v = viewId || ui.activeView;
+  const completed = state.lessons.filter((l) => l.completed).length;
+  const avg = state.results.length ? Math.round(state.results.reduce((acc, r) => acc + r.percent, 0) / state.results.length) : 0;
+  const wrongCount = state.results[0]?.missedQuestionIds?.length || 0;
+  window.SchoolHubAI.emitContext({
+    subjectId: 'history',
+    view: v,
+    topic: names[v] || 'Lịch Sử',
+    summary: `${state.lessons.length} bài (${completed} hoàn thành) · ${getMergedTimelineEvents().length} sự kiện · ${state.archive.length} tư liệu · Điểm TB: ${avg}%`,
+    wrongCount,
+  });
+}
+
+function switchView(viewId) {
+  ui.activeView = viewId;
+  document.querySelectorAll('.nav-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.getAttribute('data-view') === viewId);
+  });
+  document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+  const target = document.getElementById(`view-${viewId}`);
+  if (target) target.classList.add('active');
+  renderCurrentView();
+  emitHistContext(viewId);
+}
+
+function renderCurrentView() {
+  if (ui.activeView === 'home') renderHome();
+  else if (ui.activeView === 'history') renderHistory();
+  else if (ui.activeView === 'timeline') renderTimeline();
+  else if (ui.activeView === 'archive') renderArchive();
+  else if (ui.activeView === 'practice') renderPractice();
+  else if (ui.activeView === 'ai') renderAi();
+  hydrateIcons();
+}
+
+// ===================== 1. HOME VIEW =====================
+function renderHome() {
+  const el = document.getElementById('view-home');
+  const mergedEvents = getMergedTimelineEvents();
+  const completedCount = state.lessons.filter((l) => l.completed).length;
+  const savedCount = state.lessons.filter((l) => l.bookmarked).length;
+  const avgScore = state.results.length
+    ? Math.round(state.results.reduce((acc, r) => acc + r.percent, 0) / state.results.length)
+    : null;
+
+  const figures = uniqueVals([...state.lessons, ...mergedEvents], (x) => x.figures || []);
+  const eras = uniqueVals([...state.lessons, ...mergedEvents, ...state.archive], (x) => x.era);
+
+  const unreadLessons = state.lessons.filter((l) => !l.completed).slice(0, 4);
+  const wrongIds = new Set();
+  state.results.slice(0, 5).forEach((r) => (r.missedQuestionIds || []).forEach((id) => wrongIds.add(id)));
+  const reviewQuestions = state.questions.filter((q) => wrongIds.has(q.id)).slice(0, 3);
+
+  const isAllEmpty =
+    state.lessons.length === 0 &&
+    mergedEvents.length === 0 &&
+    state.archive.length === 0 &&
+    state.questions.length === 0;
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Trang chủ lưu trữ Lịch sử</h1>
+        <p class="sub">Tổng quan tiến độ học tập, sự kiện nổi bật và nội dung cần ôn tập.</p>
+      </div>
+      <div style="display:flex;gap:.45rem;flex-wrap:wrap;">
+        <button type="button" class="btn btn-moss btn-sm" onclick="openLessonModal()"><span class="ico" data-ico="plus"></span>Thêm bài học</button>
+        <button type="button" class="btn btn-sm" onclick="openExcelModal('history')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:1rem;">
+      <div class="kpi-card">
+        <div><div class="kpi-lbl">Bài học Lịch sử</div><div class="meta-line">${completedCount} đã hoàn thành · ${savedCount} đã lưu</div></div>
+        <div class="kpi-val num">${state.lessons.length}</div>
+      </div>
+      <div class="kpi-card">
+        <div><div class="kpi-lbl">Sự kiện Dòng thời gian</div><div class="meta-line">${eras.length} thời kỳ · ${figures.length} nhân vật</div></div>
+        <div class="kpi-val num">${mergedEvents.length}</div>
+      </div>
+      <div class="kpi-card">
+        <div><div class="kpi-lbl">Tư liệu lưu trữ</div><div class="meta-line">Văn kiện, ảnh &amp; hiện vật</div></div>
+        <div class="kpi-val num">${state.archive.length}</div>
+      </div>
+      <div class="kpi-card">
+        <div><div class="kpi-lbl">Luyện tập</div><div class="meta-line">${state.results.length} lượt làm · ${state.questions.length} câu</div></div>
+        <div class="kpi-val num">${avgScore !== null ? avgScore + '%' : '—'}</div>
+      </div>
+    </div>
+
+    ${isAllEmpty ? `
+      <div class="empty-box">
+        <h3>Kho lưu trữ Lịch sử đang sẵn sàng</h3>
+        <p>Chưa có dữ liệu sẵn. Bạn có thể tự thêm bài học đầu tiên, thêm tư liệu lịch sử hoặc tải lên tệp Excel theo mẫu chuẩn.</p>
+        <div class="empty-actions">
+          <button type="button" class="btn btn-moss" onclick="openLessonModal()"><span class="ico" data-ico="plus"></span>Thêm bài học đầu tiên</button>
+          <button type="button" class="btn btn-bronze" onclick="openExcelModal('history')"><span class="ico" data-ico="upload"></span>Nhập Excel &amp; Tải mẫu</button>
+          <button type="button" class="btn" onclick="switchView('ai')"><span class="ico" data-ico="spark"></span>Hỏi Trợ lý AI</button>
+        </div>
+      </div>
+    ` : `
+      <div class="grid-2">
+        <div class="card card-arch">
+          <h3 style="font-size:1.25rem;margin-bottom:.55rem;">Sự kiện &amp; Giai đoạn nổi bật</h3>
+          ${mergedEvents.length === 0
+            ? `<p class="meta-line">Chưa có sự kiện nào trên Dòng thời gian.</p>`
+            : `<div style="display:flex;flex-direction:column;gap:.5rem;">
+                ${mergedEvents.slice(0, 5).map((ev) => `
+                  <div class="card card-click" style="padding:.6rem .75rem;" onclick="openEventOnTimeline('${esc(ev.id)}')">
+                    <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;">
+                      <strong style="font-size:.86rem;">${esc(ev.title)}</strong>
+                      <span class="tag tag-wine num">${esc(ev.timeMarker)}</span>
+                    </div>
+                    <div class="meta-line" style="margin-top:.2rem;">
+                      <span>${esc(ev.era)}</span>
+                      ${ev.figures?.length ? `<span>· ${esc(ev.figures.slice(0, 2).join(', '))}</span>` : ''}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>`
+          }
+          ${(figures.length || eras.length) ? `
+            <div style="margin-top:.75rem;padding-top:.6rem;border-top:1px solid var(--line);">
+              <div class="meta-line"><strong>Nhân vật tiêu biểu:</strong> ${esc(figures.slice(0, 6).join(' · ') || 'Chưa có')}</div>
+              <div class="meta-line" style="margin-top:.2rem;"><strong>Thời kỳ:</strong> ${esc(eras.slice(0, 6).join(' · ') || 'Chưa có')}</div>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="card card-arch">
+          <h3 style="font-size:1.25rem;margin-bottom:.55rem;">Gợi ý học &amp; Ôn tập</h3>
+          ${unreadLessons.length === 0 && reviewQuestions.length === 0
+            ? `<p class="meta-line">Bạn đã hoàn thành các bài học hiện có. Hãy thử tạo đề luyện tập hoặc mở rộng kho tư liệu.</p>`
+            : `<div style="display:flex;flex-direction:column;gap:.5rem;">
+                ${unreadLessons.map((l) => `
+                  <div class="card card-click" style="padding:.6rem .75rem;" onclick="openLessonReader('${esc(l.id)}')">
+                    <div style="display:flex;justify-content:space-between;gap:.5rem;">
+                      <strong style="font-size:.84rem;">${esc(l.title)}</strong>
+                      <span class="tag tag-bronze">${esc(l.grade || 'Chuyên đề')}</span>
+                    </div>
+                    <div class="meta-line" style="margin-top:.15rem;">Chưa đánh dấu hoàn thành · ${esc(l.timeMarker || l.era)}</div>
+                  </div>
+                `).join('')}
+                ${reviewQuestions.map((q) => `
+                  <div class="card card-click" style="padding:.6rem .75rem;border-left:3px solid var(--wine);" onclick="switchView('practice')">
+                    <strong style="font-size:.82rem;color:var(--wine);">Câu cần ôn lại:</strong>
+                    <div style="font-size:.8rem;margin-top:.1rem;">${esc(q.prompt)}</div>
+                  </div>
+                `).join('')}
+              </div>`
+          }
+        </div>
+      </div>
+    `}
+  `;
+}
+
+// ===================== 2. HISTORY KNOWLEDGE BASE =====================
+function renderHistory() {
+  const el = document.getElementById('view-history');
+  const f = ui.historyFilters;
+  const grades = uniqueVals(state.lessons, (l) => l.grade);
+  const chapters = uniqueVals(state.lessons, (l) => l.chapter);
+  const eras = uniqueVals(state.lessons, (l) => l.era);
+  const topics = uniqueVals(state.lessons, (l) => l.topic);
+
+  const filtered = state.lessons.filter((l) => {
+    if (f.onlySaved && !l.bookmarked) return false;
+    if (f.grade && l.grade !== f.grade) return false;
+    if (f.chapter && l.chapter !== f.chapter) return false;
+    if (f.era && l.era !== f.era) return false;
+    if (f.topic && l.topic !== f.topic) return false;
+    if (f.q) {
+      const q = f.q.toLowerCase();
+      const hay = `${l.title} ${l.timeMarker} ${l.context} ${l.significance} ${(l.figures || []).join(' ')}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const selected = state.lessons.find((l) => l.id === ui.selectedLessonId) || null;
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Kho kiến thức Lịch sử</h1>
+        <p class="sub">Bài học phân loại theo lớp, chương, thời kỳ, chủ đề · Tự động đồng bộ Dòng thời gian &amp; Luyện tập.</p>
+      </div>
+      <div style="display:flex;gap:.45rem;flex-wrap:wrap;">
+        <button type="button" class="btn btn-sm ${f.onlySaved ? 'btn-bronze' : ''}" onclick="ui.historyFilters.onlySaved=!ui.historyFilters.onlySaved;renderHistory();hydrateIcons()">
+          <span class="ico" data-ico="star"></span>Đã lưu (${state.lessons.filter((l) => l.bookmarked).length})
+        </button>
+        <button type="button" class="btn btn-sm" onclick="openExcelModal('history')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+        <button type="button" class="btn btn-moss btn-sm" onclick="openLessonModal()"><span class="ico" data-ico="plus"></span>Thêm bài học</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="search" placeholder="Tìm tên bài, nhân vật, mốc thời gian..." value="${esc(f.q)}" oninput="ui.historyFilters.q=this.value;renderHistory()" />
+      <select onchange="ui.historyFilters.grade=this.value;renderHistory()">
+        <option value="">Tất cả lớp</option>
+        ${grades.map((g) => `<option value="${esc(g)}" ${f.grade===g?'selected':''}>${esc(g)}</option>`).join('')}
+      </select>
+      <select onchange="ui.historyFilters.chapter=this.value;renderHistory()">
+        <option value="">Tất cả chương</option>
+        ${chapters.map((c) => `<option value="${esc(c)}" ${f.chapter===c?'selected':''}>${esc(c)}</option>`).join('')}
+      </select>
+      <select onchange="ui.historyFilters.era=this.value;renderHistory()">
+        <option value="">Tất cả thời kỳ</option>
+        ${eras.map((e) => `<option value="${esc(e)}" ${f.era===e?'selected':''}>${esc(e)}</option>`).join('')}
+      </select>
+      <select onchange="ui.historyFilters.topic=this.value;renderHistory()">
+        <option value="">Tất cả chủ đề</option>
+        ${topics.map((t) => `<option value="${esc(t)}" ${f.topic===t?'selected':''}>${esc(t)}</option>`).join('')}
+      </select>
+      <button type="button" class="btn btn-sm" onclick="ui.historyFilters={q:'',grade:'',chapter:'',era:'',topic:'',onlySaved:false};renderHistory()">Xóa lọc</button>
+    </div>
+
+    ${selected ? renderLessonReaderHtml(selected) : ''}
+
+    ${filtered.length === 0 ? `
+      <div class="empty-box">
+        <h3>${state.lessons.length === 0 ? 'Chưa có bài học Lịch sử nào' : 'Không tìm thấy bài học phù hợp'}</h3>
+        <p>${state.lessons.length === 0 ? 'Thêm bài học mới hoặc nhập bảng Excel để xây dựng kho kiến thức liên kết.' : 'Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.'}</p>
+        <div class="empty-actions">
+          <button type="button" class="btn btn-moss btn-sm" onclick="openLessonModal()"><span class="ico" data-ico="plus"></span>Thêm bài học</button>
+          <button type="button" class="btn btn-sm" onclick="openExcelModal('history')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+        </div>
+      </div>
+    ` : `
+      <div class="grid-3">
+        ${filtered.map((l) => `
+          <article class="card card-arch card-click" onclick="selectLesson('${esc(l.id)}')">
+            <div style="display:flex;justify-content:space-between;gap:.4rem;align-items:flex-start;">
+              <span class="tag tag-wine num">${esc(l.timeMarker || 'Chưa rõ mốc')}</span>
+              <span class="tag">${esc(l.grade || 'Chuyên đề')}</span>
+            </div>
+            <h3 style="font-size:1.22rem;margin:.45rem 0 .25rem;">${esc(l.title)}</h3>
+            <div class="meta-line">${esc(l.era)} · ${esc(l.topic || l.chapter)}</div>
+            <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+              ${esc(l.significance || l.context || l.progression || 'Nhấn để mở chi tiết bài học...')}
+            </p>
+            <div class="meta-line" style="margin-top:.6rem;justify-content:space-between;">
+              <span>${l.bookmarked ? '★ Đã lưu' : ''} ${l.completed ? '· ✓ Đã học' : ''}</span>
+              <span>${l.syncToTimeline ? 'Liên kết Timeline' : ''}</span>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+    `}
+  `;
+}
+
+function renderLessonReaderHtml(l) {
+  const highlights = Array.isArray(l.highlights) ? l.highlights : [];
+  const media = Array.isArray(l.mediaUrls) ? l.mediaUrls : [];
+  return `
+    <div class="reader-grid" style="margin-bottom:1.15rem;">
+      <article class="arch-sheet">
+        <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:flex-start;">
+          <div>
+            <div class="meta-line" style="margin-bottom:.25rem;">
+              <span class="tag tag-wine num">${esc(l.timeMarker || 'Chưa rõ mốc')}</span>
+              <span class="tag">${esc(l.grade)}</span>
+              <span class="tag">${esc(l.chapter)}</span>
+              <span class="tag tag-bronze">${esc(l.era)}</span>
+            </div>
+            <h2 style="font-size:1.65rem;">${esc(l.title)}</h2>
+            ${l.figures?.length ? `<div class="meta-line" style="margin-top:.2rem;"><strong>Nhân vật:</strong> ${esc(l.figures.join(', '))}</div>` : ''}
+          </div>
+          <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
+            <button type="button" class="btn btn-sm ${l.bookmarked?'btn-bronze':''}" onclick="toggleLessonBookmark('${esc(l.id)}')">${l.bookmarked?'★ Đã lưu':'☆ Lưu bài'}</button>
+            <button type="button" class="btn btn-sm ${l.completed?'btn-moss':''}" onclick="toggleLessonCompleted('${esc(l.id)}')">${l.completed?'✓ Đã học':'Đánh dấu đã học'}</button>
+            <button type="button" class="btn btn-sm" onclick="openLessonModal('${esc(l.id)}')">Sửa</button>
+            <button type="button" class="btn btn-sm" onclick="deleteLesson('${esc(l.id)}')">Xóa</button>
+            <button type="button" class="btn btn-sm" onclick="ui.selectedLessonId=null;renderHistory();hydrateIcons()">Đóng</button>
+          </div>
+        </div>
+
+        ${[
+          ['Bối cảnh lịch sử', l.context],
+          ['Nguyên nhân', l.causes],
+          ['Diễn biến chính', l.progression],
+          ['Kết quả', l.result],
+          ['Ý nghĩa lịch sử', l.significance],
+          ['Bài học lịch sử', l.lessonLearned],
+        ].filter(([, val]) => val).map(([lbl, val]) => `
+          <div class="arch-block">
+            <h4>${lbl}</h4>
+            <p>${esc(val)}</p>
+          </div>
+        `).join('')}
+
+        ${l.source ? `<div class="arch-block"><h4>Nguồn &amp; Tư liệu tham chiếu</h4><p>${esc(l.source)}</p></div>` : ''}
+
+        ${media.length ? `
+          <div class="arch-block">
+            <h4>Hình ảnh &amp; Tài liệu minh họa</h4>
+            <div class="grid-2" style="margin-top:.4rem;">
+              ${media.map((m) => m.type === 'image'
+                ? `<div class="card" style="padding:.45rem;"><img src="${esc(m.url)}" alt="${esc(m.name)}" style="width:100%;max-height:170px;object-fit:cover;border-radius:6px;cursor:pointer;" onclick="openLightbox('${esc(m.name)}','${esc(m.url)}')" /><div class="meta-line" style="margin-top:.25rem;">${esc(m.name)}</div></div>`
+                : `<div class="card" style="padding:.55rem;"><strong>${esc(m.name)}</strong><p style="font-size:.78rem;color:var(--muted);margin-top:.2rem;white-space:pre-line;max-height:110px;overflow:auto;">${esc(m.content || '')}</p></div>`
+              ).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--line);display:flex;gap:.45rem;flex-wrap:wrap;">
+          ${l.syncToTimeline ? `<button type="button" class="btn btn-sm" onclick="openEventOnTimeline('tl-lesson-${esc(l.id)}')">Xem trên Dòng thời gian</button>` : ''}
+          <button type="button" class="btn btn-sm btn-wine" onclick="askAiWithContext('lesson','${esc(l.id)}')">Phân tích với Trợ lý AI</button>
+        </div>
+      </article>
+
+      <aside class="card card-arch" style="display:flex;flex-direction:column;gap:.75rem;">
+        <div>
+          <h3 style="font-size:1.15rem;">Đánh dấu nội dung quan trọng</h3>
+          <p class="meta-line">Bôi đen đoạn văn bên trái hoặc dán trích dẫn cần nhớ:</p>
+          <div style="display:flex;gap:.35rem;margin-top:.35rem;">
+            <input id="hl-input" type="text" placeholder="Trích dẫn hoặc ý chốt..." />
+            <button type="button" class="btn btn-sm btn-bronze" onclick="addLessonHighlight('${esc(l.id)}')">Lưu ý</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.35rem;margin-top:.5rem;">
+            ${highlights.map((h) => `
+              <div class="hl-item">
+                <span>${esc(h.quote)}</span>
+                <button type="button" class="btn btn-sm" style="padding:.1rem .35rem;" onclick="removeLessonHighlight('${esc(l.id)}','${esc(h.id)}')">×</button>
+              </div>
+            `).join('') || `<span class="meta-line">Chưa có đoạn đánh dấu.</span>`}
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--line);padding-top:.65rem;">
+          <h3 style="font-size:1.15rem;">Bút ký cá nhân</h3>
+          <textarea id="lesson-note-box" rows="5" placeholder="Ghi chú phân tích, liên hệ của bạn..." style="margin-top:.35rem;">${esc(l.notes || '')}</textarea>
+          <button type="button" class="btn btn-sm btn-moss" style="margin-top:.4rem;" onclick="saveLessonNote('${esc(l.id)}')">Lưu ghi chú</button>
+        </div>
+      </aside>
+    </div>
+  `;
+}
+
+function selectLesson(id) {
+  ui.selectedLessonId = id;
+  renderHistory();
+  hydrateIcons();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openLessonReader(id) {
+  ui.selectedLessonId = id;
+  switchView('history');
+}
+
+function toggleLessonBookmark(id) {
+  const l = state.lessons.find((x) => x.id === id);
+  if (!l) return;
+  l.bookmarked = !l.bookmarked;
+  saveState();
+  renderHistory();
+  hydrateIcons();
+}
+
+function toggleLessonCompleted(id) {
+  const l = state.lessons.find((x) => x.id === id);
+  if (!l) return;
+  l.completed = !l.completed;
+  saveState();
+  renderHistory();
+  hydrateIcons();
+}
+
+function addLessonHighlight(id) {
+  const l = state.lessons.find((x) => x.id === id);
+  if (!l) return;
+  const selText = window.getSelection ? window.getSelection().toString().trim() : '';
+  const inp = document.getElementById('hl-input');
+  const quote = (inp?.value || selText || '').trim();
+  if (!quote) { toast('Hãy nhập hoặc bôi đen nội dung cần đánh dấu.'); return; }
+  l.highlights = l.highlights || [];
+  l.highlights.unshift({ id: uid('hl'), quote, createdAt: new Date().toISOString() });
+  saveState();
+  renderHistory();
+  hydrateIcons();
+}
+
+function removeLessonHighlight(id, hlId) {
+  const l = state.lessons.find((x) => x.id === id);
+  if (!l) return;
+  l.highlights = (l.highlights || []).filter((h) => h.id !== hlId);
+  saveState();
+  renderHistory();
+  hydrateIcons();
+}
+
+function saveLessonNote(id) {
+  const l = state.lessons.find((x) => x.id === id);
+  if (!l) return;
+  l.notes = document.getElementById('lesson-note-box')?.value || '';
+  l.updatedAt = new Date().toISOString();
+  saveState();
+  toast('Đã lưu bút ký bài học.');
+}
+
+function deleteLesson(id) {
+  state.lessons = state.lessons.filter((l) => l.id !== id);
+  if (ui.selectedLessonId === id) ui.selectedLessonId = null;
+  saveState();
+  renderHistory();
+  hydrateIcons();
+  toast('Đã xóa bài học.');
+}
+
+// ===================== 3. TIMELINE & EVENTS =====================
+function renderTimeline() {
+  const el = document.getElementById('view-timeline');
+  const merged = getMergedTimelineEvents();
+  const f = ui.timelineFilters;
+  const eras = uniqueVals(merged, (e) => e.era);
+  const countries = uniqueVals(merged, (e) => e.country);
+  const regions = uniqueVals(merged, (e) => e.region);
+  const topics = uniqueVals(merged, (e) => e.topic);
+
+  const filtered = merged.filter((e) => {
+    if (f.era && e.era !== f.era) return false;
+    if (f.country && e.country !== f.country) return false;
+    if (f.region && e.region !== f.region) return false;
+    if (f.topic && e.topic !== f.topic) return false;
+    if (f.q) {
+      const q = f.q.toLowerCase();
+      if (!`${e.title} ${e.timeMarker} ${e.context} ${e.significance} ${(e.figures||[]).join(' ')}`.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  const activeEvent = filtered.find((e) => e.id === ui.selectedEventId) || filtered[0] || null;
+  if (activeEvent) ui.selectedEventId = activeEvent.id;
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Dòng thời gian &amp; Sự kiện</h1>
+        <p class="sub">Trình tự lịch sử (hỗ trợ TCN/SCN) · Khám phá mối liên hệ giữa các sự kiện.</p>
+      </div>
+      <div style="display:flex;gap:.45rem;flex-wrap:wrap;">
+        <button type="button" class="btn btn-sm" onclick="openExcelModal('timeline')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+        <button type="button" class="btn btn-moss btn-sm" onclick="openEventModal()"><span class="ico" data-ico="plus"></span>Thêm sự kiện</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="search" placeholder="Tìm sự kiện, mốc thời gian, nhân vật..." value="${esc(f.q)}" oninput="ui.timelineFilters.q=this.value;renderTimeline()" />
+      <select onchange="ui.timelineFilters.era=this.value;renderTimeline()">
+        <option value="">Tất cả thời kỳ</option>
+        ${eras.map((x) => `<option value="${esc(x)}" ${f.era===x?'selected':''}>${esc(x)}</option>`).join('')}
+      </select>
+      <select onchange="ui.timelineFilters.country=this.value;renderTimeline()">
+        <option value="">Quốc gia</option>
+        ${countries.map((x) => `<option value="${esc(x)}" ${f.country===x?'selected':''}>${esc(x)}</option>`).join('')}
+      </select>
+      <select onchange="ui.timelineFilters.region=this.value;renderTimeline()">
+        <option value="">Khu vực</option>
+        ${regions.map((x) => `<option value="${esc(x)}" ${f.region===x?'selected':''}>${esc(x)}</option>`).join('')}
+      </select>
+      <select onchange="ui.timelineFilters.topic=this.value;renderTimeline()">
+        <option value="">Chủ đề</option>
+        ${topics.map((x) => `<option value="${esc(x)}" ${f.topic===x?'selected':''}>${esc(x)}</option>`).join('')}
+      </select>
+      <button type="button" class="btn btn-sm" onclick="ui.timelineFilters={q:'',era:'',country:'',region:'',topic:''};renderTimeline()">Xóa lọc</button>
+    </div>
+
+    ${filtered.length === 0 ? `
+      <div class="empty-box">
+        <h3>Chưa có sự kiện nào trên Dòng thời gian</h3>
+        <p>Thêm sự kiện mới hoặc tạo bài học trong Kho sử có bật đồng bộ Timeline để hiển thị tại đây.</p>
+        <div class="empty-actions">
+          <button type="button" class="btn btn-moss btn-sm" onclick="openEventModal()"><span class="ico" data-ico="plus"></span>Thêm sự kiện</button>
+          <button type="button" class="btn btn-sm" onclick="openExcelModal('timeline')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+        </div>
+      </div>
+    ` : `
+      <div class="tl-layout">
+        <div class="tl-rail">
+          ${filtered.map((ev) => `
+            <div class="tl-node ${activeEvent && activeEvent.id === ev.id ? 'selected' : ''}" onclick="ui.selectedEventId='${esc(ev.id)}';renderTimeline();hydrateIcons()">
+              <div style="display:flex;justify-content:space-between;gap:.4rem;align-items:center;">
+                <span class="tl-date num">${esc(ev.timeMarker)}</span>
+                <span class="tag ${ev.isAutoFromLesson ? 'tag-moss' : ''}">${ev.isAutoFromLesson ? 'Từ Kho sử' : esc(ev.country || 'Sự kiện')}</span>
+              </div>
+              <div style="font-weight:700;font-size:.9rem;margin-top:.15rem;">${esc(ev.title)}</div>
+              <div class="meta-line" style="margin-top:.15rem;">${esc(ev.era)} · ${esc(ev.topic)}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        ${activeEvent ? renderEventDetailHtml(activeEvent, merged) : ''}
+      </div>
+    `}
+  `;
+}
+
+function renderEventDetailHtml(ev, allEvents) {
+  const related = (ev.relatedEventIds || [])
+    .map((id) => allEvents.find((x) => x.id === id))
+    .filter(Boolean);
+  const linkable = allEvents.filter((x) => x.id !== ev.id && !(ev.relatedEventIds || []).includes(x.id));
+
+  return `
+    <aside class="arch-sheet" style="position:sticky;top:72px;">
+      <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
+        <span class="tag tag-wine num">${esc(ev.timeMarker)}</span>
+        <div style="display:flex;gap:.35rem;">
+          ${!ev.isAutoFromLesson ? `<button type="button" class="btn btn-sm" onclick="openEventModal('${esc(ev.id)}')">Sửa</button><button type="button" class="btn btn-sm" onclick="deleteEvent('${esc(ev.id)}')">Xóa</button>` : `<button type="button" class="btn btn-sm" onclick="openLessonReader('${esc(ev.linkedLessonId)}')">Mở bài Kho sử</button>`}
+        </div>
+      </div>
+      <h2 style="font-size:1.5rem;margin-top:.35rem;">${esc(ev.title)}</h2>
+      <div class="meta-line" style="margin-top:.2rem;">${esc(ev.era)} · ${esc(ev.country)} · ${esc(ev.region)}</div>
+      ${ev.figures?.length ? `<div class="meta-line" style="margin-top:.2rem;"><strong>Nhân vật:</strong> ${esc(ev.figures.join(', '))}</div>` : ''}
+
+      ${[
+        ['Bối cảnh', ev.context],
+        ['Diễn biến', ev.progression],
+        ['Kết quả', ev.result],
+        ['Ý nghĩa lịch sử', ev.significance],
+        ['Nguồn', ev.source],
+      ].filter(([, v]) => v).map(([k, v]) => `
+        <div class="arch-block"><h4>${k}</h4><p>${esc(v)}</p></div>
+      `).join('')}
+
+      <div class="arch-block">
+        <h4>Mối liên hệ với sự kiện khác</h4>
+        ${related.length ? `
+          <div style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:.5rem;">
+            ${related.map((rel) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:.4rem;background:var(--paper);padding:.35rem .55rem;border-radius:6px;">
+                <a href="javascript:void(0)" onclick="ui.selectedEventId='${esc(rel.id)}';renderTimeline();hydrateIcons()" style="color:var(--wine);font-weight:600;text-decoration:none;font-size:.8rem;">
+                  <span class="num">${esc(rel.timeMarker)}</span> — ${esc(rel.title)}
+                </a>
+              </div>
+            `).join('')}
+          </div>
+        ` : `<p class="meta-line" style="margin-bottom:.45rem;">Chưa gắn liên kết sự kiện.</p>`}
+        ${linkable.length ? `
+          <div style="display:flex;gap:.35rem;">
+            <select id="link-event-sel" style="flex:1;">
+              ${linkable.map((x) => `<option value="${esc(x.id)}">${esc(x.timeMarker)} · ${esc(x.title)}</option>`).join('')}
+            </select>
+            <button type="button" class="btn btn-sm btn-bronze" onclick="linkTimelineEvents('${esc(ev.id)}')"><span class="ico" data-ico="link"></span>Liên kết</button>
+          </div>
+        ` : ''}
+      </div>
+
+      <div style="margin-top:.75rem;">
+        <button type="button" class="btn btn-sm btn-wine" onclick="askAiWithContext('event','${esc(ev.id)}')">Hỏi Trợ lý AI về sự kiện này</button>
+      </div>
+    </aside>
+  `;
+}
+
+function openEventOnTimeline(eventId) {
+  ui.selectedEventId = eventId;
+  switchView('timeline');
+}
+
+function linkTimelineEvents(sourceId) {
+  const targetId = document.getElementById('link-event-sel')?.value;
+  if (!targetId) return;
+
+  const updateRel = (id, otherId) => {
+    if (id.startsWith('tl-lesson-')) {
+      const lid = id.replace('tl-lesson-', '');
+      const l = state.lessons.find((x) => x.id === lid);
+      if (l) {
+        l.relatedEventIds = l.relatedEventIds || [];
+        if (!l.relatedEventIds.includes(otherId)) l.relatedEventIds.push(otherId);
+      }
+    } else {
+      const ev = state.events.find((x) => x.id === id);
+      if (ev) {
+        ev.relatedEventIds = ev.relatedEventIds || [];
+        if (!ev.relatedEventIds.includes(otherId)) ev.relatedEventIds.push(otherId);
+      }
+    }
+  };
+
+  updateRel(sourceId, targetId);
+  updateRel(targetId, sourceId);
+  saveState();
+  renderTimeline();
+  hydrateIcons();
+  toast('Đã liên kết mối quan hệ giữa 2 sự kiện.');
+}
+
+function deleteEvent(id) {
+  state.events = state.events.filter((e) => e.id !== id);
+  if (ui.selectedEventId === id) ui.selectedEventId = null;
+  saveState();
+  renderTimeline();
+  hydrateIcons();
+  toast('Đã xóa sự kiện.');
+}
+
+// ===================== 4. ARCHIVE (NO MAPS) =====================
+function renderArchive() {
+  const el = document.getElementById('view-archive');
+  const f = ui.archiveFilters;
+  const eras = uniqueVals(state.archive, (a) => a.era);
+  const countries = uniqueVals(state.archive, (a) => a.country);
+  const topics = uniqueVals(state.archive, (a) => a.topic);
+  const figures = uniqueVals(state.archive, (a) => a.figure);
+
+  const filtered = state.archive.filter((a) => {
+    if (f.kind && a.kind !== f.kind) return false;
+    if (f.era && a.era !== f.era) return false;
+    if (f.country && a.country !== f.country) return false;
+    if (f.topic && a.topic !== f.topic) return false;
+    if (f.figure && a.figure !== f.figure) return false;
+    if (f.q) {
+      const q = f.q.toLowerCase();
+      if (!`${a.title} ${a.source} ${a.provenance} ${a.summary} ${a.figure}`.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  const kindLabel = (k) => (k === 'image' ? 'Ảnh tư liệu' : k === 'artifact' ? 'Hiện vật' : 'Văn kiện');
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Thư viện Tư liệu Lịch sử</h1>
+        <p class="sub">Lưu trữ ảnh tư liệu, văn kiện gốc và hiện vật lịch sử kèm nguồn &amp; xuất xứ rõ ràng.</p>
+      </div>
+      <div style="display:flex;gap:.45rem;flex-wrap:wrap;">
+        <button type="button" class="btn btn-sm" onclick="openExcelModal('archive')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+        <button type="button" class="btn btn-moss btn-sm" onclick="openArchiveModal()"><span class="ico" data-ico="plus"></span>Thêm tư liệu</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="search" placeholder="Tìm tên tư liệu, nguồn, xuất xứ, nhân vật..." value="${esc(f.q)}" oninput="ui.archiveFilters.q=this.value;renderArchive()" />
+      <select onchange="ui.archiveFilters.kind=this.value;renderArchive()">
+        <option value="">Mọi loại tư liệu</option>
+        <option value="image" ${f.kind==='image'?'selected':''}>Ảnh tư liệu</option>
+        <option value="document" ${f.kind==='document'?'selected':''}>Văn kiện</option>
+        <option value="artifact" ${f.kind==='artifact'?'selected':''}>Hiện vật</option>
+      </select>
+      <select onchange="ui.archiveFilters.era=this.value;renderArchive()">
+        <option value="">Thời kỳ</option>
+        ${eras.map((x) => `<option value="${esc(x)}" ${f.era===x?'selected':''}>${esc(x)}</option>`).join('')}
+      </select>
+      <select onchange="ui.archiveFilters.country=this.value;renderArchive()">
+        <option value="">Quốc gia</option>
+        ${countries.map((x) => `<option value="${esc(x)}" ${f.country===x?'selected':''}>${esc(x)}</option>`).join('')}
+      </select>
+      <select onchange="ui.archiveFilters.figure=this.value;renderArchive()">
+        <option value="">Nhân vật</option>
+        ${figures.map((x) => `<option value="${esc(x)}" ${f.figure===x?'selected':''}>${esc(x)}</option>`).join('')}
+      </select>
+      <button type="button" class="btn btn-sm" onclick="ui.archiveFilters={q:'',kind:'',era:'',country:'',figure:'',topic:''};renderArchive()">Xóa lọc</button>
+    </div>
+
+    ${filtered.length === 0 ? `
+      <div class="empty-box">
+        <h3>Thư viện Tư liệu đang trống</h3>
+        <p>Tải lên hình ảnh lịch sử, trích xuất văn kiện từ PDF/Word hoặc nhập danh mục từ Excel.</p>
+        <div class="empty-actions">
+          <button type="button" class="btn btn-moss btn-sm" onclick="openArchiveModal()"><span class="ico" data-ico="plus"></span>Thêm tư liệu</button>
+          <button type="button" class="btn btn-sm" onclick="openExcelModal('archive')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+        </div>
+      </div>
+    ` : `
+      <div class="grid-3">
+        ${filtered.map((a) => `
+          <article class="card card-arch" style="display:flex;flex-direction:column;justify-content:space-between;gap:.5rem;">
+            <div>
+              ${a.fileUrl ? `<img class="arc-thumb" src="${esc(a.fileUrl)}" alt="${esc(a.title)}" onclick="openLightbox('${esc(a.title)}','${esc(a.fileUrl)}')" style="cursor:pointer;" />` : ''}
+              <div style="display:flex;justify-content:space-between;gap:.35rem;">
+                <span class="tag tag-bronze">${kindLabel(a.kind)}</span>
+                <span class="tag num">${esc(a.yearLabel || a.era)}</span>
+              </div>
+              <h3 style="font-size:1.18rem;margin:.35rem 0 .2rem;">${esc(a.title)}</h3>
+              <p style="font-size:.79rem;color:var(--muted);">${esc(a.summary || a.content?.slice(0, 120) || '')}</p>
+            </div>
+            <div>
+              <div class="meta-line" style="padding-top:.45rem;border-top:1px solid var(--line);">
+                <strong>Nguồn:</strong> ${esc(a.source)}
+                ${a.provenance ? `<span>· Xuất xứ: ${esc(a.provenance)}</span>` : ''}
+              </div>
+              <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.5rem;">
+                <button type="button" class="btn btn-sm" onclick="openArchiveReader('${esc(a.id)}')">Xem chi tiết</button>
+                <button type="button" class="btn btn-sm btn-wine" onclick="askAiWithContext('archive','${esc(a.id)}')">Hỏi AI</button>
+                <button type="button" class="btn btn-sm" onclick="openArchiveModal('${esc(a.id)}')">Sửa</button>
+                <button type="button" class="btn btn-sm" onclick="deleteArchive('${esc(a.id)}')">Xóa</button>
+              </div>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+    `}
+  `;
+}
+
+function openLightbox(title, url) {
+  openModal(title, `<img src="${esc(url)}" alt="${esc(title)}" style="width:100%;max-height:70vh;object-fit:contain;border-radius:8px;background:var(--paper);" />`, `<button type="button" class="btn" onclick="closeModal()">Đóng</button>`);
+}
+
+function openArchiveReader(id) {
+  const a = state.archive.find((x) => x.id === id);
+  if (!a) return;
+  openModal(
+    a.title,
+    `
+      <div class="meta-line">
+        <span class="tag tag-bronze">${a.kind === 'image' ? 'Ảnh tư liệu' : a.kind === 'artifact' ? 'Hiện vật' : 'Văn kiện'}</span>
+        <span>${esc(a.era)}</span> · <span>${esc(a.country)}</span> ${a.figure ? `· Nhân vật: ${esc(a.figure)}` : ''}
+      </div>
+      ${a.fileUrl ? `<img src="${esc(a.fileUrl)}" alt="${esc(a.title)}" style="width:100%;max-height:320px;object-fit:contain;border-radius:8px;background:var(--paper);border:1px solid var(--line);" />` : ''}
+      ${a.summary ? `<div><label class="lbl">Tóm tắt</label><p style="font-size:.86rem;">${esc(a.summary)}</p></div>` : ''}
+      ${a.content ? `<div><label class="lbl">Nội dung / Trích đoạn tư liệu</label><div style="background:var(--paper);padding:.8rem;border-radius:8px;font-family:var(--f-lit);white-space:pre-line;max-height:240px;overflow:auto;">${esc(a.content)}</div></div>` : ''}
+      <div class="meta-line"><strong>Nguồn gốc:</strong> ${esc(a.source)} ${a.provenance ? `· <strong>Xuất xứ:</strong> ${esc(a.provenance)}` : ''}</div>
+    `,
+    `<button type="button" class="btn btn-wine" onclick="closeModal();askAiWithContext('archive','${esc(a.id)}')">Phân tích tư liệu bằng AI</button><button type="button" class="btn" onclick="closeModal()">Đóng</button>`
+  );
+}
+
+function deleteArchive(id) {
+  state.archive = state.archive.filter((a) => a.id !== id);
+  saveState();
+  renderArchive();
+  hydrateIcons();
+  toast('Đã xóa tư liệu.');
+}
+
+// ===================== 5. PRACTICE & TESTING =====================
+function renderPractice() {
+  const el = document.getElementById('view-practice');
+  const p = ui.practice;
+
+  if (p.activeQuiz) {
+    el.innerHTML = renderActiveQuizHtml(p.activeQuiz);
+    return;
+  }
+
+  const topics = uniqueVals(state.questions, (q) => q.topic);
+  const chapters = uniqueVals(state.questions, (q) => q.chapter);
+  const grades = uniqueVals(state.questions, (q) => q.grade);
+  const filteredQs = state.questions.filter((q) => {
+    if (p.grade && q.grade !== p.grade) return false;
+    if (p.chapter && q.chapter !== p.chapter) return false;
+    if (p.topic && q.topic !== p.topic) return false;
+    if (p.type && q.type !== p.type) return false;
+    return true;
+  });
+
+  const typeName = (t) => ({ mcq: 'Trắc nghiệm', tf: 'Đúng / Sai', match: 'Nối sự kiện–thời gian', order: 'Sắp xếp trình tự', source: 'Đọc hiểu tư liệu' }[t] || t);
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Luyện tập &amp; Kiểm tra Lịch sử</h1>
+        <p class="sub">Trắc nghiệm, Đúng/Sai, Nối sự kiện, Sắp xếp trình tự, Phân tích tư liệu · Chấm điểm &amp; lưu lịch sử.</p>
+      </div>
+      <div style="display:flex;gap:.45rem;flex-wrap:wrap;">
+        <button type="button" id="btn-hist-gen-ai" class="btn btn-wine btn-sm" onclick="genHistQuizAI()">✨ Sinh câu hỏi AI</button>
+        <button type="button" class="btn btn-sm" onclick="generateFromStoredData()">Sinh câu hỏi từ Kho sử</button>
+        <button type="button" class="btn btn-sm" onclick="openExcelModal('practice')"><span class="ico" data-ico="upload"></span>Nhập Excel</button>
+        <button type="button" class="btn btn-moss btn-sm" onclick="openQuestionModal()"><span class="ico" data-ico="plus"></span>Thêm câu hỏi</button>
+      </div>
+    </div>
+
+    ${p.lastAttempt ? renderQuizResultCardHtml(p.lastAttempt) : ''}
+
+    <div class="card card-arch" style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.65rem;">
+        <h3 style="font-size:1.25rem;">Tạo đề kiểm tra theo bài / chương / chủ đề</h3>
+        <button type="button" class="btn btn-wine" ${filteredQs.length === 0 ? 'disabled' : ''} onclick="startPracticeQuiz()">Bắt đầu làm bài (${filteredQs.length} câu)</button>
+      </div>
+      <div class="filter-bar" style="margin-bottom:0;">
+        <select onchange="ui.practice.grade=this.value;renderPractice()">
+          <option value="">Tất cả lớp</option>
+          ${grades.map((g) => `<option value="${esc(g)}" ${p.grade===g?'selected':''}>${esc(g)}</option>`).join('')}
+        </select>
+        <select onchange="ui.practice.chapter=this.value;renderPractice()">
+          <option value="">Tất cả chương</option>
+          ${chapters.map((c) => `<option value="${esc(c)}" ${p.chapter===c?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
+        <select onchange="ui.practice.topic=this.value;renderPractice()">
+          <option value="">Tất cả chủ đề</option>
+          ${topics.map((t) => `<option value="${esc(t)}" ${p.topic===t?'selected':''}>${esc(t)}</option>`).join('')}
+        </select>
+        <select onchange="ui.practice.type=this.value;renderPractice()">
+          <option value="">Mọi dạng câu hỏi</option>
+          <option value="mcq" ${p.type==='mcq'?'selected':''}>Trắc nghiệm</option>
+          <option value="tf" ${p.type==='tf'?'selected':''}>Đúng / Sai</option>
+          <option value="match" ${p.type==='match'?'selected':''}>Nối sự kiện – thời gian</option>
+          <option value="order" ${p.type==='order'?'selected':''}>Sắp xếp trình tự</option>
+          <option value="source" ${p.type==='source'?'selected':''}>Đọc hiểu tư liệu</option>
+        </select>
+        <select onchange="ui.practice.timerMin=Number(this.value);renderPractice()">
+          <option value="0" ${p.timerMin===0?'selected':''}>Không giới hạn giờ</option>
+          <option value="5" ${p.timerMin===5?'selected':''}>5 phút</option>
+          <option value="15" ${p.timerMin===15?'selected':''}>15 phút</option>
+          <option value="30" ${p.timerMin===30?'selected':''}>30 phút</option>
+        </select>
+        <button type="button" class="btn btn-sm" onclick="ui.practice.grade='';ui.practice.chapter='';ui.practice.topic='';ui.practice.type='';renderPractice()">Đặt lại</button>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size:1.2rem;margin-bottom:.55rem;">Ngân hàng câu hỏi (${filteredQs.length})</h3>
+        ${filteredQs.length === 0 ? `
+          <div class="empty-box" style="margin:0;">
+            <h3>Chưa có câu hỏi luyện tập</h3>
+            <p>Thêm câu hỏi mới (5 dạng bài), nhập từ Excel, hoặc sinh tự động từ các bài học và sự kiện đã lưu.</p>
+            <div class="empty-actions">
+              <button type="button" class="btn btn-moss btn-sm" onclick="openQuestionModal()"><span class="ico" data-ico="plus"></span>Tạo câu hỏi</button>
+              <button type="button" class="btn btn-sm" onclick="generateFromStoredData()">Sinh từ Kho sử</button>
+            </div>
+          </div>
+        ` : `
+          <div style="display:flex;flex-direction:column;gap:.45rem;max-height:380px;overflow:auto;">
+            ${filteredQs.map((q) => `
+              <div class="card" style="padding:.6rem .75rem;">
+                <div style="display:flex;justify-content:space-between;gap:.4rem;align-items:center;">
+                  <span class="tag tag-moss">${typeName(q.type)}</span>
+                  <div style="display:flex;gap:.3rem;">
+                    ${q.topic ? `<span class="tag">${esc(q.topic)}</span>` : ''}
+                    <button type="button" class="btn btn-sm" onclick="deleteQuestion('${esc(q.id)}')">Xóa</button>
+                  </div>
+                </div>
+                <div style="font-weight:600;font-size:.83rem;margin-top:.3rem;">${esc(q.prompt)}</div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:1.2rem;margin-bottom:.55rem;">Lịch sử kết quả (${state.results.length})</h3>
+        ${state.results.length === 0
+          ? `<p class="meta-line">Chưa có bài kiểm tra nào được chấm điểm.</p>`
+          : `<div style="display:flex;flex-direction:column;gap:.45rem;max-height:380px;overflow:auto;">
+              ${state.results.map((r) => `
+                <div class="card" style="padding:.6rem .75rem;">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                    <strong style="font-size:.84rem;">${esc(r.title)}</strong>
+                    <span class="tag ${r.percent >= 70 ? 'tag-moss' : 'tag-wine'} num">${r.earned}/${r.total} (${r.percent}%)</span>
+                  </div>
+                  <div class="meta-line" style="margin-top:.2rem;">${new Date(r.at).toLocaleString('vi-VN')}</div>
+                </div>
+              `).join('')}
+            </div>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+function generateFromStoredData() {
+  const merged = getMergedTimelineEvents();
+  const dated = merged.filter((ev) => ev.timeMarker && ev.sortYear !== null);
+  const created = [];
+
+  if (dated.length >= 2) {
+    const subset = dated.slice(0, 4);
+    created.push({
+      id: uid('pq'),
+      type: 'match',
+      prompt: 'Nối các sự kiện lịch sử đã lưu với đúng mốc thời gian tương ứng:',
+      topic: subset[0].topic || 'Tổng hợp',
+      pairs: subset.map((ev) => ({ event: ev.title, time: ev.timeMarker })),
+      explanation: subset.map((ev) => `${ev.title} (${ev.timeMarker})`).join(' · '),
+    });
+  }
+
+  const distinct = [];
+  const seenY = new Set();
+  for (const ev of dated) {
+    if (!seenY.has(ev.sortYear)) { seenY.add(ev.sortYear); distinct.push(ev); }
+  }
+  if (distinct.length >= 3) {
+    const picked = distinct.slice(0, 4);
+    created.push({
+      id: uid('pq'),
+      type: 'order',
+      prompt: 'Sắp xếp các sự kiện sau theo trình tự thời gian từ sớm nhất đến muộn nhất:',
+      topic: picked[0].topic || 'Dòng thời gian',
+      orderItems: picked.map((ev) => ({ label: ev.title, timeMarker: ev.timeMarker, sortYear: ev.sortYear })),
+      explanation: [...picked].sort((a, b) => a.sortYear - b.sortYear).map((ev) => `${ev.timeMarker}: ${ev.title}`).join(' → '),
+    });
+  }
+
+  const timePool = Array.from(new Set(dated.map((e) => e.timeMarker)));
+  if (state.lessons.length >= 2 && timePool.length >= 2) {
+    state.lessons.filter((l) => l.timeMarker).slice(0, 3).forEach((l) => {
+      const distractors = timePool.filter((t) => t !== l.timeMarker).slice(0, 3);
+      created.push({
+        id: uid('pq'),
+        type: 'mcq',
+        grade: l.grade, chapter: l.chapter, topic: l.topic, lessonId: l.id,
+        prompt: `Sự kiện / bài học "${l.title}" gắn với mốc thời gian nào?`,
+        options: [l.timeMarker, ...distractors],
+        correctIndex: 0,
+        explanation: `${l.title} (${l.timeMarker}). ${l.significance || l.result || ''}`.trim(),
+      });
+    });
+  }
+
+  if (created.length === 0) {
+    toast('Cần ít nhất 2 sự kiện/bài học có mốc thời gian trong Kho sử hoặc Dòng thời gian.');
+    return;
+  }
+  state.questions = [...created, ...state.questions];
+  saveState();
+  renderPractice();
+  hydrateIcons();
+  toast(`Đã sinh ${created.length} câu hỏi từ dữ liệu đã lưu.`);
+}
+
+function startPracticeQuiz() {
+  const p = ui.practice;
+  const qs = state.questions.filter((q) => {
+    if (p.grade && q.grade !== p.grade) return false;
+    if (p.chapter && q.chapter !== p.chapter) return false;
+    if (p.topic && q.topic !== p.topic) return false;
+    if (p.type && q.type !== p.type) return false;
+    return true;
+  });
+  if (!qs.length) return;
+
+  const answers = {};
+  qs.forEach((q) => {
+    if (q.type === 'order') {
+      const shuffled = [...(q.orderItems || [])].reverse().map((x) => x.label);
+      answers[q.id] = { type: 'order', orderedLabels: shuffled };
+    } else if (q.type === 'match') {
+      answers[q.id] = { type: 'match', mapping: {} };
+    } else if (q.type === 'tf') {
+      answers[q.id] = { type: 'tf', selectedBool: null };
+    } else {
+      answers[q.id] = { type: q.type, selectedIndex: null };
+    }
+  });
+
+  const timerId = p.timerMin > 0 ? setInterval(() => {
+    const remEl = document.getElementById('quiz-timer-badge');
+    if (!ui.practice.activeQuiz) { clearInterval(timerId); return; }
+    const leftSec = Math.max(0, Math.round((ui.practice.activeQuiz.endAt - Date.now()) / 1000));
+    if (remEl) remEl.textContent = `${Math.floor(leftSec/60)}:${String(leftSec%60).padStart(2,'0')}`;
+    if (leftSec <= 0) { clearInterval(timerId); submitPracticeQuiz(); }
+  }, 1000) : null;
+
+  p.activeQuiz = {
+    title: p.topic || p.chapter || 'Đề tổng hợp Lịch sử',
+    questions: qs,
+    answers,
+    startedAt: Date.now(),
+    endAt: p.timerMin > 0 ? Date.now() + p.timerMin * 60000 : null,
+    timerId,
+  };
+  p.lastAttempt = null;
+  renderPractice();
+  hydrateIcons();
+}
+
+function renderActiveQuizHtml(quiz) {
+  return `
+    <div class="section-head">
+      <div>
+        <h1>Đang làm bài: ${esc(quiz.title)}</h1>
+        <p class="sub">${quiz.questions.length} câu hỏi</p>
+      </div>
+      <div style="display:flex;gap:.5rem;align-items:center;">
+        ${quiz.endAt ? `<span id="quiz-timer-badge" class="tag tag-wine num" style="font-size:.9rem;">--:--</span>` : ''}
+        <button type="button" class="btn btn-sm" onclick="cancelQuiz()">Hủy</button>
+        <button type="button" class="btn btn-moss btn-sm" onclick="submitPracticeQuiz()">Nộp bài &amp; Chấm điểm</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.85rem;">
+      ${quiz.questions.map((q, qi) => {
+        const ans = quiz.answers[q.id];
+        return `
+          <div class="card card-arch">
+            <div class="meta-line" style="margin-bottom:.35rem;"><strong>Câu ${qi + 1}</strong> · ${esc(q.topic || 'Lịch sử')}</div>
+            ${q.passage ? `<div style="background:var(--paper);border-left:3px solid var(--bronze);padding:.6rem .8rem;margin-bottom:.5rem;font-family:var(--f-lit);font-size:.9rem;">${esc(q.passage)}${q.sourceCitation?`<div class="meta-line" style="margin-top:.25rem;">Nguồn: ${esc(q.sourceCitation)}</div>`:''}</div>` : ''}
+            <div style="font-weight:700;margin-bottom:.55rem;">${esc(q.prompt)}</div>
+
+            ${(q.type === 'mcq' || q.type === 'source') ? `
+              <div style="display:flex;flex-direction:column;gap:.35rem;">
+                ${(q.options || []).map((opt, oi) => `
+                  <button type="button" class="q-opt ${ans?.selectedIndex === oi ? 'picked' : ''}" onclick="setQuizChoice('${esc(q.id)}', ${oi})">
+                    <strong>${String.fromCharCode(65 + oi)}.</strong> <span>${esc(opt)}</span>
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            ${q.type === 'tf' ? `
+              <div style="display:flex;gap:.5rem;">
+                <button type="button" class="q-opt ${ans?.selectedBool === true ? 'picked' : ''}" onclick="setQuizTf('${esc(q.id)}', true)">Đúng</button>
+                <button type="button" class="q-opt ${ans?.selectedBool === false ? 'picked' : ''}" onclick="setQuizTf('${esc(q.id)}', false)">Sai</button>
+              </div>
+            ` : ''}
+
+            ${q.type === 'match' ? (() => {
+              const times = Array.from(new Set((q.pairs || []).map((x) => x.time)));
+              return `<div style="display:flex;flex-direction:column;gap:.45rem;">
+                ${(q.pairs || []).map((pair, pi) => `
+                  <div class="match-row">
+                    <div class="card" style="padding:.45rem .65rem;">${esc(pair.event)}</div>
+                    <select onchange="setQuizMatch('${esc(q.id)}', ${pi}, this.value)">
+                      <option value="">Chọn mốc thời gian...</option>
+                      ${times.map((t) => `<option value="${esc(t)}" ${ans?.mapping?.[pi] === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}
+                    </select>
+                  </div>
+                `).join('')}
+              </div>`;
+            })() : ''}
+
+            ${q.type === 'order' ? `
+              <div style="display:flex;flex-direction:column;gap:.35rem;">
+                ${(ans?.orderedLabels || []).map((lbl, li, arr) => `
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:var(--paper);padding:.45rem .7rem;border-radius:7px;border:1px solid var(--line);">
+                    <span><strong class="num">${li + 1}.</strong> ${esc(lbl)}</span>
+                    <div style="display:flex;gap:.25rem;">
+                      <button type="button" class="btn btn-sm" ${li === 0 ? 'disabled' : ''} onclick="moveQuizOrder('${esc(q.id)}', ${li}, -1)">↑</button>
+                      <button type="button" class="btn btn-sm" ${li === arr.length - 1 ? 'disabled' : ''} onclick="moveQuizOrder('${esc(q.id)}', ${li}, 1)">↓</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function setQuizChoice(qId, idx) { ui.practice.activeQuiz.answers[qId].selectedIndex = idx; renderPractice(); hydrateIcons(); }
+function setQuizTf(qId, val) { ui.practice.activeQuiz.answers[qId].selectedBool = val; renderPractice(); hydrateIcons(); }
+function setQuizMatch(qId, pi, val) { ui.practice.activeQuiz.answers[qId].mapping[pi] = val; }
+function moveQuizOrder(qId, idx, dir) {
+  const arr = ui.practice.activeQuiz.answers[qId].orderedLabels;
+  const target = idx + dir;
+  if (target < 0 || target >= arr.length) return;
+  [arr[idx], arr[target]] = [arr[target], arr[idx]];
+  renderPractice();
+  hydrateIcons();
+}
+function cancelQuiz() {
+  if (ui.practice.activeQuiz?.timerId) clearInterval(ui.practice.activeQuiz.timerId);
+  ui.practice.activeQuiz = null;
+  renderPractice();
+  hydrateIcons();
+}
+
+function submitPracticeQuiz() {
+  const quiz = ui.practice.activeQuiz;
+  if (!quiz) return;
+  if (quiz.timerId) clearInterval(quiz.timerId);
+
+  let earnedTotal = 0;
+  const missedIds = [];
+  const breakdown = quiz.questions.map((q) => {
+    const ans = quiz.answers[q.id];
+    let ok = false;
+    let earned = 0;
+    if ((q.type === 'mcq' || q.type === 'source') && ans?.selectedIndex === q.correctIndex) { ok = true; earned = 1; }
+    else if (q.type === 'tf' && ans?.selectedBool === q.correctBool) { ok = true; earned = 1; }
+    else if (q.type === 'match' && q.pairs?.length) {
+      let m = 0;
+      q.pairs.forEach((p, idx) => { if ((ans?.mapping?.[idx] || '').trim() === p.time.trim()) m += 1; });
+      earned = Number((m / q.pairs.length).toFixed(2));
+      ok = m === q.pairs.length;
+    } else if (q.type === 'order' && q.orderItems?.length) {
+      const expected = [...q.orderItems].sort((a, b) => a.sortYear - b.sortYear).map((x) => x.label);
+      ok = expected.every((lbl, i) => ans?.orderedLabels?.[i] === lbl);
+      earned = ok ? 1 : 0;
+    }
+    earnedTotal += earned;
+    if (!ok) missedIds.push(q.id);
+    return { question: q, ok, earned };
+  });
+
+  const total = quiz.questions.length;
+  const percent = total ? Math.round((earnedTotal / total) * 100) : 0;
+  const attempt = {
+    id: uid('res'),
+    title: quiz.title,
+    earned: Number(earnedTotal.toFixed(2)),
+    total,
+    percent,
+    missedQuestionIds: missedIds,
+    breakdown,
+    at: new Date().toISOString(),
+  };
+
+  state.results.unshift(attempt);
+  saveState();
+  ui.practice.activeQuiz = null;
+  ui.practice.lastAttempt = attempt;
+  renderPractice();
+  hydrateIcons();
+  emitHistContext('practice');
+  toast(`Hoàn thành: ${attempt.earned}/${attempt.total} (${percent}%)`);
+}
+
+async function genHistQuizAI() {
+  if (!window.SchoolHubAI) return toast('Chưa nạp cầu nối AI.');
+  const topic = ui.practice.topic || ui.practice.chapter || prompt('Nhập chủ đề hoặc giai đoạn Lịch sử muốn AI tạo câu hỏi (vd: Chiến dịch Điện Biên Phủ 1954, Cách mạng tháng Tám):', 'Lịch sử Việt Nam hiện đại');
+  if (!topic) return;
+  const btn = document.getElementById('btn-hist-gen-ai');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang tạo đề AI...'; }
+  try {
+    const res = await window.SchoolHubAI.generateQuiz({ subjectId: 'history', topic, count: 4 });
+    const qs = Array.isArray(res.questions) ? res.questions : [];
+    if (!qs.length) return toast('AI chưa tạo được câu hỏi.');
+    const now = new Date().toISOString();
+    qs.forEach((q, idx) => {
+      state.questions.unshift({
+        id: 'hq_ai_' + Date.now() + '_' + idx,
+        type: 'mcq',
+        grade: ui.practice.grade || 'Lớp 12',
+        chapter: ui.practice.chapter || 'Ôn tập AI',
+        topic: q.topic || topic,
+        prompt: q.question,
+        options: Array.isArray(q.options) ? q.options : [],
+        correctIndex: Number(q.correctIndex) || 0,
+        explanation: q.explanation || '',
+        source: 'Gemini AI',
+        createdAt: now,
+      });
+    });
+    saveState();
+    renderPractice();
+    hydrateIcons();
+    toast(`Đã thêm ${qs.length} câu hỏi AI vào Luyện tập.`);
+  } catch (err) {
+    toast(err.message || 'Không tạo được câu hỏi AI.');
+  } finally {
+    const b2 = document.getElementById('btn-hist-gen-ai');
+    if (b2) { b2.disabled = false; b2.textContent = '✨ Sinh câu hỏi AI'; }
+  }
+}
+
+async function explainHistAttemptQ(idx) {
+  const b = ui.practice.lastAttempt?.breakdown?.[idx];
+  const box = document.getElementById(`hist-q-ai-${idx}`);
+  if (!b || !box || !window.SchoolHubAI) return;
+  box.style.display = 'block';
+  box.innerHTML = '<em>Gemini đang đối chiếu mốc thời gian và tư liệu...</em>';
+  const q = b.question;
+  const promptText = `Giải thích chính xác câu hỏi Lịch sử (phân biệt rõ [Sự kiện], [Tư liệu], [Nhận định]):\nCâu hỏi: ${q.prompt}\nKết quả học sinh: ${b.ok ? 'Làm đúng' : 'Chưa đúng'}\nGiải thích gốc: ${q.explanation || 'Không có'}`;
+  try {
+    await window.SchoolHubAI.streamAssist({
+      subjectId: 'history',
+      mode: 'wrong_answer_coach',
+      prompt: promptText,
+      contextText: getAiContextText(),
+      onDelta: (_d, full) => { box.innerHTML = renderMarkdownHtml(full); },
+    });
+  } catch (err) {
+    box.innerHTML = `<span style="color:var(--wine)">⚠ ${esc(err.message || 'Lỗi kết nối AI')}</span>`;
+  }
+}
+
+async function explainHistWeaknesses() {
+  const attempt = ui.practice.lastAttempt;
+  const box = document.getElementById('hist-attempt-plan-ai');
+  if (!attempt || !box || !window.SchoolHubAI) return;
+  box.style.display = 'block';
+  box.innerHTML = '<em>Gemini đang tổng hợp lỗ hổng kiến thức và lập lộ trình ôn tập...</em>';
+  const wrongSummary = (attempt.breakdown || [])
+    .filter((b) => !b.ok)
+    .map((b, i) => `${i + 1}. ${b.question.topic}: ${b.question.prompt}`)
+    .join('\n') || 'Học sinh trả lời đúng toàn bộ bài.';
+  try {
+    await window.SchoolHubAI.streamAssist({
+      subjectId: 'history',
+      mode: 'mindmap_timeline',
+      prompt: `Dựa trên kết quả "${attempt.title}" (${attempt.earned}/${attempt.total} — ${attempt.percent}%), hãy lập lộ trình ôn tập ngắn gọn gồm các mốc thời gian và từ khóa trọng tâm cần nhớ:\n${wrongSummary}`,
+      contextText: getAiContextText(),
+      onDelta: (_d, full) => { box.innerHTML = renderMarkdownHtml(full); },
+    });
+  } catch (err) {
+    box.innerHTML = `<span style="color:var(--wine)">⚠ ${esc(err.message || 'Lỗi kết nối AI')}</span>`;
+  }
+}
+
+function renderQuizResultCardHtml(attempt) {
+  return `
+    <div class="card card-arch" style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.65rem;">
+        <div>
+          <h3 style="font-size:1.35rem;">Kết quả: ${esc(attempt.title)}</h3>
+          <div class="meta-line">Đạt <strong class="num">${attempt.earned}/${attempt.total} (${attempt.percent}%)</strong></div>
+        </div>
+        <div style="display:flex;gap:.45rem;flex-wrap:wrap;">
+          <button type="button" class="btn btn-moss btn-sm" onclick="explainHistWeaknesses()">🤖 AI lập lộ trình ôn tập</button>
+          <button type="button" class="btn btn-sm" onclick="ui.practice.lastAttempt=null;renderPractice();hydrateIcons()">Đóng bảng điểm</button>
+        </div>
+      </div>
+      <div id="hist-attempt-plan-ai" style="display:none;margin-bottom:.65rem;padding:.6rem .75rem;border-radius:6px;background:var(--paper);border:1px solid var(--line);"></div>
+      <div style="display:flex;flex-direction:column;gap:.45rem;">
+        ${(attempt.breakdown || []).map((b, i) => {
+          const partial = !b.ok && b.earned > 0;
+          const borderCol = b.ok ? 'var(--moss)' : partial ? 'var(--bronze)' : 'var(--wine)';
+          const tagCls = b.ok ? 'tag-moss' : partial ? 'tag-bronze' : 'tag-wine';
+          const badgeTxt = b.ok ? 'Đúng' : partial ? `Đúng một phần (${b.earned}/1)` : 'Chưa đúng';
+          return `
+          <div class="card" style="padding:.55rem .75rem;border-left:3px solid ${borderCol};">
+            <div style="display:flex;justify-content:space-between;gap:.4rem;align-items:center;flex-wrap:wrap;">
+              <strong style="font-size:.82rem;">Câu ${i + 1}: ${esc(b.question.prompt)}</strong>
+              <span class="tag ${tagCls}">${badgeTxt}</span>
+            </div>
+            ${b.question.explanation ? `<div class="meta-line" style="margin-top:.2rem;"><strong>Giải thích:</strong> ${esc(b.question.explanation)}</div>` : ''}
+            <div style="margin-top:.35rem;">
+              <button type="button" class="btn btn-sm" onclick="explainHistAttemptQ(${i})">🤖 AI giải thích câu này</button>
+            </div>
+            <div id="hist-q-ai-${i}" style="display:none;margin-top:.4rem;padding:.5rem .65rem;border-radius:6px;background:var(--paper);border:1px solid var(--line);"></div>
+          </div>
+        `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function deleteQuestion(id) {
+  state.questions = state.questions.filter((q) => q.id !== id);
+  saveState();
+  renderPractice();
+  hydrateIcons();
+}
+
+// ===================== 6. AI ASSISTANT =====================
+function renderAi() {
+  const el = document.getElementById('view-ai');
+  const a = ui.ai;
+  const mergedEvents = getMergedTimelineEvents();
+
+  el.innerHTML = `
+    <div class="section-head">
+      <div>
+        <h1>Trợ lý Lịch sử AI</h1>
+        <p class="sub">Phân biệt rõ [Sự kiện] · [Tư liệu] · [Nhận định] — không bịa mốc thời gian, nhân vật hoặc sự kiện.</p>
+      </div>
+      <div style="display:flex;gap:.45rem;">
+        <button type="button" class="btn btn-sm" onclick="ui.ai.messages=[];renderAi();hydrateIcons()">Làm mới hội thoại</button>
+      </div>
+    </div>
+
+    <div class="ai-layout">
+      <aside class="card card-arch" style="display:flex;flex-direction:column;gap:.65rem;">
+        <div>
+          <label class="lbl">Chế độ phân tích</label>
+          <select onchange="ui.ai.mode=this.value">
+            <option value="event_analysis" ${a.mode==='event_analysis'?'selected':''}>Phân tích sự kiện (4 chiều)</option>
+            <option value="figure_role" ${a.mode==='figure_role'?'selected':''}>Vai trò nhân vật lịch sử</option>
+            <option value="period_compare" ${a.mode==='period_compare'?'selected':''}>So sánh thời kỳ / phong trào</option>
+            <option value="mindmap_timeline" ${a.mode==='mindmap_timeline'?'selected':''}>Bảng tổng hợp · Sơ đồ tư duy · Timeline</option>
+            <option value="quiz_generate" ${a.mode==='quiz_generate'?'selected':''}>Tạo câu hỏi ôn tập</option>
+            <option value="tutor_chat" ${a.mode==='tutor_chat'?'selected':''}>Giải đáp &amp; Bài tập Lịch sử</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="lbl">Gắn ngữ cảnh đã lưu (tùy chọn)</label>
+          <select onchange="setAiLinkedItem(this.value)">
+            <option value="">-- Không gắn ngữ cảnh --</option>
+            ${state.lessons.map((l) => `<option value="lesson:${esc(l.id)}" ${a.linkedType==='lesson'&&a.linkedId===l.id?'selected':''}>Bài học: ${esc(l.title)}</option>`).join('')}
+            ${mergedEvents.map((ev) => `<option value="event:${esc(ev.id)}" ${a.linkedType==='event'&&a.linkedId===ev.id?'selected':''}>Sự kiện: ${esc(ev.title)}</option>`).join('')}
+            ${state.archive.map((ar) => `<option value="archive:${esc(ar.id)}" ${a.linkedType==='archive'&&a.linkedId===ar.id?'selected':''}>Tư liệu: ${esc(ar.title)}</option>`).join('')}
+          </select>
+        </div>
+
+        <div>
+          <label class="lbl">Tải ảnh / bản thảo / PDF / Word phân tích</label>
+          <input type="file" accept="image/*,.pdf,.docx,.txt,.md" onchange="handleAiFileUpload(this)" />
+          ${a.attachment ? `
+            <div class="meta-line" style="margin-top:.3rem;justify-content:space-between;">
+              <span>Đã đính kèm: <strong>${esc(a.attachment.name)}</strong></span>
+              <button type="button" class="btn btn-sm" onclick="ui.ai.attachment=null;renderAi();hydrateIcons()">Gỡ</button>
+            </div>
+          ` : ''}
+        </div>
+
+        <div style="border-top:1px solid var(--line);padding-top:.55rem;display:flex;flex-direction:column;gap:.35rem;">
+          <label class="lbl">Tác vụ nhanh</label>
+          <button type="button" class="btn btn-sm" onclick="triggerAiPreset('event_analysis','Phân tích sự kiện theo bối cảnh, nguyên nhân, diễn biến, kết quả và ý nghĩa lịch sử.')">Phân tích sự kiện 4 chiều</button>
+          <button type="button" class="btn btn-sm" onclick="triggerAiPreset('figure_role','Phân tích bối cảnh, đóng góp cốt lõi và vai trò của nhân vật lịch sử liên quan.')">Vai trò nhân vật</button>
+          <button type="button" class="btn btn-sm" onclick="triggerAiPreset('period_compare','Lập bảng so sánh điểm giống và khác giữa hai thời kỳ hoặc phong trào lịch sử.')">So sánh thời kỳ / phong trào</button>
+          <button type="button" class="btn btn-sm" onclick="triggerAiPreset('mindmap_timeline','Lập bảng tổng hợp, sơ đồ tư duy phân nhánh và dòng thời gian từ nội dung đã chọn.')">Bảng tổng hợp &amp; Sơ đồ tư duy</button>
+          <button type="button" class="btn btn-sm" onclick="triggerAiPreset('quiz_generate','Tạo 5 câu hỏi ôn tập trắc nghiệm A/B/C/D kèm đáp án đúng và giải thích dựa trên nội dung.')">Tạo câu hỏi ôn tập</button>
+        </div>
+      </aside>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:.65rem;">
+        <div id="ai-chat-box" class="chat-box">
+          ${a.messages.length === 0 ? `
+            <div style="margin:auto;text-align:center;max-width:440px;color:var(--muted);">
+              <h3 style="font-size:1.3rem;color:var(--ink);">Trợ lý sử học Sử Ký</h3>
+              <p style="font-size:.82rem;margin-top:.25rem;">Đặt câu hỏi, chọn bài học/tư liệu ở cột trái, hoặc tải lên ảnh hiện vật, văn kiện PDF/Word để phân tích chuẩn xác.</p>
+            </div>
+          ` : a.messages.map((m) => `
+            <div class="msg ${m.role === 'user' ? 'user' : m.isError ? 'err' : 'ai'}">
+              ${m.role === 'user' ? esc(m.content) : renderMarkdownHtml(m.content)}
+            </div>
+          `).join('')}
+          ${a.loading ? `<div class="msg ai">Đang tra cứu và tổng hợp tư liệu lịch sử...</div>` : ''}
+        </div>
+
+        <form onsubmit="event.preventDefault();sendAiPrompt();" style="display:flex;gap:.5rem;align-items:flex-end;">
+          <textarea id="ai-prompt-input" rows="2" placeholder="Nhập câu hỏi lịch sử, tên sự kiện, nhân vật hoặc yêu cầu phân tích tư liệu..."></textarea>
+          <button type="submit" class="btn btn-wine" ${a.loading ? 'disabled' : ''}>${a.loading ? 'Đang xử lý...' : 'Gửi AI'}</button>
+        </form>
+      </div>
+    </div>
+  `;
+
+  const box = document.getElementById('ai-chat-box');
+  if (box) box.scrollTop = box.scrollHeight;
+}
+
+function setAiLinkedItem(val) {
+  if (!val) { ui.ai.linkedType = ''; ui.ai.linkedId = ''; return; }
+  const [type, ...rest] = val.split(':');
+  ui.ai.linkedType = type;
+  ui.ai.linkedId = rest.join(':');
+}
+
+function askAiWithContext(type, id) {
+  ui.ai.linkedType = type;
+  ui.ai.linkedId = id;
+  ui.ai.mode = type === 'archive' ? 'tutor_chat' : 'event_analysis';
+  switchView('ai');
+}
+
+function getAiContextText() {
+  const parts = [];
+  if (ui.ai.linkedType === 'lesson') {
+    const l = state.lessons.find((x) => x.id === ui.ai.linkedId);
+    if (l) parts.push(`Bài học: ${l.title} (${l.timeMarker}, ${l.era})\nBối cảnh: ${l.context}\nNguyên nhân: ${l.causes}\nDiễn biến: ${l.progression}\nKết quả: ${l.result}\nÝ nghĩa: ${l.significance}\nNguồn: ${l.source}`);
+  } else if (ui.ai.linkedType === 'event') {
+    const ev = getMergedTimelineEvents().find((x) => x.id === ui.ai.linkedId);
+    if (ev) parts.push(`Sự kiện: ${ev.title} (${ev.timeMarker}, ${ev.era}, ${ev.country})\nBối cảnh: ${ev.context}\nDiễn biến: ${ev.progression}\nKết quả: ${ev.result}\nÝ nghĩa: ${ev.significance}\nNguồn: ${ev.source}`);
+  } else if (ui.ai.linkedType === 'archive') {
+    const ar = state.archive.find((x) => x.id === ui.ai.linkedId);
+    if (ar) parts.push(`Tư liệu: ${ar.title} (${ar.yearLabel}, ${ar.era})\nNguồn: ${ar.source}\nXuất xứ: ${ar.provenance}\nTóm tắt: ${ar.summary}\nNội dung: ${ar.content}`);
+  }
+  if (ui.ai.attachment?.kind === 'doc' && ui.ai.attachment.text) {
+    parts.push(`[Nội dung tài liệu đính kèm: ${ui.ai.attachment.name}]\n${ui.ai.attachment.text}`);
+  }
+  return parts.join('\n\n').slice(0, 15500);
+}
+
+async function handleAiFileUpload(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const base64DataUrl = await readFileDataUrl(file);
+    if (file.type.startsWith('image/')) {
+      ui.ai.attachment = { kind: 'image', name: file.name, mimeType: file.type, dataBase64: base64DataUrl };
+      renderAi(); hydrateIcons();
+      toast(`Đã đính kèm ảnh "${file.name}".`);
+      return;
+    }
+    toast('Đang trích xuất nội dung tài liệu...');
+    const res = await fetch('/api/history/parse-document', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName: file.name, mimeType: file.type, fileBase64: base64DataUrl }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Không đọc được tài liệu.');
+    ui.ai.attachment = { kind: 'doc', name: file.name, text: data.text || '' };
+    renderAi(); hydrateIcons();
+    toast(`Đã đọc tài liệu "${file.name}".`);
+  } catch (err) {
+    toast(err.message || 'Lỗi tải tài liệu.');
+  }
+}
+
+function triggerAiPreset(mode, promptText) {
+  ui.ai.mode = mode;
+  const inp = document.getElementById('ai-prompt-input');
+  if (inp) inp.value = promptText;
+  sendAiPrompt(promptText);
+}
+
+async function sendAiPrompt(overrideText) {
+  if (ui.ai.loading) return;
+  const inp = document.getElementById('ai-prompt-input');
+  const promptText = (overrideText ?? inp?.value ?? '').trim();
+  const hasImg = ui.ai.attachment?.kind === 'image';
+  if (!promptText && !hasImg) { toast('Vui lòng nhập câu hỏi hoặc đính kèm ảnh/tài liệu.'); return; }
+
+  const userMsg = promptText || `Phân tích tư liệu hình ảnh: ${ui.ai.attachment.name}`;
+  ui.ai.messages.push({ role: 'user', content: userMsg });
+  if (inp && overrideText === undefined) inp.value = '';
+  ui.ai.loading = true;
+  renderAi(); hydrateIcons();
+
+  const chatBox = document.getElementById('ai-chat-box');
+  let streamEl = null;
+  if (chatBox) {
+    const prevLoading = chatBox.lastElementChild;
+    if (prevLoading && prevLoading.textContent.includes('Đang tra cứu')) {
+      prevLoading.remove();
+    }
+    streamEl = document.createElement('div');
+    streamEl.className = 'msg ai';
+    streamEl.innerHTML = '<em>Gemini đang đối chiếu tư liệu và tổng hợp phản hồi...</em>';
+    chatBox.appendChild(streamEl);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  try {
+    const messages = ui.ai.messages.filter((m) => !m.isError).slice(-10).map((m) => ({ role: m.role, content: m.content }));
+    const image = hasImg ? { mimeType: ui.ai.attachment.mimeType, dataBase64: ui.ai.attachment.dataBase64 } : null;
+    if (window.SchoolHubAI) {
+      const text = await window.SchoolHubAI.streamAssist({
+        subjectId: 'history',
+        mode: ui.ai.mode,
+        contextText: getAiContextText(),
+        messages,
+        image,
+        onDelta: (_delta, full) => {
+          if (streamEl) {
+            streamEl.innerHTML = renderMarkdownHtml(full);
+            if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        },
+      });
+      ui.ai.messages.push({ role: 'assistant', content: text });
+    } else {
+      const res = await fetch('/api/ai/subject-assist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subjectId: 'history', mode: ui.ai.mode, contextText: getAiContextText(), messages, image }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        ui.ai.messages.push({ role: 'assistant', content: data.error || 'Không kết nối được Trợ lý AI.', isError: true });
+      } else {
+        ui.ai.messages.push({ role: 'assistant', content: data.text || '' });
+      }
+    }
+  } catch (err) {
+    ui.ai.messages.push({ role: 'assistant', content: `Lỗi kết nối: ${err.message}`, isError: true });
+  } finally {
+    ui.ai.loading = false;
+    renderAi(); hydrateIcons();
+  }
+}
+
+function renderMarkdownHtml(raw) {
+  const lines = String(raw || '').split('\n');
+  let out = '';
+  let inList = false;
+  let inTable = false;
+
+  const fmtInline = (s) => esc(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[Sự kiện\]/g, '<span class="badge-fact">Sự kiện</span>')
+    .replace(/\[Tư liệu\]/g, '<span class="badge-source">Tư liệu</span>')
+    .replace(/\[Nhận định\]/g, '<span class="badge-claim">Nhận định</span>');
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trimEnd();
+    if (/^\|.*\|$/.test(line.trim())) {
+      if (/^\|[\s:-]+\|$/.test(line.replace(/[^|:\s-]/g, ''))) continue;
+      if (inList) { out += '</ul>'; inList = false; }
+      const cells = line.trim().slice(1, -1).split('|').map((c) => c.trim());
+      if (!inTable) {
+        out += '<table><thead><tr>' + cells.map((c) => `<th>${fmtInline(c)}</th>`).join('') + '</tr></thead><tbody>';
+        inTable = true;
+      } else {
+        out += '<tr>' + cells.map((c) => `<td>${fmtInline(c)}</td>`).join('') + '</tr>';
+      }
+      continue;
+    } else if (inTable) {
+      out += '</tbody></table>';
+      inTable = false;
+    }
+
+    if (/^#{1,4}\s+/.test(line)) {
+      if (inList) { out += '</ul>'; inList = false; }
+      out += `<h4>${fmtInline(line.replace(/^#{1,4}\s+/, ''))}</h4>`;
+    } else if (/^[-*•]\s+/.test(line.trim())) {
+      if (!inList) { out += '<ul>'; inList = true; }
+      out += `<li>${fmtInline(line.trim().replace(/^[-*•]\s+/, ''))}</li>`;
+    } else if (!line.trim()) {
+      if (inList) { out += '</ul>'; inList = false; }
+    } else {
+      if (inList) { out += '</ul>'; inList = false; }
+      out += `<p style="margin:.22rem 0;">${fmtInline(line)}</p>`;
+    }
+  }
+  if (inList) out += '</ul>';
+  if (inTable) out += '</tbody></table>';
+  return out;
+}
+
+// ===================== MODALS: LESSON, EVENT, ARCHIVE, QUESTION, EXCEL =====================
+function openModal(title, bodyHtml, footHtml) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-foot').innerHTML = footHtml;
+  document.getElementById('modal-backdrop').classList.add('open');
+  hydrateIcons();
+}
+
+function closeModal() {
+  document.getElementById('modal-backdrop').classList.remove('open');
+}
+
+function readFileDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result || ''));
+    r.onerror = () => reject(new Error('Không đọc được tệp.'));
+    r.readAsDataURL(file);
+  });
+}
+
+let tempLessonMedia = [];
+function openLessonModal(editId) {
+  const item = editId ? state.lessons.find((x) => x.id === editId) : null;
+  tempLessonMedia = structuredClone(item?.mediaUrls || []);
+  openModal(
+    item ? 'Cập nhật bài học Lịch sử' : 'Thêm bài học vào Kho sử',
+    `
+      <div class="grid-2">
+        <div><label class="lbl">Tiêu đề bài học *</label><input id="f-l-title" value="${esc(item?.title || '')}" placeholder="Ví dụ: Khởi nghĩa Hai Bà Trưng" /></div>
+        <div><label class="lbl">Mốc thời gian (TCN/SCN/ngày)</label><input id="f-l-time" value="${esc(item?.timeMarker || '')}" placeholder="40 SCN hoặc 02/09/1945" /></div>
+        <div><label class="lbl">Lớp</label><input id="f-l-grade" value="${esc(item?.grade || 'Lớp 10')}" /></div>
+        <div><label class="lbl">Chương</label><input id="f-l-chap" value="${esc(item?.chapter || '')}" placeholder="Chương I" /></div>
+        <div><label class="lbl">Thời kỳ</label><input id="f-l-era" value="${esc(item?.era || '')}" placeholder="Thời Bắc thuộc" /></div>
+        <div><label class="lbl">Chủ đề</label><input id="f-l-topic" value="${esc(item?.topic || '')}" placeholder="Kháng chiến giành độc lập" /></div>
+        <div><label class="lbl">Nhân vật (ngăn cách bằng ; )</label><input id="f-l-fig" value="${esc((item?.figures || []).join('; '))}" /></div>
+        <div><label class="lbl">Nguồn tham khảo</label><input id="f-l-src" value="${esc(item?.source || '')}" /></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:600;">
+        <input type="checkbox" id="f-l-sync" style="width:auto;" ${item ? (item.syncToTimeline ? 'checked' : '') : 'checked'} />
+        Tự động đưa bài học này lên Dòng thời gian &amp; Sự kiện
+      </label>
+      <div class="grid-2">
+        <div><label class="lbl">Bối cảnh</label><textarea id="f-l-ctx" rows="2">${esc(item?.context || '')}</textarea></div>
+        <div><label class="lbl">Nguyên nhân</label><textarea id="f-l-cause" rows="2">${esc(item?.causes || '')}</textarea></div>
+        <div><label class="lbl">Diễn biến</label><textarea id="f-l-prog" rows="2">${esc(item?.progression || '')}</textarea></div>
+        <div><label class="lbl">Kết quả</label><textarea id="f-l-res" rows="2">${esc(item?.result || '')}</textarea></div>
+        <div><label class="lbl">Ý nghĩa lịch sử</label><textarea id="f-l-sig" rows="2">${esc(item?.significance || '')}</textarea></div>
+        <div><label class="lbl">Bài học lịch sử</label><textarea id="f-l-les" rows="2">${esc(item?.lessonLearned || '')}</textarea></div>
+      </div>
+      <div>
+        <label class="lbl">Đính kèm ảnh minh họa hoặc tài liệu (.png, .jpg, .docx, .pdf, .txt)</label>
+        <input type="file" accept="image/*,.docx,.pdf,.txt,.md" onchange="attachLessonMedia(this)" />
+        <div id="lesson-media-preview" class="meta-line" style="margin-top:.3rem;">${tempLessonMedia.map((m) => `<span class="tag">${esc(m.name)}</span>`).join('')}</div>
+      </div>
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Hủy</button><button type="button" class="btn btn-moss" onclick="saveLessonForm('${esc(editId || '')}')">Lưu bài học</button>`
+  );
+}
+
+async function attachLessonMedia(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const dataUrl = await readFileDataUrl(file);
+    if (file.type.startsWith('image/')) {
+      tempLessonMedia.push({ name: file.name, type: 'image', url: dataUrl });
+    } else {
+      const res = await fetch('/api/history/parse-document', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, mimeType: file.type, fileBase64: dataUrl }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error);
+      tempLessonMedia.push({ name: file.name, type: 'doc', url: '', content: d.text || '' });
+    }
+    document.getElementById('lesson-media-preview').innerHTML = tempLessonMedia.map((m) => `<span class="tag">${esc(m.name)}</span>`).join('');
+  } catch (e) { toast(e.message); }
+}
+
+function saveLessonForm(editId) {
+  const title = document.getElementById('f-l-title').value.trim();
+  if (!title) { toast('Vui lòng nhập tiêu đề bài học.'); return; }
+  const timeMarker = document.getElementById('f-l-time').value.trim();
+  const figRaw = document.getElementById('f-l-fig').value;
+  const now = new Date().toISOString();
+  const existing = editId ? state.lessons.find((x) => x.id === editId) : null;
+  const record = {
+    id: existing?.id || uid('his'),
+    title,
+    timeMarker,
+    sortYear: parseHistoricalSortYear(timeMarker),
+    grade: document.getElementById('f-l-grade').value.trim() || 'Khác',
+    chapter: document.getElementById('f-l-chap').value.trim() || 'Chuyên đề',
+    era: document.getElementById('f-l-era').value.trim() || 'Chưa phân loại',
+    topic: document.getElementById('f-l-topic').value.trim() || 'Lịch sử',
+    figures: figRaw ? figRaw.split(/[;,]/).map((s) => s.trim()).filter(Boolean) : [],
+    source: document.getElementById('f-l-src').value.trim(),
+    syncToTimeline: document.getElementById('f-l-sync').checked,
+    context: document.getElementById('f-l-ctx').value.trim(),
+    causes: document.getElementById('f-l-cause').value.trim(),
+    progression: document.getElementById('f-l-prog').value.trim(),
+    result: document.getElementById('f-l-res').value.trim(),
+    significance: document.getElementById('f-l-sig').value.trim(),
+    lessonLearned: document.getElementById('f-l-les').value.trim(),
+    mediaUrls: tempLessonMedia,
+    bookmarked: existing?.bookmarked || false,
+    completed: existing?.completed || false,
+    highlights: existing?.highlights || [],
+    notes: existing?.notes || '',
+    relatedEventIds: existing?.relatedEventIds || [],
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  };
+
+  if (existing) state.lessons = state.lessons.map((x) => (x.id === existing.id ? record : x));
+  else state.lessons.unshift(record);
+  ui.selectedLessonId = record.id;
+  saveState();
+  closeModal();
+  renderCurrentView();
+  toast('Đã lưu bài học Lịch sử.');
+}
+
+function openEventModal(editId) {
+  const item = editId ? state.events.find((x) => x.id === editId) : null;
+  openModal(
+    item ? 'Cập nhật sự kiện' : 'Thêm sự kiện Dòng thời gian',
+    `
+      <div class="grid-2">
+        <div><label class="lbl">Tên sự kiện *</label><input id="f-e-title" value="${esc(item?.title || '')}" /></div>
+        <div><label class="lbl">Mốc thời gian *</label><input id="f-e-time" value="${esc(item?.timeMarker || '')}" placeholder="938 hoặc 257 TCN" /></div>
+        <div><label class="lbl">Thời kỳ</label><input id="f-e-era" value="${esc(item?.era || '')}" /></div>
+        <div><label class="lbl">Chủ đề</label><input id="f-e-topic" value="${esc(item?.topic || '')}" /></div>
+        <div><label class="lbl">Quốc gia</label><input id="f-e-country" value="${esc(item?.country || 'Việt Nam')}" /></div>
+        <div><label class="lbl">Khu vực</label><input id="f-e-region" value="${esc(item?.region || 'Đông Nam Á')}" /></div>
+        <div><label class="lbl">Nhân vật (ngăn cách ; )</label><input id="f-e-fig" value="${esc((item?.figures || []).join('; '))}" /></div>
+        <div><label class="lbl">Nguồn tư liệu</label><input id="f-e-src" value="${esc(item?.source || '')}" /></div>
+      </div>
+      <div class="grid-2">
+        <div><label class="lbl">Bối cảnh</label><textarea id="f-e-ctx" rows="2">${esc(item?.context || '')}</textarea></div>
+        <div><label class="lbl">Diễn biến</label><textarea id="f-e-prog" rows="2">${esc(item?.progression || '')}</textarea></div>
+        <div><label class="lbl">Kết quả</label><textarea id="f-e-res" rows="2">${esc(item?.result || '')}</textarea></div>
+        <div><label class="lbl">Ý nghĩa</label><textarea id="f-e-sig" rows="2">${esc(item?.significance || '')}</textarea></div>
+      </div>
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Hủy</button><button type="button" class="btn btn-moss" onclick="saveEventForm('${esc(editId || '')}')">Lưu sự kiện</button>`
+  );
+}
+
+function saveEventForm(editId) {
+  const title = document.getElementById('f-e-title').value.trim();
+  const timeMarker = document.getElementById('f-e-time').value.trim();
+  if (!title || !timeMarker) { toast('Vui lòng nhập tên sự kiện và mốc thời gian.'); return; }
+  const existing = editId ? state.events.find((x) => x.id === editId) : null;
+  const figRaw = document.getElementById('f-e-fig').value;
+  const rec = {
+    id: existing?.id || uid('evt'),
+    title,
+    timeMarker,
+    sortYear: parseHistoricalSortYear(timeMarker),
+    era: document.getElementById('f-e-era').value.trim() || 'Chưa phân loại',
+    topic: document.getElementById('f-e-topic').value.trim() || 'Sự kiện',
+    country: document.getElementById('f-e-country').value.trim() || 'Việt Nam',
+    region: document.getElementById('f-e-region').value.trim() || 'Châu Á',
+    figures: figRaw ? figRaw.split(/[;,]/).map((s) => s.trim()).filter(Boolean) : [],
+    source: document.getElementById('f-e-src').value.trim(),
+    context: document.getElementById('f-e-ctx').value.trim(),
+    progression: document.getElementById('f-e-prog').value.trim(),
+    result: document.getElementById('f-e-res').value.trim(),
+    significance: document.getElementById('f-e-sig').value.trim(),
+    relatedEventIds: existing?.relatedEventIds || [],
+    createdAt: existing?.createdAt || new Date().toISOString(),
+  };
+  if (existing) state.events = state.events.map((x) => (x.id === existing.id ? rec : x));
+  else state.events.push(rec);
+  ui.selectedEventId = rec.id;
+  saveState();
+  closeModal();
+  renderCurrentView();
+  toast('Đã lưu sự kiện Dòng thời gian.');
+}
+
+let tempArchiveImage = '';
+function openArchiveModal(editId) {
+  const item = editId ? state.archive.find((x) => x.id === editId) : null;
+  tempArchiveImage = item?.fileUrl || '';
+  openModal(
+    item ? 'Cập nhật tư liệu' : 'Thêm tư liệu vào Thư viện',
+    `
+      <div class="grid-2">
+        <div><label class="lbl">Tên tư liệu *</label><input id="f-a-title" value="${esc(item?.title || '')}" /></div>
+        <div><label class="lbl">Loại tư liệu</label>
+          <select id="f-a-kind">
+            <option value="document" ${item?.kind==='document'?'selected':''}>Văn kiện</option>
+            <option value="image" ${item?.kind==='image'?'selected':''}>Ảnh tư liệu</option>
+            <option value="artifact" ${item?.kind==='artifact'?'selected':''}>Hiện vật</option>
+          </select>
+        </div>
+        <div><label class="lbl">Niên đại / Năm</label><input id="f-a-year" value="${esc(item?.yearLabel || '')}" /></div>
+        <div><label class="lbl">Thời kỳ</label><input id="f-a-era" value="${esc(item?.era || '')}" /></div>
+        <div><label class="lbl">Quốc gia</label><input id="f-a-country" value="${esc(item?.country || 'Việt Nam')}" /></div>
+        <div><label class="lbl">Chủ đề</label><input id="f-a-topic" value="${esc(item?.topic || '')}" /></div>
+        <div><label class="lbl">Nhân vật liên quan</label><input id="f-a-fig" value="${esc(item?.figure || '')}" /></div>
+        <div><label class="lbl">Nguồn gốc / Tham chiếu *</label><input id="f-a-src" value="${esc(item?.source || '')}" placeholder="Đại Việt sử ký toàn thư..." /></div>
+      </div>
+      <div><label class="lbl">Xuất xứ / Nơi lưu trữ hiện vật</label><input id="f-a-prov" value="${esc(item?.provenance || '')}" placeholder="Bảo tàng Lịch sử Quốc gia..." /></div>
+      <div><label class="lbl">Tải lên ảnh hoặc văn kiện (.png, .jpg, .docx, .pdf, .txt)</label><input type="file" accept="image/*,.docx,.pdf,.txt,.md" onchange="uploadArchiveFile(this)" /></div>
+      <div><label class="lbl">Tóm tắt tư liệu</label><textarea id="f-a-sum" rows="2">${esc(item?.summary || '')}</textarea></div>
+      <div><label class="lbl">Nội dung văn bản / Trích đoạn</label><textarea id="f-a-cont" rows="3">${esc(item?.content || '')}</textarea></div>
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Hủy</button><button type="button" class="btn btn-moss" onclick="saveArchiveForm('${esc(editId || '')}')">Lưu tư liệu</button>`
+  );
+}
+
+async function uploadArchiveFile(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const dataUrl = await readFileDataUrl(file);
+    if (file.type.startsWith('image/')) {
+      tempArchiveImage = dataUrl;
+      document.getElementById('f-a-kind').value = 'image';
+      toast(`Đã nạp ảnh "${file.name}".`);
+    } else {
+      const res = await fetch('/api/history/parse-document', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, mimeType: file.type, fileBase64: dataUrl }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error);
+      document.getElementById('f-a-cont').value = d.text || '';
+      toast(`Đã trích xuất nội dung từ "${file.name}".`);
+    }
+  } catch (e) { toast(e.message); }
+}
+
+function saveArchiveForm(editId) {
+  const title = document.getElementById('f-a-title').value.trim();
+  if (!title) { toast('Vui lòng nhập tên tư liệu.'); return; }
+  const existing = editId ? state.archive.find((x) => x.id === editId) : null;
+  const rec = {
+    id: existing?.id || uid('arc'),
+    title,
+    kind: document.getElementById('f-a-kind').value,
+    yearLabel: document.getElementById('f-a-year').value.trim(),
+    era: document.getElementById('f-a-era').value.trim() || 'Chưa phân loại',
+    country: document.getElementById('f-a-country').value.trim() || 'Việt Nam',
+    topic: document.getElementById('f-a-topic').value.trim() || 'Tư liệu',
+    figure: document.getElementById('f-a-fig').value.trim(),
+    source: document.getElementById('f-a-src').value.trim() || 'Chưa rõ nguồn',
+    provenance: document.getElementById('f-a-prov').value.trim(),
+    summary: document.getElementById('f-a-sum').value.trim(),
+    content: document.getElementById('f-a-cont').value.trim(),
+    fileUrl: tempArchiveImage,
+    createdAt: existing?.createdAt || new Date().toISOString(),
+  };
+  if (existing) state.archive = state.archive.map((x) => (x.id === existing.id ? rec : x));
+  else state.archive.unshift(rec);
+  saveState();
+  closeModal();
+  renderArchive();
+  hydrateIcons();
+  toast('Đã lưu tư liệu.');
+}
+
+function openQuestionModal() {
+  openModal(
+    'Thêm câu hỏi Luyện tập',
+    `
+      <div class="grid-2">
+        <div><label class="lbl">Dạng câu hỏi</label>
+          <select id="f-q-type" onchange="toggleQuestionTypeFields()">
+            <option value="mcq">Trắc nghiệm (4 phương án)</option>
+            <option value="tf">Đúng / Sai</option>
+            <option value="match">Nối sự kiện – mốc thời gian</option>
+            <option value="order">Sắp xếp trình tự lịch sử</option>
+            <option value="source">Đọc hiểu &amp; phân tích tư liệu</option>
+          </select>
+        </div>
+        <div><label class="lbl">Chủ đề / Bài học</label><input id="f-q-topic" placeholder="Ví dụ: Kháng chiến chống Tống" /></div>
+        <div><label class="lbl">Lớp</label><input id="f-q-grade" value="Lớp 10" /></div>
+        <div><label class="lbl">Chương</label><input id="f-q-chap" value="Chuyên đề" /></div>
+      </div>
+      <div><label class="lbl">Nội dung câu hỏi *</label><textarea id="f-q-prompt" rows="2"></textarea></div>
+      <div id="q-dynamic-fields"></div>
+      <div><label class="lbl">Giải thích đáp án</label><textarea id="f-q-exp" rows="2"></textarea></div>
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Hủy</button><button type="button" class="btn btn-moss" onclick="saveQuestionForm()">Lưu câu hỏi</button>`
+  );
+  toggleQuestionTypeFields();
+}
+
+function toggleQuestionTypeFields() {
+  const t = document.getElementById('f-q-type').value;
+  const wrap = document.getElementById('q-dynamic-fields');
+  if (t === 'mcq' || t === 'source') {
+    wrap.innerHTML = `
+      ${t === 'source' ? `<div style="margin-bottom:.5rem;"><label class="lbl">Đoạn tư liệu đọc hiểu *</label><textarea id="f-q-pass" rows="3"></textarea><label class="lbl" style="margin-top:.3rem;">Nguồn trích dẫn</label><input id="f-q-cit" /></div>` : ''}
+      <div class="grid-2">
+        <div><label class="lbl">Phương án A</label><input id="f-q-a" /></div>
+        <div><label class="lbl">Phương án B</label><input id="f-q-b" /></div>
+        <div><label class="lbl">Phương án C</label><input id="f-q-c" /></div>
+        <div><label class="lbl">Phương án D</label><input id="f-q-d" /></div>
+      </div>
+      <div style="margin-top:.4rem;"><label class="lbl">Đáp án đúng</label>
+        <select id="f-q-ans"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+      </div>
+    `;
+  } else if (t === 'tf') {
+    wrap.innerHTML = `<div><label class="lbl">Đáp án đúng</label><select id="f-q-tf"><option value="true">Đúng</option><option value="false">Sai</option></select></div>`;
+  } else if (t === 'match') {
+    wrap.innerHTML = `<div><label class="lbl">Các cặp Sự kiện | Mốc thời gian (mỗi dòng 1 cặp)</label><textarea id="f-q-pairs" rows="4" placeholder="Khởi nghĩa Hai Bà Trưng | 40 SCN&#10;Chiến thắng Bạch Đằng | 938"></textarea></div>`;
+  } else if (t === 'order') {
+    wrap.innerHTML = `<div><label class="lbl">Các sự kiện theo dạng Mốc thời gian | Tên sự kiện (mỗi dòng 1 mục)</label><textarea id="f-q-order" rows="4" placeholder="40 SCN | Khởi nghĩa Hai Bà Trưng&#10;938 | Ngô Quyền đại thắng Bạch Đằng&#10;1288 | Chiến thắng Bạch Đằng lần 3"></textarea></div>`;
+  }
+}
+
+function saveQuestionForm() {
+  const type = document.getElementById('f-q-type').value;
+  const prompt = document.getElementById('f-q-prompt').value.trim();
+  if (!prompt) { toast('Vui lòng nhập nội dung câu hỏi.'); return; }
+  const q = {
+    id: uid('pq'),
+    type,
+    prompt,
+    topic: document.getElementById('f-q-topic').value.trim() || 'Lịch sử',
+    grade: document.getElementById('f-q-grade').value.trim(),
+    chapter: document.getElementById('f-q-chap').value.trim(),
+    explanation: document.getElementById('f-q-exp').value.trim(),
+    createdAt: new Date().toISOString(),
+  };
+  if (type === 'mcq' || type === 'source') {
+    q.options = [
+      document.getElementById('f-q-a').value.trim(),
+      document.getElementById('f-q-b').value.trim(),
+      document.getElementById('f-q-c').value.trim(),
+      document.getElementById('f-q-d').value.trim(),
+    ].filter(Boolean);
+    if (q.options.length < 2) { toast('Nhập ít nhất 2 phương án.'); return; }
+    q.correctIndex = Math.min(q.options.length - 1, Number(document.getElementById('f-q-ans').value) || 0);
+    if (type === 'source') {
+      q.passage = document.getElementById('f-q-pass').value.trim();
+      q.sourceCitation = document.getElementById('f-q-cit').value.trim();
+    }
+  } else if (type === 'tf') {
+    q.correctBool = document.getElementById('f-q-tf').value === 'true';
+  } else if (type === 'match') {
+    const lines = document.getElementById('f-q-pairs').value.split('\n').map((l) => l.trim()).filter(Boolean);
+    q.pairs = lines.map((l) => {
+      const [ev, tm] = l.split('|').map((s) => s.trim());
+      return { event: ev || l, time: tm || '' };
+    }).filter((p) => p.event && p.time);
+    if (q.pairs.length < 2) { toast('Nhập ít nhất 2 cặp sự kiện | mốc thời gian.'); return; }
+  } else if (type === 'order') {
+    const lines = document.getElementById('f-q-order').value.split('\n').map((l) => l.trim()).filter(Boolean);
+    q.orderItems = lines.map((l) => {
+      const [tm, lbl] = l.split('|').map((s) => s.trim());
+      return { timeMarker: tm || '', label: lbl || l, sortYear: parseHistoricalSortYear(tm) ?? 0 };
+    });
+    if (q.orderItems.length < 2) { toast('Nhập ít nhất 2 sự kiện cần sắp xếp.'); return; }
+  }
+  state.questions.unshift(q);
+  saveState();
+  closeModal();
+  renderPractice();
+  hydrateIcons();
+  toast('Đã thêm câu hỏi.');
+}
+
+// ===================== EXCEL IMPORT MODAL =====================
+function openExcelModal(mod) {
+  ui.excelPreview = { moduleKey: mod || 'history', rows: [] };
+  renderExcelModalBody();
+}
+
+function renderExcelModalBody() {
+  const { moduleKey, rows } = ui.excelPreview;
+  openModal(
+    'Nhập dữ liệu Excel (.xlsx, .xls)',
+    `
+      <div class="grid-2" style="align-items:end;">
+        <div>
+          <label class="lbl">Mục nhận dữ liệu</label>
+          <select id="xl-mod" onchange="ui.excelPreview.moduleKey=this.value;ui.excelPreview.rows=[];renderExcelModalBody()">
+            <option value="history" ${moduleKey==='history'?'selected':''}>Kho sử (Bài học liên kết)</option>
+            <option value="timeline" ${moduleKey==='timeline'?'selected':''}>Dòng thời gian &amp; Sự kiện</option>
+            <option value="archive" ${moduleKey==='archive'?'selected':''}>Thư viện Tư liệu</option>
+            <option value="practice" ${moduleKey==='practice'?'selected':''}>Luyện tập (Ngân hàng câu hỏi)</option>
+          </select>
+        </div>
+        <div>
+          <a class="btn btn-bronze" style="text-decoration:none;justify-content:center;width:100%;" href="/api/history/excel-template?module=${esc(moduleKey)}" download>
+            Tải file Excel mẫu (.xlsx)
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <label class="lbl">Chọn file Excel (.xlsx, .xls) để đọc &amp; phân loại tự động</label>
+        <input type="file" accept=".xlsx,.xls" onchange="handleExcelUpload(this)" />
+      </div>
+
+      ${rows.length ? `
+        <div class="meta-line"><strong>Xem trước &amp; chỉnh sửa (${rows.length} dòng hợp lệ) trước khi lưu:</strong></div>
+        <div class="preview-table-wrap">
+          <table class="preview-table">
+            <thead><tr><th>#</th><th>Tiêu đề / Câu hỏi</th><th>Mốc / Loại</th><th>Thời kỳ / Chủ đề</th><th>Xóa</th></tr></thead>
+            <tbody>
+              ${rows.map((r, i) => `
+                <tr>
+                  <td class="num">${i + 1}</td>
+                  <td><input value="${esc(r.title || r.prompt || '')}" onchange="updateExcelPreviewCell(${i},'${r.prompt !== undefined ? 'prompt' : 'title'}',this.value)" /></td>
+                  <td><input value="${esc(r.timeMarker || r.yearLabel || r.type || '')}" onchange="updateExcelPreviewCell(${i},'${r.timeMarker !== undefined ? 'timeMarker' : r.yearLabel !== undefined ? 'yearLabel' : 'type'}',this.value)" /></td>
+                  <td><input value="${esc(r.era || r.topic || '')}" onchange="updateExcelPreviewCell(${i},'${r.era !== undefined ? 'era' : 'topic'}',this.value)" /></td>
+                  <td><button type="button" class="btn btn-sm" onclick="ui.excelPreview.rows.splice(${i},1);renderExcelModalBody()">×</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      ` : `<p class="meta-line">Chưa có dòng dữ liệu xem trước. Tải file Excel mẫu để xem đúng tên cột tiếng Việt chuẩn.</p>`}
+    `,
+    `<button type="button" class="btn" onclick="closeModal()">Đóng</button><button type="button" class="btn btn-moss" ${rows.length === 0 ? 'disabled' : ''} onclick="confirmSaveExcelRows()">Xác nhận lưu (${rows.length})</button>`
+  );
+}
+
+async function handleExcelUpload(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const dataUrl = await readFileDataUrl(file);
+    const res = await fetch('/api/history/parse-excel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName: file.name, moduleKey: ui.excelPreview.moduleKey, fileBase64: dataUrl }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Không đọc được file Excel.');
+    ui.excelPreview.rows = d.rows || [];
+    renderExcelModalBody();
+    toast(d.rows?.length ? `Đã đọc ${d.rows.length} dòng từ "${file.name}".` : 'Không tìm thấy dòng dữ liệu hợp lệ trong sheet.');
+  } catch (e) { toast(e.message); }
+}
+
+function updateExcelPreviewCell(idx, field, val) {
+  if (!ui.excelPreview.rows[idx]) return;
+  ui.excelPreview.rows[idx][field] = val;
+  if (field === 'timeMarker') ui.excelPreview.rows[idx].sortYear = parseHistoricalSortYear(val);
+}
+
+function confirmSaveExcelRows() {
+  const { moduleKey, rows } = ui.excelPreview;
+  if (!rows.length) return;
+  const now = new Date().toISOString();
+  if (moduleKey === 'history') {
+    state.lessons = [...rows.map((r) => ({ ...r, createdAt: now, updatedAt: now, highlights: [], mediaUrls: [] })), ...state.lessons];
+  } else if (moduleKey === 'timeline') {
+    state.events = [...state.events, ...rows.map((r) => ({ ...r, createdAt: now }))];
+  } else if (moduleKey === 'archive') {
+    state.archive = [...rows.map((r) => ({ ...r, createdAt: now })), ...state.archive];
+  } else if (moduleKey === 'practice') {
+    state.questions = [...rows.map((r) => ({ ...r, createdAt: now })), ...state.questions];
+  }
+  saveState();
+  closeModal();
+  switchView(moduleKey === 'practice' ? 'practice' : moduleKey);
+  toast(`Đã nhập ${rows.length} mục vào hệ thống.`);
+}
+
+// Host Bridge Commands
+if (window.SchoolHubAI) {
+  window.SchoolHubAI.onHostCommand((msg) => {
+    const now = new Date().toISOString();
+    if (msg.type === 'host:inject-quiz' && msg.payload && Array.isArray(msg.payload.questions)) {
+      msg.payload.questions.forEach((q, idx) => {
+        state.questions.unshift({
+          id: 'hq_host_' + Date.now() + '_' + idx,
+          type: 'mcq',
+          grade: 'Lớp 12',
+          chapter: 'Ôn tập AI',
+          topic: q.topic || msg.payload.topic || 'Lịch sử AI',
+          prompt: q.question,
+          options: Array.isArray(q.options) ? q.options : [],
+          correctIndex: Number(q.correctIndex) || 0,
+          explanation: q.explanation || '',
+          source: 'Gemini AI',
+          createdAt: now,
+        });
+      });
+      saveState();
+      switchView('practice');
+      toast(`Đã nạp ${msg.payload.questions.length} câu hỏi AI vào Luyện tập.`);
+    } else if (msg.type === 'host:inject-cards' && msg.payload && Array.isArray(msg.payload.cards)) {
+      msg.payload.cards.forEach((c, idx) => {
+        state.lessons.unshift({
+          id: 'hl_host_' + Date.now() + '_' + idx,
+          title: c.front,
+          grade: 'Lớp 12',
+          chapter: 'Ghi nhớ nhanh AI',
+          era: msg.payload.topic || 'Lịch sử Việt Nam',
+          timeMarker: 'Ôn tập',
+          country: 'Việt Nam',
+          figures: [],
+          context: c.back,
+          causes: '',
+          progression: c.example || '',
+          result: '',
+          significance: c.tip || '',
+          source: 'Gemini AI',
+          completed: false,
+          bookmarked: true,
+          highlights: [],
+          mediaUrls: [],
+          createdAt: now,
+          updatedAt: now,
+        });
+      });
+      saveState();
+      switchView('history');
+      toast(`Đã nạp ${msg.payload.cards.length} thẻ kiến thức AI vào Kho sử.`);
+    }
+  });
+}
+
+// Init
+renderCurrentView();
+emitHistContext(ui.activeView);
+</script>
+</body>
+</html>

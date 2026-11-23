@@ -1,0 +1,1662 @@
+# MASTER PROMPT: DESIGN & BUILD SCHOOLHUB
+## HỆ SINH THÁI TRƯỜNG HỌC THÔNG MINH – SMART SCHOOL ECOSYSTEM
+
+---
+
+# PHẦN 0. VAI TRÒ VÀ NHIỆM VỤ CỦA AI
+
+Bạn là một đội ngũ phát triển phần mềm chuyên nghiệp bao gồm:
+
+- Senior Software Architect.
+- Senior Full-stack Developer.
+- UI/UX Designer.
+- Motion & Interaction Designer.
+- Database Engineer.
+- Cybersecurity Engineer.
+- AI Integration Engineer.
+- QA Engineer.
+
+Nhiệm vụ của bạn là phân tích, thiết kế, lập kế hoạch, xây dựng và hoàn thiện một nền tảng web có tên **SchoolHub** – hệ sinh thái trường học số dành cho trường trung học phổ thông (THPT).
+
+Đây là một sản phẩm có định hướng triển khai thực tế trong môi trường trường học, đồng thời được phát triển để tham gia cuộc thi Khoa học Kỹ thuật cấp trường.
+
+Không được xem đây là một bài tập tạo giao diện thông thường.
+
+Bạn phải xây dựng một sản phẩm có:
+- Giao diện đẹp, chuyên nghiệp, có bản sắc riêng.
+- Kiến trúc phần mềm rõ ràng.
+- Hệ thống đăng nhập và phân quyền thực sự.
+- Cơ sở dữ liệu thống nhất.
+- Các phân hệ nghiệp vụ hoạt động thực tế.
+- Khả năng liên kết và đồng bộ dữ liệu.
+- Khả năng mở rộng trong tương lai.
+- Bảo mật và bảo vệ thông tin học sinh.
+
+**YÊU CẦU QUAN TRỌNG:** Không chỉ viết kế hoạch hoặc đưa ra bản thiết kế. Hãy trực tiếp triển khai source code, cấu hình, giao diện và các chức năng trong dự án Google AI Studio hiện tại.
+
+Không được tự ý bỏ qua những chức năng phức tạp chỉ vì chúng cần nhiều công đoạn triển khai.
+
+---
+
+# PHẦN 1. TẦM NHÌN VÀ ĐỊNH HƯỚNG SẢN PHẨM
+
+## 1.1. Tên sản phẩm
+
+Tên chính thức: SCHOOLHUB
+
+Tên đầy đủ: Smart School Hub – Integrated School Management & Student Services Ecosystem.
+
+Slogan:
+
+"One School. One Ecosystem. One Connected Experience."
+
+## 1.2. Mục tiêu
+
+SchoolHub là một hệ sinh thái số hóa các hoạt động trong nhà trường, tập trung vào việc giải quyết những vấn đề thực tế:
+
+1. Quản lý thông tin học sinh và giáo viên.
+2. Quản lý thư viện bằng RFID và mã vạch.
+3. Tổ chức khảo sát, lấy ý kiến học sinh.
+4. Tiếp nhận phản ánh, kiến nghị và báo cáo vi phạm.
+5. Tư vấn tâm lý học đường, học tập và hướng nghiệp.
+6. Quản lý thời khóa biểu và lịch hoạt động.
+7. Quản lý thông báo toàn trường.
+8. Quản lý học tập và chuyên cần.
+9. Quản lý cơ sở vật chất.
+10. Tổng hợp dữ liệu và hỗ trợ ban giám hiệu ra quyết định.
+
+## 1.3. Triết lý phát triển
+
+SchoolHub phải tuân thủ 5 nguyên tắc:
+
+- Unified: Tất cả phân hệ thuộc một hệ sinh thái.
+- Intelligent: Tận dụng AI để hỗ trợ công việc.
+- Connected: Dữ liệu và nghiệp vụ liên kết với nhau.
+- Secure: Bảo mật và phân quyền chặt chẽ.
+- Human-centered: Lấy người dùng làm trung tâm.
+
+Không xây dựng các module như những website độc lập rồi ghép lại.
+
+Tất cả phải sử dụng chung hệ thống tài khoản, cơ sở dữ liệu, hồ sơ và trung tâm thông báo.
+
+---
+
+# PHẦN 2. CÔNG NGHỆ VÀ KIẾN TRÚC HỆ THỐNG
+
+## 2.1. Công nghệ đề xuất
+
+Ưu tiên những công nghệ tương thích với Google AI Studio Build Mode.
+
+Frontend:
+- React.
+- TypeScript.
+- Vite hoặc cấu hình mặc định được Google AI Studio hỗ trợ.
+- Tailwind CSS.
+- Lucide Icons.
+- Framer Motion hoặc Motion.
+- Recharts cho biểu đồ.
+
+Backend:
+- Firebase Authentication.
+- Cloud Firestore.
+- Firebase Storage.
+- Firebase Cloud Functions hoặc backend server-side tương đương.
+- Firebase App Check khi phù hợp.
+
+AI:
+- Gemini API thông qua môi trường server-side.
+- Không để lộ API key trong mã nguồn frontend.
+
+Các thư viện khác:
+- React Hook Form.
+- Zod.
+- React Router.
+- Date-fns.
+- Thư viện hỗ trợ Excel và CSV.
+- Thư viện hỗ trợ biểu đồ và trực quan hóa dữ liệu.
+
+Có thể điều chỉnh công nghệ nếu môi trường Build Mode không hỗ trợ, nhưng phải giữ nguyên kiến trúc và chức năng.
+
+Không cài đặt thư viện không cần thiết làm tăng kích thước và giảm hiệu năng.
+
+## 2.2. Kiến trúc tổng thể
+
+Xây dựng theo kiến trúc phân lớp:
+
+1. Presentation Layer: Giao diện và tương tác.
+2. Application Layer: Xử lý nghiệp vụ.
+3. Authorization Layer: Xác thực và phân quyền.
+4. Data Layer: Quản lý và truy xuất dữ liệu.
+5. Integration Layer: Kết nối các phân hệ và thiết bị.
+6. AI Layer: Các chức năng trí tuệ nhân tạo.
+
+Tổ chức source code thành các module riêng biệt.
+
+Không viết toàn bộ website trong một file hoặc một component khổng lồ.
+
+Các thành phần dùng chung phải được tái sử dụng.
+
+## 2.3. Kiến trúc dữ liệu thống nhất
+
+Sử dụng mã định danh duy nhất cho từng đối tượng.
+
+Ví dụ:
+
+- STU-2026-0001: Học sinh.
+- TCH-2026-0001: Giáo viên.
+- STF-2026-0001: Nhân viên.
+- CLS-11A1: Lớp học.
+- BOK-000001: Đầu sách.
+- COP-000001: Một bản sách cụ thể.
+- LIB-2026-000001: Giao dịch thư viện.
+
+Các collection dữ liệu dự kiến:
+
+- users
+- studentProfiles
+- teacherProfiles
+- staffProfiles
+- roles
+- permissions
+- userRoleAssignments
+- academicYears
+- semesters
+- classes
+- classEnrollments
+- subjects
+- teachingAssignments
+- timetables
+- timetableVersions
+- attendanceRecords
+- academicRecords
+- assignments
+- submissions
+- libraryBooks
+- libraryCopies
+- libraryTransactions
+- libraryReservations
+- surveys
+- surveyResponses
+- feedbackReports
+- counselingRequests
+- counselingRecords
+- announcements
+- notifications
+- facilityAssets
+- maintenanceRequests
+- schoolEvents
+- auditLogs
+- systemSettings
+
+Đây là cấu trúc định hướng. Hãy chuẩn hóa các collection, document ID, quan hệ tham chiếu, index và quy tắc truy cập trước khi triển khai.
+
+Không lưu trùng dữ liệu học sinh trong từng module.
+
+Mọi phân hệ phải tham chiếu đến hồ sơ gốc thông qua studentId, teacherId, classId hoặc các định danh phù hợp.
+
+Lưu ý:
+- Phân biệt đầu sách và từng bản sách.
+- Phân biệt tài khoản đăng nhập với hồ sơ nghiệp vụ.
+- Phân biệt năm học hiện tại với lịch sử các năm học.
+- Có trường createdAt, updatedAt, createdBy khi phù hợp.
+- Có trạng thái nghiệp vụ rõ ràng.
+- Có cơ chế lưu lịch sử thay đổi.
+
+---
+
+# PHẦN 3. THIẾT KẾ UI/UX – ĐỊNH HƯỚNG THẨM MỸ
+
+ĐÂY LÀ MỘT TRONG NHỮNG PHẦN QUAN TRỌNG NHẤT.
+
+Tôi muốn SchoolHub có giao diện thật sự ấn tượng, khác biệt với những website quản lý trường học truyền thống.
+
+Không được thiết kế theo phong cách quản trị lỗi thời, nhiều bảng dữ liệu khô cứng, nhiều màu sắc lộn xộn hoặc những dashboard chỉ gồm các ô vuông đơn điệu.
+
+Hãy kết hợp các xu hướng thiết kế:
+
+- Liquid Glass.
+- Glassmorphism.
+- Aurora Gradient.
+- Soft UI.
+- Modern Dashboard.
+- Spatial UI.
+- Fluid Motion.
+- Minimalist Information Design.
+- Ambient Lighting.
+- Layered Translucency.
+
+Tham khảo tinh thần thẩm mỹ của:
+- Apple visionOS.
+- Apple macOS.
+- iOS Liquid Glass.
+- Microsoft Fluent Design.
+- Các giao diện SaaS thế hệ mới.
+- Những nền tảng giáo dục cao cấp.
+
+Không sao chép nguyên mẫu bất kỳ sản phẩm nào.
+
+Hãy tạo ra ngôn ngữ thiết kế riêng cho SchoolHub.
+
+## 3.1. Bảng màu
+
+Sử dụng màu sắc tươi sáng, hiện đại, giàu sức sống.
+
+Bảng màu chủ đạo:
+
+- Ice Blue: #DFF4FF
+- Sky Blue: #8ED8FF
+- Aqua: #A7F3E0
+- Mint: #C9F7E8
+- Lavender: #DCD6FF
+- Soft Purple: #BFAEFF
+- Peach: #FFDCCB
+- Soft Pink: #FFD8EA
+- Background: #F4F8FF
+- Primary Text: #25344D
+
+Các màu trên là định hướng, không bắt buộc mọi thành phần đều sử dụng cùng lúc.
+
+Sử dụng gradient nhiều màu một cách có chủ đích:
+
+- Blue → Cyan.
+- Cyan → Mint.
+- Purple → Blue.
+- Pink → Lavender.
+- Peach → Pink.
+- Blue → Purple → Pink.
+
+Gradient có thể xuất hiện ở:
+- Hero section.
+- Background.
+- Sidebar.
+- Dashboard cards.
+- Nút hành động quan trọng.
+- Các vùng highlight.
+- Modal và floating panels.
+- Các biểu đồ.
+- Hiệu ứng hover.
+
+Không tô màu gradient cho tất cả thành phần cùng lúc.
+
+Phải có hệ thống phân cấp màu sắc rõ ràng.
+
+## 3.2. Liquid Glass
+
+Đây là phong cách chủ đạo của giao diện.
+
+Sử dụng:
+
+- Background trong suốt có kiểm soát.
+- Backdrop blur.
+- Saturation.
+- Viền trắng bán trong suốt.
+- Highlight ở cạnh trên.
+- Inner shadow nhẹ.
+- Reflection.
+- Soft glow.
+- Layered translucent surfaces.
+
+Ví dụ CSS định hướng:
+
+```css
+.glass-panel {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 8px 32px rgba(80, 110, 160, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+}
+```
+
+Tạo nhiều cấp độ glass khác nhau:
+
+1. Light Glass: Card thông thường.
+2. Deep Glass: Floating panel.
+3. Liquid Glass: Các thành phần có ánh sáng, gradient và phản chiếu.
+4. Frosted Glass: Sidebar, navigation, modal.
+5. Crystal Surface: Các điểm nhấn quan trọng.
+
+Glass phải có chiều sâu và độ trong hợp lý.
+
+Không sử dụng blur quá mạnh khiến nội dung khó đọc.
+
+## 3.3. Background nghệ thuật
+
+Không sử dụng background trắng trơn trên toàn bộ website.
+
+Thiết kế nền nhiều lớp:
+
+- Gradient nền lớn.
+- Các vùng Aurora mờ.
+- Blurred color blobs.
+- Ambient lighting.
+- Những dải gradient chuyển động chậm.
+- Các hình khối trừu tượng.
+- Subtle noise texture nếu phù hợp.
+
+Có thể sử dụng SVG hoặc CSS để tạo các hiệu ứng nền.
+
+Background phải có chiều sâu nhưng không gây mất tập trung.
+
+## 3.4. Typography
+
+Sử dụng font chữ hỗ trợ tiếng Việt tốt.
+
+Ưu tiên:
+- Inter.
+- Be Vietnam Pro.
+- Manrope.
+
+Thiết lập:
+- Heading rõ ràng.
+- Nội dung dễ đọc.
+- Chữ vừa phải.
+- Không sử dụng quá nhiều font-weight.
+- Không dùng cỡ chữ quá nhỏ.
+- Khoảng cách dòng hợp lý.
+
+Hạn chế văn bản dài trên Dashboard.
+
+Ưu tiên icon, biểu đồ, trạng thái, số liệu và nội dung ngắn.
+
+## 3.5. Bo góc và hình khối
+
+Sử dụng hệ thống bo góc thống nhất:
+
+- Small elements: 10–14px.
+- Buttons: 12–18px.
+- Cards: 18–24px.
+- Large panels: 24–30px.
+- Floating windows: 24–32px.
+
+Có thể sử dụng các hình khối pill, rounded cards và floating widgets.
+
+Không làm mọi thứ quá tròn hoặc quá giống giao diện ứng dụng dành cho trẻ nhỏ.
+
+Mục tiêu là hiện đại, trẻ trung nhưng vẫn chuyên nghiệp.
+
+## 3.6. Animation và chuyển động
+
+Tôi muốn website có animation phong phú, tinh tế, mượt mà và liền mạch.
+
+Hãy xây dựng một hệ thống motion design thống nhất.
+
+A. Page transition:
+- Fade in.
+- Smooth slide.
+- Subtle scale.
+- Shared element transitions khi phù hợp.
+
+B. Card interaction:
+- Hover lift.
+- Subtle scale.
+- Border glow.
+- Gradient movement.
+- Soft shadow transition.
+
+C. Button:
+- Hover animation.
+- Press feedback.
+- Ripple nhẹ.
+- Loading animation.
+- Success feedback.
+
+D. Navigation:
+- Active indicator chuyển động.
+- Sidebar transition.
+- Smooth expand/collapse.
+- Floating active pill.
+
+E. Modal:
+- Blur background.
+- Scale + fade.
+- Smooth spring animation.
+- Exit animation.
+
+F. Dashboard:
+- Number count-up.
+- Chart animation.
+- Progress animation.
+- Staggered card appearance.
+
+G. Background:
+- Aurora movement.
+- Floating gradient blobs.
+- Subtle parallax.
+- Ambient glow.
+
+H. Micro-interactions:
+- Tooltip.
+- Notification badge.
+- Dropdown transition.
+- Checkbox animation.
+- Toggle switch animation.
+- Skeleton loading.
+- Empty state animation.
+
+Thông số chuyển động:
+- Micro-interaction: khoảng 150–220ms.
+- Component transition: khoảng 220–350ms.
+- Page transition: khoảng 300–450ms.
+- Ambient animation: chuyển động chậm và liên tục.
+
+Dùng easing tự nhiên, tránh chuyển động giật hoặc quá nhanh.
+
+Không tạo animation liên tục trên tất cả thành phần.
+
+Tôn trọng prefers-reduced-motion.
+
+Đặc biệt tối ưu hiệu năng trên máy tính cấu hình trung bình.
+
+## 3.7. Responsive
+
+Ưu tiên desktop vì đây là môi trường làm việc chính của giáo viên và ban giám hiệu.
+
+Đồng thời hỗ trợ:
+- Laptop.
+- Tablet.
+- Điện thoại.
+- Màn hình có độ phân giải khác nhau.
+
+Trên desktop:
+- Sidebar.
+- Main workspace.
+- Floating panels.
+- Dashboard widgets.
+
+Trên tablet:
+- Sidebar thu gọn.
+- Các card tự thay đổi bố cục.
+
+Trên mobile:
+- Bottom navigation hoặc drawer.
+- Card một cột.
+- Modal phù hợp màn hình.
+- Các bảng dữ liệu có cách xem tối ưu.
+
+Không để giao diện bị vỡ khi thay đổi kích thước màn hình.
+
+---
+
+# PHẦN 4. THIẾT KẾ CẤU TRÚC GIAO DIỆN CHÍNH
+
+## 4.1. Landing / Login
+
+Xây dựng trang đăng nhập thật đẹp.
+
+Bố cục:
+- Background Aurora Gradient.
+- Logo SchoolHub.
+- Slogan.
+- Khung đăng nhập Liquid Glass.
+- Email hoặc mã tài khoản.
+- Mật khẩu.
+- Hiện/ẩn mật khẩu.
+- Ghi nhớ đăng nhập phù hợp.
+- Quên mật khẩu.
+- Nút đăng nhập gradient.
+- Trạng thái loading.
+- Thông báo lỗi.
+- Hướng dẫn liên hệ quản trị viên.
+
+Không cho phép người dùng tự đăng ký và tự chọn vai trò quản trị.
+
+Tài khoản được tạo hoặc cấp quyền thông qua quy trình quản trị được phê duyệt.
+
+## 4.2. Main Dashboard
+
+Sau khi đăng nhập, tự động chuyển đến Dashboard tương ứng với vai trò.
+
+Bố cục desktop:
+
+LEFT SIDEBAR:
+- Logo SchoolHub.
+- Menu chính.
+- Các module.
+- Active indicator.
+- Nút thu gọn.
+- Profile ở cuối.
+
+TOP BAR:
+- Breadcrumb.
+- Search.
+- Năm học hiện tại.
+- Notification.
+- Quick actions.
+- Avatar.
+- User menu.
+
+MAIN CONTENT:
+- Greeting.
+- Dashboard widgets.
+- Các số liệu.
+- Công việc cần xử lý.
+- Lịch hoạt động.
+- Thông báo gần đây.
+- Biểu đồ.
+- Quick access.
+
+Không để Dashboard trở thành một trang quá dài.
+
+Sử dụng grid layout linh hoạt.
+
+Các widget có thể được tùy chỉnh vị trí và ẩn/hiện theo quyền.
+
+## 4.3. Sidebar
+
+Nhóm chức năng:
+
+1. Tổng quan.
+2. Quản lý học sinh.
+3. Quản lý giáo viên và nhân sự.
+4. Quản lý lớp học.
+5. Thời khóa biểu.
+6. Học tập.
+7. Chuyên cần.
+8. Thư viện.
+9. Khảo sát.
+10. Phản ánh.
+11. Tư vấn.
+12. Thông báo.
+13. Cơ sở vật chất.
+14. Hoạt động và sự kiện.
+15. Báo cáo.
+16. Cài đặt.
+
+Chỉ hiển thị các mục được phép truy cập.
+
+Các mục có thể nhóm thành những nhóm menu lớn.
+
+Không nhồi nhét tất cả chức năng vào sidebar.
+
+---
+
+# PHẦN 5. HỆ THỐNG TÀI KHOẢN VÀ PHÂN QUYỀN
+
+Xây dựng RBAC kết hợp ABAC.
+
+Một tài khoản có thể có nhiều vai trò.
+
+Phân quyền dựa trên:
+
+1. Role.
+2. Scope.
+3. Action.
+4. Policy.
+
+Các vai trò:
+
+## 5.1. Admin hệ thống
+
+Toàn quyền cấu hình và vận hành hệ thống:
+- Quản lý tài khoản.
+- Quản lý vai trò.
+- Quản lý quyền.
+- Quản lý hồ sơ.
+- Quản lý năm học.
+- Quản lý lớp.
+- Quản lý cấu hình.
+- Quản lý tích hợp.
+- Sao lưu và khôi phục.
+- Nhật ký hoạt động.
+
+Không mặc nhiên được đọc nội dung hồ sơ tư vấn hoặc dữ liệu phản ánh nhạy cảm.
+
+## 5.2. Ban giám hiệu
+
+Quyền quản lý toàn trường theo chức trách:
+- Dashboard tổng thể.
+- Xem báo cáo.
+- Quản lý và phê duyệt thông báo.
+- Quản lý công tác nhà trường.
+- Theo dõi tình hình học tập.
+- Theo dõi chuyên cần.
+- Theo dõi thư viện.
+- Theo dõi khảo sát.
+- Phân công xử lý công việc.
+- Quản lý hoạt động.
+- Xuất báo cáo.
+
+## 5.3. Giáo viên chủ nhiệm
+
+Phạm vi chủ yếu là lớp chủ nhiệm:
+- Quản lý học sinh lớp.
+- Xem thông tin học sinh.
+- Theo dõi chuyên cần.
+- Xác nhận đơn xin nghỉ theo phân công.
+- Xem kết quả học tập các môn theo quyền.
+- Quản lý hoạt động lớp.
+- Gửi thông báo lớp.
+- Theo dõi phản ánh được giao.
+- Đề xuất khen thưởng.
+
+Không tự ý sửa điểm của giáo viên bộ môn.
+
+## 5.4. Giáo viên bộ môn
+
+Phạm vi là môn học và lớp được phân công:
+- Danh sách học sinh các lớp được dạy.
+- Thời khóa biểu.
+- Điểm danh tiết học nếu được phân công.
+- Nhập điểm.
+- Sửa điểm theo quy định.
+- Bài tập.
+- Tài liệu.
+- Nhận bài nộp.
+- Nhận xét học tập.
+- Thông báo môn học.
+
+Không được sửa điểm môn khác.
+
+## 5.5. Thủ thư
+
+- Quản lý danh mục sách.
+- Quản lý từng bản sách.
+- RFID.
+- Mã vạch.
+- Mượn và trả.
+- Gia hạn.
+- Đặt trước.
+- Sách quá hạn.
+- Thống kê.
+- Báo cáo thư viện.
+
+## 5.6. Nhân viên tư vấn
+
+- Quản lý yêu cầu tư vấn được phân công.
+- Đặt lịch.
+- Trao đổi riêng.
+- Quản lý hồ sơ hạn chế.
+- Theo dõi tiến trình hỗ trợ.
+- Chuyển tuyến khi cần thiết.
+
+Không cho phép giáo viên và nhân viên không có thẩm quyền xem nội dung tư vấn.
+
+## 5.7. Nhân viên nhà trường
+
+Phân loại:
+- Văn phòng.
+- Giáo vụ.
+- Cơ sở vật chất.
+- Y tế.
+- Đoàn trường.
+- Thiết bị.
+
+Mỗi nhóm chỉ có các quyền tương ứng với nhiệm vụ.
+
+## 5.8. Học sinh
+
+- Xem hồ sơ cá nhân.
+- Thời khóa biểu.
+- Học tập.
+- Chuyên cần.
+- Thư viện.
+- Khảo sát.
+- Phản ánh.
+- Tư vấn.
+- Thông báo.
+- Sự kiện.
+- Báo hỏng thiết bị.
+
+## 5.9. IT Support
+
+Hỗ trợ tài khoản và xử lý sự cố kỹ thuật theo phạm vi được giao.
+
+Không mặc nhiên có quyền đọc dữ liệu nghiệp vụ nhạy cảm.
+
+## 5.10. Ma trận phân quyền
+
+Xây dựng giao diện quản lý phân quyền trực quan cho Admin.
+
+Cho phép:
+- Xem danh sách vai trò.
+- Tạo vai trò mới.
+- Sửa vai trò.
+- Gán quyền.
+- Thu hồi quyền.
+- Gán nhiều vai trò cho một tài khoản.
+- Phân công giáo viên chủ nhiệm.
+- Phân công giáo viên bộ môn.
+- Phân công thủ thư.
+- Phân công nhân viên.
+- Thiết lập phạm vi lớp, môn học và năm học.
+
+Tạo ma trận quyền dạng bảng:
+
+Hàng = Vai trò.
+
+Cột = Module và hành động.
+
+Có checkbox hoặc toggle.
+
+Ví dụ:
+- View.
+- Create.
+- Edit.
+- Delete.
+- Approve.
+- Assign.
+- Export.
+- Manage.
+
+Phải có xác nhận trước khi thay đổi quyền quan trọng.
+
+Không chỉ ẩn menu ở frontend. Phải bảo vệ dữ liệu và API ở phía server và Firestore Security Rules.
+
+---
+
+# PHẦN 6. CÁC PHÂN HỆ NGHIỆP VỤ
+
+## MODULE 01 – QUẢN LÝ HỌC SINH
+
+Chức năng:
+- Danh sách học sinh.
+- Tìm kiếm.
+- Lọc theo khối, lớp, năm học.
+- Hồ sơ chi tiết.
+- Ảnh đại diện.
+- Mã học sinh.
+- Mã RFID.
+- Lịch sử phân lớp.
+- Trạng thái học tập.
+- Thông tin liên hệ cần thiết.
+- Xuất Excel.
+- Nhập Excel.
+- Kiểm tra dữ liệu trùng lặp.
+
+Có trang hồ sơ học sinh với các tab:
+- Tổng quan.
+- Học tập.
+- Chuyên cần.
+- Thư viện.
+- Hoạt động.
+- Thông tin hành chính.
+
+Các tab nhạy cảm phải có kiểm soát quyền riêng.
+
+## MODULE 02 – QUẢN LÝ GIÁO VIÊN VÀ NHÂN SỰ
+
+- Hồ sơ giáo viên.
+- Hồ sơ nhân viên.
+- Mã nhân sự.
+- Bộ môn.
+- Chức vụ.
+- Lớp phụ trách.
+- Môn giảng dạy.
+- Phân công nhiệm vụ.
+- Lịch giảng dạy.
+- Trạng thái tài khoản.
+
+## MODULE 03 – QUẢN LÝ LỚP VÀ NĂM HỌC
+
+- Tạo năm học.
+- Học kỳ.
+- Khối.
+- Lớp.
+- Danh sách học sinh.
+- Giáo viên chủ nhiệm.
+- Phân công giáo viên bộ môn.
+- Lịch sử chuyển lớp.
+- Lịch sử năm học.
+
+Không xóa dữ liệu cũ khi chuyển sang năm học mới.
+
+## MODULE 04 – THƯ VIỆN THÔNG MINH RFID + BARCODE
+
+Đây là một phân hệ quan trọng và nên được đầu tư kỹ.
+
+### A. Danh mục sách
+
+Mỗi đầu sách có:
+- ISBN nếu có.
+- Tên sách.
+- Tác giả.
+- Nhà xuất bản.
+- Năm xuất bản.
+- Thể loại.
+- Mô tả.
+- Ảnh bìa.
+- Vị trí kệ.
+- Số lượng bản sách.
+- Số bản đang có.
+- Số bản đang mượn.
+
+### B. Quản lý từng bản sách
+
+Mỗi bản sách có mã riêng.
+
+Không sử dụng một mã vạch chung cho tất cả bản sao của cùng đầu sách.
+
+Theo dõi:
+- Mã bản sách.
+- Đầu sách.
+- Mã vạch.
+- Mã RFID nếu có.
+- Tình trạng.
+- Vị trí.
+- Trạng thái mượn.
+
+### C. Quy trình mượn sách
+
+1. Thủ thư mở giao diện mượn.
+2. Quét thẻ RFID học sinh.
+3. Hệ thống nhận diện studentId.
+4. Hiển thị thông tin học sinh.
+5. Quét mã vạch từng cuốn sách.
+6. Hệ thống kiểm tra bản sách.
+7. Kiểm tra hạn mức và điều kiện mượn.
+8. Xác nhận giao dịch.
+9. Tạo phiếu mượn.
+10. Cập nhật trạng thái bản sách.
+11. Gửi thông báo cho học sinh.
+
+### D. Quy trình trả sách
+
+1. Tra cứu giao dịch đang mở.
+2. Quét mã sách hoặc nhập mã.
+3. Xác nhận bản sách được trả.
+4. Cập nhật trạng thái.
+5. Cập nhật lịch sử.
+6. Gửi xác nhận trả sách.
+
+### E. Tính năng nâng cao
+
+- Gia hạn.
+- Đặt trước.
+- Nhắc hạn trả.
+- Cảnh báo quá hạn.
+- Báo sách hỏng hoặc mất.
+- Thống kê sách phổ biến.
+- Lịch sử mượn của học sinh.
+- Dashboard thư viện.
+
+### F. Tích hợp thiết bị
+
+Thiết kế một lớp adapter để kết nối với thiết bị đọc RFID và máy quét mã vạch tương thích.
+
+Không giả định mọi đầu đọc RFID đều tương thích trực tiếp với trình duyệt.
+
+Có thể sử dụng thiết bị hoạt động như bàn phím HID hoặc một local bridge/service phù hợp.
+
+Trong giai đoạn chưa có thiết bị thật, xây dựng Demo Mode để nhập mã hoặc mô phỏng thao tác quét.
+
+Phải phân biệt rõ dữ liệu mô phỏng và giao dịch thật.
+
+## MODULE 05 – KHẢO SÁT HỌC SINH
+
+Cho phép BGH, GVCN hoặc người được phân quyền tạo khảo sát.
+
+Chức năng:
+- Tạo khảo sát.
+- Tiêu đề.
+- Mô tả.
+- Thời gian bắt đầu và kết thúc.
+- Đối tượng tham gia.
+- Toàn trường.
+- Theo khối.
+- Theo lớp.
+- Theo nhóm được chọn.
+- Câu hỏi một lựa chọn.
+- Nhiều lựa chọn.
+- Câu trả lời tự luận.
+- Thang đánh giá.
+- Câu hỏi bắt buộc.
+- Cho phép ẩn danh.
+- Tiến độ trả lời.
+- Thống kê.
+- Biểu đồ.
+- Xuất Excel.
+
+AI hỗ trợ:
+- Tổng hợp ý kiến.
+- Phân loại phản hồi.
+- Tìm chủ đề phổ biến.
+- Phân tích xu hướng.
+- Tóm tắt kết quả.
+
+Không tự động công khai danh tính người tham gia khảo sát ẩn danh.
+
+## MODULE 06 – PHẢN ÁNH, KIẾN NGHỊ VÀ BÁO CÁO VI PHẠM
+
+Học sinh có thể gửi:
+- Phản ánh về cơ sở vật chất.
+- Phản ánh về môi trường học tập.
+- Kiến nghị với nhà trường.
+- Báo cáo hành vi vi phạm.
+- Các vấn đề cần hỗ trợ.
+
+Biểu mẫu:
+- Loại phản ánh.
+- Tiêu đề.
+- Nội dung.
+- Thời gian xảy ra.
+- Địa điểm.
+- Tệp đính kèm nếu cần.
+- Cho phép gửi ẩn danh.
+- Mức độ ưu tiên.
+
+Quy trình:
+1. Tiếp nhận.
+2. Phân loại.
+3. Chuyển bộ phận.
+4. Phân công người xử lý.
+5. Xác minh.
+6. Cập nhật tiến độ.
+7. Phản hồi.
+8. Đóng hồ sơ.
+
+Trạng thái:
+- Mới gửi.
+- Đã tiếp nhận.
+- Đang xác minh.
+- Đang xử lý.
+- Chờ bổ sung.
+- Đã giải quyết.
+- Đã đóng.
+
+Người gửi có thể theo dõi mã hồ sơ và trạng thái phù hợp.
+
+Đối với phản ánh ẩn danh, không hiển thị danh tính cho người xử lý thông thường.
+
+Không để AI tự kết luận một học sinh có hành vi vi phạm chỉ dựa trên nội dung phản ánh.
+
+## MODULE 07 – TƯ VẤN HỌC ĐƯỜNG
+
+Tách thành ba nhóm:
+
+A. Tư vấn tâm lý:
+- Gửi yêu cầu.
+- Chọn chủ đề.
+- Đặt lịch.
+- Trao đổi riêng.
+- Theo dõi lịch hẹn.
+- Tiếp nhận hỗ trợ.
+
+B. Tư vấn học tập:
+- Khó khăn trong học tập.
+- Phương pháp học.
+- Quản lý thời gian.
+- Lựa chọn môn học.
+- Định hướng cải thiện kết quả.
+
+C. Tư vấn hướng nghiệp:
+- Khám phá sở thích.
+- Nhóm ngành.
+- Thông tin nghề nghiệp.
+- Định hướng đại học.
+- Tài liệu hướng nghiệp.
+
+Có thể tích hợp AI Assistant hỗ trợ những câu hỏi phổ thông.
+
+AI không được tự nhận là chuyên gia tâm lý hoặc thay thế người tư vấn có chuyên môn.
+
+Các tình huống có dấu hiệu nguy cơ cần được chuyển đến người phụ trách theo quy trình an toàn của nhà trường.
+
+Bảo vệ hồ sơ tư vấn bằng quyền truy cập riêng biệt.
+
+## MODULE 08 – THỜI KHÓA BIỂU VÀ LỊCH HOẠT ĐỘNG
+
+Thời khóa biểu:
+- Theo lớp.
+- Theo giáo viên.
+- Theo phòng học.
+- Theo ngày.
+- Theo tuần.
+- Theo học kỳ.
+
+Chức năng:
+- Tạo lịch.
+- Chỉnh sửa.
+- Đổi tiết.
+- Đổi phòng.
+- Thay giáo viên.
+- Kiểm tra trùng lịch.
+- Lưu lịch sử thay đổi.
+- Xuất PDF.
+- Đồng bộ với Dashboard.
+
+Lịch hoạt động:
+- Sự kiện.
+- Kiểm tra.
+- Thi.
+- Hoạt động ngoại khóa.
+- Hoạt động Đoàn.
+- Lịch nghỉ.
+- Hạn nộp hồ sơ.
+
+Khi lịch thay đổi, tự động thông báo đến các đối tượng bị ảnh hưởng.
+
+## MODULE 09 – TRUNG TÂM THÔNG BÁO
+
+Tạo một hệ thống thông báo thống nhất.
+
+Loại thông báo:
+- Toàn trường.
+- Theo khối.
+- Theo lớp.
+- Theo giáo viên.
+- Theo nhóm người dùng.
+- Thông báo cá nhân.
+- Thông báo tự động từ hệ thống.
+
+Tính năng:
+- Tạo thông báo.
+- Duyệt thông báo.
+- Hẹn giờ đăng.
+- Đính kèm.
+- Ghim thông báo.
+- Mức độ ưu tiên.
+- Đánh dấu đã đọc.
+- Lịch sử.
+- Bộ lọc.
+- Tìm kiếm.
+
+Thông báo tự động từ:
+- Thư viện.
+- Khảo sát.
+- Thời khóa biểu.
+- Chuyên cần.
+- Bài tập.
+- Phản ánh.
+- Tư vấn.
+- Sự kiện.
+
+Thông báo phải có liên kết đến đúng dữ liệu nguồn nếu người nhận có quyền truy cập.
+
+## MODULE 10 – HỌC TẬP VÀ CHUYÊN CẦN
+
+Học tập:
+- Danh sách môn học.
+- Điểm số.
+- Nhận xét.
+- Bài tập.
+- Tài liệu.
+- Bài nộp.
+- Tiến độ học tập.
+- Lịch sử chỉnh sửa điểm.
+
+Chuyên cần:
+- Điểm danh.
+- Xin nghỉ.
+- Xác nhận nghỉ.
+- Theo dõi nghỉ có phép và không phép.
+- Thống kê chuyên cần.
+
+Học sinh chỉ xem dữ liệu của bản thân.
+
+GVBM chỉ cập nhật dữ liệu thuộc môn và lớp được phân công.
+
+GVCN xem tổng hợp lớp theo thẩm quyền.
+
+## MODULE 11 – CƠ SỞ VẬT CHẤT
+
+- Danh mục thiết bị.
+- Phòng học.
+- Tài sản.
+- Tình trạng.
+- Vị trí.
+- Lịch sử bảo trì.
+
+Học sinh và giáo viên có thể báo hỏng.
+
+Nhân viên được phân công tiếp nhận và xử lý.
+
+Quy trình:
+Gửi yêu cầu → Phân công → Tiếp nhận → Xử lý → Nghiệm thu → Hoàn thành.
+
+## MODULE 12 – BÁO CÁO VÀ PHÂN TÍCH
+
+Dashboard cho BGH:
+
+- Tổng số học sinh.
+- Tổng số giáo viên.
+- Số lớp.
+- Tình hình chuyên cần.
+- Tình hình thư viện.
+- Tình trạng phản ánh.
+- Khảo sát.
+- Cơ sở vật chất.
+- Hoạt động.
+- Các chỉ số theo thời gian.
+
+Biểu đồ:
+- Bar chart.
+- Line chart.
+- Pie chart.
+- Area chart.
+- Progress chart.
+
+Có bộ lọc theo:
+- Năm học.
+- Học kỳ.
+- Khối.
+- Lớp.
+- Thời gian.
+
+Có thể xuất Excel và PDF theo quyền.
+
+AI có thể tóm tắt báo cáo nhưng không được tự tạo ra số liệu không tồn tại.
+
+---
+
+# PHẦN 7. TRUNG TÂM AI ASSISTANT
+
+Tích hợp Gemini API để xây dựng trợ lý AI trong SchoolHub.
+
+Giao diện:
+- Chat panel.
+- Floating AI button.
+- Cửa sổ hội thoại.
+- Lịch sử hội thoại theo tài khoản.
+- Gợi ý câu hỏi.
+
+Các chức năng:
+
+Đối với học sinh:
+- Hỗ trợ tìm thông tin trong SchoolHub.
+- Giải thích các chức năng.
+- Hỗ trợ học tập.
+- Tóm tắt tài liệu được phép truy cập.
+- Hướng dẫn sử dụng thư viện.
+
+Đối với giáo viên:
+- Tóm tắt báo cáo lớp.
+- Tổng hợp kết quả học tập.
+- Phân tích khảo sát.
+- Hỗ trợ soạn thông báo.
+- Tóm tắt công việc.
+
+Đối với BGH:
+- Tóm tắt báo cáo toàn trường.
+- Phân tích xu hướng.
+- Tìm kiếm số liệu.
+- Hỗ trợ lập báo cáo.
+
+AI phải kiểm tra quyền của người dùng trước khi truy xuất dữ liệu.
+
+Không gửi toàn bộ cơ sở dữ liệu học sinh lên Gemini.
+
+Chỉ truy xuất dữ liệu cần thiết, có sự cho phép và phù hợp mục đích.
+
+Không cho phép AI tự ý thay đổi điểm, hồ sơ, phân quyền hoặc thực hiện thao tác quan trọng mà không có xác nhận và quyền hợp lệ.
+
+---
+
+# PHẦN 8. TRUNG TÂM DỮ LIỆU VÀ IMPORT/EXPORT
+
+Đây là chức năng bắt buộc phải triển khai.
+
+Admin có thể nhập dữ liệu từ:
+- Excel (.xlsx).
+- CSV.
+- Google Sheets thông qua phương thức tích hợp được cấp quyền.
+
+Các bước:
+1. Chọn phân hệ.
+2. Tải file.
+3. Chọn sheet.
+4. Đối chiếu cột.
+5. Kiểm tra định dạng.
+6. Kiểm tra trùng lặp.
+7. Hiển thị bản xem trước.
+8. Báo lỗi từng dòng.
+9. Xác nhận nhập.
+10. Lưu dữ liệu.
+11. Tạo báo cáo kết quả.
+
+Phải có file mẫu Excel cho từng phân hệ.
+
+Ví dụ:
+- Học sinh.
+- Giáo viên.
+- Lớp học.
+- Sách.
+- Thời khóa biểu.
+- Điểm học tập.
+
+Cho phép xuất dữ liệu theo mẫu tương ứng.
+
+Không tự động tạo dữ liệu mẫu học sinh, giáo viên hoặc giao dịch khi chưa có yêu cầu.
+
+Nếu cần dữ liệu demo để kiểm thử, phải có chế độ Demo riêng và không trộn với dữ liệu thật.
+
+---
+
+# PHẦN 9. QUY TRÌNH LIÊN KẾT GIỮA CÁC PHÂN HỆ
+
+Đây là yêu cầu kiến trúc bắt buộc.
+
+Ví dụ 1: Thư viện.
+
+RFID → Hồ sơ học sinh → Barcode → Hồ sơ sách → Kiểm tra điều kiện → Phiếu mượn → Cập nhật kho → Thông báo → Lịch sử giao dịch.
+
+Ví dụ 2: Thời khóa biểu.
+
+Cập nhật lịch → Kiểm tra xung đột → Phê duyệt → Công bố phiên bản → Thông báo → Đồng bộ Dashboard giáo viên và học sinh.
+
+Ví dụ 3: Khảo sát.
+
+Tạo khảo sát → Chọn đối tượng từ hồ sơ lớp → Thông báo → Học sinh trả lời → Tổng hợp → AI phân tích → Báo cáo BGH.
+
+Ví dụ 4: Phản ánh.
+
+Học sinh gửi → Tạo mã hồ sơ → Phân loại → Phân công → Xử lý → Cập nhật trạng thái → Thông báo phản hồi.
+
+Ví dụ 5: Cơ sở vật chất.
+
+Báo hỏng → Tạo yêu cầu → Liên kết tài sản/phòng học → Phân công nhân viên → Xử lý → Cập nhật lịch sử bảo trì.
+
+Ví dụ 6: Học tập.
+
+GVBM nhập điểm → Lưu kết quả → Học sinh xem điểm → GVCN xem tổng hợp → Dashboard cập nhật.
+
+Không tạo các luồng chỉ mang tính minh họa.
+
+Hãy sử dụng service và event-driven architecture phù hợp để đồng bộ nghiệp vụ.
+
+Mỗi sự kiện phải có:
+- Event type.
+- Entity ID.
+- Actor ID.
+- Timestamp.
+- Payload tối thiểu.
+- Phạm vi người nhận.
+- Trạng thái xử lý.
+
+Đảm bảo tránh gửi thông báo trùng khi một sự kiện được xử lý lại.
+
+---
+
+# PHẦN 10. BẢO MẬT VÀ QUYỀN RIÊNG TƯ
+
+SchoolHub phục vụ học sinh THPT, do đó dữ liệu có mức độ nhạy cảm cao.
+
+Bắt buộc:
+
+1. Xác thực tài khoản.
+2. Phân quyền phía server.
+3. Firestore Security Rules.
+4. Kiểm soát quyền truy cập Storage.
+5. Không để lộ API key.
+6. Kiểm tra dữ liệu đầu vào.
+7. Ngăn truy cập trái phép.
+8. Ghi nhật ký thao tác quan trọng.
+9. Phân tách dữ liệu tư vấn và phản ánh.
+10. Hỗ trợ xóa, chỉnh sửa và lưu trữ theo chính sách.
+11. Sao lưu dữ liệu.
+12. Giới hạn quyền xuất dữ liệu.
+13. Chống truy cập chéo giữa các lớp.
+14. Có cơ chế khóa tài khoản.
+15. Có cơ chế thu hồi phiên đăng nhập khi cần.
+
+Áp dụng nguyên tắc Least Privilege.
+
+Không sử dụng một quyền Admin chung cho tất cả nhân viên.
+
+Không dùng dữ liệu nhạy cảm thật trong bản demo.
+
+Thiết kế theo quy định bảo vệ dữ liệu cá nhân và các quy định áp dụng đối với trẻ em, học sinh tại Việt Nam.
+
+---
+
+# PHẦN 11. CHI TIẾT TRẢI NGHIỆM NGƯỜI DÙNG
+
+## 11.1. Search toàn hệ thống
+
+Có thanh tìm kiếm chung.
+
+Cho phép tìm:
+- Học sinh.
+- Giáo viên.
+- Lớp.
+- Sách.
+- Thông báo.
+- Sự kiện.
+- Công việc.
+
+Kết quả phải được lọc theo quyền.
+
+## 11.2. Quick Actions
+
+Có nút thao tác nhanh tùy vai trò.
+
+Ví dụ:
+- Thủ thư: Mượn sách, trả sách, thêm sách.
+- GVCN: Điểm danh, thông báo lớp, xem chuyên cần.
+- GVBM: Nhập điểm, giao bài.
+- BGH: Tạo thông báo, xem báo cáo.
+- Học sinh: Gửi phản ánh, tra cứu sách, xem lịch.
+
+## 11.3. Empty States
+
+Khi không có dữ liệu:
+- Có icon hoặc illustration phù hợp.
+- Có thông báo ngắn.
+- Có hướng dẫn thao tác tiếp theo.
+- Có nút hành động nếu được phép.
+
+Không để trang trống.
+
+## 11.4. Loading States
+
+Sử dụng:
+- Skeleton.
+- Shimmer.
+- Progress indicator.
+- Loading animation.
+
+Không để giao diện đứng im trong lúc chờ dữ liệu.
+
+## 11.5. Error States
+
+Thông báo lỗi bằng ngôn ngữ dễ hiểu.
+
+Có:
+- Nguyên nhân phù hợp.
+- Cách khắc phục.
+- Nút thử lại.
+- Mã lỗi khi cần hỗ trợ.
+
+## 11.6. Toast và Dialog
+
+Sử dụng toast cho các thao tác nhanh.
+
+Sử dụng dialog cho các hành động quan trọng.
+
+Không dùng alert mặc định của trình duyệt làm giao diện chính.
+
+---
+
+# PHẦN 12. YÊU CẦU VỀ HIỆU NĂNG
+
+Website phải vận hành mượt mà.
+
+Yêu cầu:
+
+- Lazy loading.
+- Code splitting.
+- Pagination.
+- Query tối ưu.
+- Debounce search.
+- Hạn chế listener không cần thiết.
+- Hạn chế re-render.
+- Tối ưu ảnh.
+- Tối ưu animation.
+- Tránh hiệu ứng blur diện rộng trên nhiều lớp.
+- Không tải toàn bộ dữ liệu cùng lúc.
+- Có caching hợp lý.
+- Có empty loading và error state.
+
+Ưu tiên CSS transform và opacity cho animation.
+
+Tránh animation gây layout thrashing.
+
+Không tạo hàng trăm hiệu ứng chuyển động đồng thời.
+
+---
+
+# PHẦN 13. CÁC BƯỚC TRIỂN KHAI BẮT BUỘC
+
+Không triển khai một cách tùy tiện.
+
+Hãy thực hiện theo từng giai đoạn.
+
+## GIAI ĐOẠN 1 – PHÂN TÍCH VÀ LẬP KẾ HOẠCH
+
+- Kiểm tra môi trường dự án.
+- Xác định cấu trúc ứng dụng.
+- Lập danh sách phân hệ.
+- Xác định quan hệ dữ liệu.
+- Xác định vai trò.
+- Xác định quyền.
+- Lập sơ đồ kiến trúc.
+- Lập kế hoạch triển khai.
+
+Không được bỏ qua bước phân tích.
+
+## GIAI ĐOẠN 2 – THIẾT KẾ DESIGN SYSTEM
+
+Xây dựng:
+- Color tokens.
+- Typography.
+- Spacing.
+- Radius.
+- Shadows.
+- Glass surfaces.
+- Gradients.
+- Motion tokens.
+- Icon system.
+- Component system.
+
+Hoàn thiện các thành phần:
+- Buttons.
+- Cards.
+- Inputs.
+- Dropdowns.
+- Dialogs.
+- Tables.
+- Badges.
+- Tabs.
+- Navigation.
+- Toasts.
+- Charts.
+
+Các component phải có khả năng tái sử dụng.
+
+## GIAI ĐOẠN 3 – XÂY DỰNG FRONTEND SHELL
+
+- Login.
+- Sidebar.
+- Topbar.
+- Dashboard.
+- Navigation.
+- Responsive.
+- Theme.
+- Notification center.
+- User profile.
+
+## GIAI ĐOẠN 4 – AUTHENTICATION VÀ AUTHORIZATION
+
+- Kết nối Firebase Authentication.
+- Tạo hệ thống hồ sơ.
+- Phân quyền.
+- Multi-role.
+- Scope.
+- Security Rules.
+- Bảo vệ route.
+- Bảo vệ API.
+
+## GIAI ĐOẠN 5 – CƠ SỞ DỮ LIỆU
+
+- Thiết kế collection.
+- Thiết lập quan hệ.
+- Tạo index.
+- Tạo service.
+- Kiểm tra truy vấn.
+- Kiểm tra quyền.
+- Kiểm tra đồng bộ.
+
+## GIAI ĐOẠN 6 – TRIỂN KHAI NGHIỆP VỤ
+
+Triển khai từng module theo thứ tự:
+
+1. Quản lý hồ sơ.
+2. Quản lý lớp và năm học.
+3. Quản lý nhân sự.
+4. Thời khóa biểu.
+5. Thông báo.
+6. Thư viện.
+7. Khảo sát.
+8. Phản ánh.
+9. Tư vấn.
+10. Học tập và chuyên cần.
+11. Cơ sở vật chất.
+12. Báo cáo.
+
+Mỗi module phải hoàn thiện nghiệp vụ cơ bản trước khi chuyển sang module tiếp theo.
+
+## GIAI ĐOẠN 7 – LIÊN KẾT PHÂN HỆ
+
+Kiểm tra tất cả các quy trình xuyên phân hệ đã nêu.
+
+Không chấp nhận các module chỉ có giao diện độc lập.
+
+## GIAI ĐOẠN 8 – TÍCH HỢP AI
+
+- Tích hợp Gemini.
+- Tạo AI Assistant.
+- Kiểm soát dữ liệu truy xuất.
+- Xây dựng prompt theo vai trò.
+- Kiểm thử câu trả lời.
+- Kiểm soát các thao tác AI.
+
+## GIAI ĐOẠN 9 – KIỂM THỬ
+
+Kiểm thử:
+
+- Đăng nhập.
+- Đăng xuất.
+- Đổi mật khẩu.
+- Phân quyền.
+- Truy cập trái phép.
+- Import Excel.
+- Export.
+- CRUD.
+- Mượn trả sách.
+- RFID.
+- Barcode.
+- Khảo sát.
+- Phản ánh.
+- Tư vấn.
+- Thông báo.
+- Thời khóa biểu.
+- Responsive.
+- Animation.
+- Hiệu năng.
+
+## GIAI ĐOẠN 10 – HOÀN THIỆN
+
+- Sửa lỗi.
+- Tối ưu UI.
+- Tối ưu tốc độ.
+- Tối ưu bảo mật.
+- Kiểm tra dữ liệu.
+- Kiểm tra tất cả liên kết.
+- Hoàn thiện tài liệu.
+- Chuẩn bị triển khai.
+
+---
+
+# PHẦN 14. QUY TẮC LÀM VIỆC VỚI GOOGLE AI STUDIO
+
+Đây là những quy tắc bắt buộc.
+
+1. Trước tiên hãy phân tích toàn bộ yêu cầu và kiến trúc.
+2. Không bỏ qua các chức năng quan trọng.
+3. Không tự ý đơn giản hóa những nghiệp vụ phức tạp.
+4. Không tạo các nút bấm không có chức năng.
+5. Không dùng dữ liệu giả thay cho dữ liệu thực.
+6. Không tự tạo tài khoản học sinh hoặc giáo viên mẫu.
+7. Không tạo dữ liệu tự động nếu chưa được yêu cầu.
+8. Không hardcode quyền của người dùng trong frontend.
+9. Không để lộ thông tin nhạy cảm.
+10. Không viết toàn bộ ứng dụng vào một file.
+11. Không làm mất dữ liệu khi cập nhật giao diện.
+12. Không làm hỏng các chức năng đã hoạt động.
+13. Không sử dụng các hiệu ứng gây giảm hiệu năng nghiêm trọng.
+14. Không tạo giao diện quá nhiều chữ.
+15. Không sử dụng màu sắc thiếu nhất quán.
+16. Không để giao diện desktop bị vỡ trên tablet và mobile.
+17. Mỗi module phải có loading, empty, error và success state.
+18. Mọi thao tác quan trọng phải có phản hồi.
+19. Mọi thay đổi dữ liệu phải được kiểm tra quyền.
+20. Mọi chức năng phải được kiểm thử trước khi tuyên bố hoàn thành.
+
+Nếu một chức năng cần phần cứng hoặc dịch vụ bên ngoài, hãy xây dựng lớp tích hợp rõ ràng và chế độ thử nghiệm có nhãn riêng. Không giả vờ rằng phần cứng hoặc dịch vụ đã kết nối thành công.
+
+Nếu chưa thể hoàn thiện một chức năng, hãy ghi rõ:
+- Phần đã hoàn thành.
+- Phần còn thiếu.
+- Nguyên nhân.
+- Điều kiện cần thiết.
+- Cách tiếp tục triển khai.
+
+Không được tuyên bố toàn bộ website đã hoàn thiện khi chỉ mới có giao diện.
+
+---
+
+# PHẦN 15. TIÊU CHUẨN NGHIỆM THU CUỐI CÙNG
+
+SchoolHub chỉ được coi là hoàn thành khi đáp ứng các tiêu chí:
+
+## A. Giao diện
+- Đẹp và nhất quán.
+- Liquid Glass thực sự.
+- Gradient có chiều sâu.
+- Animation mượt.
+- Responsive.
+- Dễ sử dụng.
+- Có nhận diện thương hiệu.
+
+## B. Chức năng
+- Đăng nhập hoạt động.
+- Phân quyền hoạt động.
+- CRUD thực sự.
+- Các module nghiệp vụ hoạt động.
+- Import/export.
+- Thông báo.
+- Tìm kiếm.
+- Báo cáo.
+
+## C. Liên kết
+- Dữ liệu dùng chung.
+- Không trùng hồ sơ.
+- Các quy trình được kết nối.
+- Thông báo tự động.
+- Trạng thái đồng bộ.
+
+## D. Bảo mật
+- Không truy cập trái phép.
+- Không lộ API key.
+- Không lộ dữ liệu nhạy cảm.
+- Có nhật ký.
+- Có Security Rules.
+
+## E. Hiệu năng
+- Không lag nghiêm trọng.
+- Không có render dư thừa.
+- Animation tối ưu.
+- Không tải dữ liệu không cần thiết.
+
+---
+
+# PHẦN 16. CHỈ THỊ CUỐI CÙNG
+
+Hãy bắt đầu triển khai SchoolHub ngay bây giờ.
+
+Thứ tự ưu tiên:
+
+1. Phân tích kiến trúc.
+2. Hoàn thiện Design System.
+3. Xây dựng giao diện tổng thể.
+4. Xây dựng nền tảng đăng nhập và phân quyền.
+5. Xây dựng cơ sở dữ liệu.
+6. Triển khai các module.
+7. Kết nối các module.
+8. Tích hợp AI.
+9. Kiểm thử.
+10. Hoàn thiện.
+
+Nếu giới hạn thời gian hoặc tài nguyên không cho phép hoàn thành tất cả cùng lúc, hãy ưu tiên hoàn thiện từng giai đoạn theo đúng thứ tự, giữ source code ổn định và tiếp tục từ trạng thái hiện tại.
+
+Không được hy sinh kiến trúc, bảo mật và tính đúng đắn nghiệp vụ để đổi lấy một giao diện đẹp.
+
+Tuy nhiên, UI/UX là một tiêu chí chất lượng cốt lõi, không phải phần trang trí làm sau cùng.
+
+**SẢN PHẨM CUỐI CÙNG PHẢI LÀ MỘT HỆ SINH THÁI TRƯỜNG HỌC SỐ THỰC SỰ, CÓ GIAO DIỆN ĐẲNG CẤP, NGHIỆP VỤ HOÀN CHỈNH VÀ CÁC PHÂN HỆ LIÊN KẾT CHẶT CHẼ.**
+
+Tên sản phẩm: SCHOOLHUB.
+
+Tagline: One School. One Ecosystem. One Connected Experience.
