@@ -1,0 +1,1102 @@
+# SCHOOLHUB – YÊU CẦU NÂNG CẤP HỆ THỐNG
+## BỔ SUNG BGH – QUẢN LÝ THƯ VIỆN – THI ĐUA – NỘI QUY – XẾP HẠNG
+
+Bạn đang tiếp tục phát triển dự án SchoolHub hiện tại.
+
+Đây là yêu cầu nâng cấp trực tiếp trên source code, database, giao diện và các chức năng đang có. Hãy kiểm tra toàn bộ hệ thống trước khi thay đổi.
+
+**NGUYÊN TẮC BẮT BUỘC:**
+- Không tạo một website mới.
+- Không xóa hoặc làm hỏng các tính năng hiện tại.
+- Không tự tạo dữ liệu mẫu, học sinh giả, giáo viên giả hoặc giao dịch giả.
+- Không tạo chức năng chỉ có giao diện mà không hoạt động.
+- Tái sử dụng kiến trúc, database và hệ thống phân quyền hiện tại.
+- Đồng bộ dữ liệu giữa các ứng dụng.
+- Giao diện tiếp tục tuân theo phong cách Windows 11 + Liquid Glass đã thống nhất.
+- Ưu tiên thiết kế gọn, trực quan, ít chữ, dễ sử dụng.
+
+---
+
+# PHẦN 1. NÂNG CẤP QUẢN LÝ NHÀ TRƯỜNG
+
+## 1.1. Bổ sung vai trò Ban Giám hiệu (BGH)
+
+Bổ sung vai trò **Ban Giám hiệu** vào hệ thống phân quyền và quản lý nhà trường.
+
+BGH là một vai trò quản lý cấp trường, có phạm vi quản lý toàn trường theo quyền được cấp.
+
+### Các quyền của BGH
+
+**Quản lý học sinh**
+- Xem danh sách học sinh toàn trường.
+- Xem hồ sơ học sinh.
+- Xem lịch sử học tập và rèn luyện.
+- Xem tình hình chuyên cần.
+- Xem thông tin lớp học.
+- Theo dõi tình hình học sinh theo khối, lớp và năm học.
+- Thực hiện các thao tác chỉnh sửa hoặc phê duyệt theo quyền được cấp.
+
+**Quản lý giáo viên**
+- Xem danh sách giáo viên.
+- Xem thông tin giáo viên.
+- Theo dõi phân công giảng dạy.
+- Theo dõi chủ nhiệm.
+- Theo dõi hoạt động giảng dạy.
+- Xem các báo cáo liên quan.
+- Quản lý hoặc phê duyệt các nội dung được phân quyền.
+
+**Quản lý nhân viên**
+- Xem danh sách nhân viên.
+- Xem thông tin bộ phận.
+- Theo dõi công việc liên quan đến nhà trường.
+
+**Quản lý lớp học**
+- Xem toàn bộ lớp học.
+- Xem sĩ số.
+- Xem giáo viên chủ nhiệm.
+- Theo dõi tình hình thi đua.
+- Theo dõi học tập và chuyên cần.
+
+**Quản lý thi đua**
+- Xem bảng xếp hạng toàn trường.
+- Theo dõi điểm thi đua.
+- Phê duyệt các trường hợp cần phê duyệt.
+- Tạo và quản lý phong trào thi đua cấp trường.
+- Xem báo cáo tổng kết.
+
+**Quản lý thông tin**
+- Tạo thông báo cấp trường.
+- Phê duyệt thông báo.
+- Quản lý lịch hoạt động.
+- Theo dõi phản ánh và kiến nghị theo phạm vi được cấp.
+
+**Thống kê và báo cáo**
+- Xem dashboard toàn trường.
+- Thống kê theo khối, lớp, năm học.
+- Theo dõi biểu đồ và báo cáo.
+- Xuất dữ liệu theo quyền.
+
+### Quy tắc phân quyền
+
+BGH không đồng nghĩa với Admin.
+
+- Admin quản trị kỹ thuật, tài khoản, hệ thống và cấu hình.
+- BGH quản lý hoạt động chuyên môn và hành chính của nhà trường.
+- BGH không tự động có quyền truy cập nội dung tư vấn tâm lý riêng tư.
+- Các thao tác nhạy cảm phải được phân quyền riêng.
+- Mọi thao tác quan trọng cần có nhật ký.
+
+Cho phép một người dùng có nhiều vai trò nếu thực tế nhà trường yêu cầu.
+
+Ví dụ một giáo viên đồng thời là thành viên Ban Giám hiệu có thể sử dụng các quyền tương ứng với từng vai trò.
+
+## 1.2. Loại bỏ mã giáo viên không cần thiết
+
+Rà soát toàn bộ hệ thống và loại bỏ trường **Mã giáo viên** nếu hiện tại hệ thống không có nhu cầu nghiệp vụ thực tế đối với trường này.
+
+Cụ thể:
+
+- Loại bỏ trường nhập Mã giáo viên khỏi biểu mẫu.
+- Loại bỏ cột Mã giáo viên khỏi file Excel mẫu.
+- Loại bỏ trường này khỏi các bảng hiển thị.
+- Loại bỏ yêu cầu nhập mã giáo viên khi phân công giảng dạy nếu không thực sự cần.
+- Điều chỉnh các bộ lọc và tìm kiếm liên quan.
+- Không để giao diện xuất hiện trường mã giáo viên thừa.
+
+Khi cần liên kết giáo viên với các dữ liệu khác, sử dụng ID nội bộ do hệ thống tự quản lý hoặc liên kết với tài khoản/hồ sơ giáo viên hiện có.
+
+Người dùng chỉ cần thao tác bằng các thông tin dễ nhận biết như:
+- Họ và tên giáo viên.
+- Tổ chuyên môn.
+- Môn giảng dạy.
+- Lớp phụ trách.
+
+**Lưu ý:** Không xóa các ID kỹ thuật đang được dùng làm khóa liên kết trong database. Chỉ loại bỏ mã giáo viên khỏi quy trình nhập liệu và giao diện nếu không cần thiết.
+
+Cập nhật đồng bộ biểu mẫu thủ công, Import Excel, Export Excel và các chức năng liên quan.
+
+---
+
+# PHẦN 2. NÂNG CẤP THƯ VIỆN THÔNG MINH
+
+## 2.1. Cho phép điều chỉnh thời hạn mượn sách
+
+Hiện tại, thời hạn mượn sách không nên bị cố định cứng trong source code.
+
+Hãy xây dựng hệ thống quản lý thời hạn mượn linh hoạt.
+
+### Cấu hình thời hạn mượn mặc định
+
+Trong phần Cài đặt thư viện, cho phép người có quyền cấu hình:
+
+- Thời hạn mượn mặc định.
+- Số ngày mượn.
+- Số sách tối đa mỗi học sinh.
+- Số lần gia hạn tối đa.
+- Thời hạn gia hạn.
+- Thời gian chờ trước khi được mượn lại nếu có quy định.
+- Quy tắc xử lý sách quá hạn.
+
+Có thể cấu hình chính sách khác nhau theo nhóm người dùng nếu nhà trường có nhu cầu.
+
+Ví dụ:
+- Học sinh.
+- Giáo viên.
+- Nhân viên.
+
+Các con số chỉ là ví dụ, không được tự đặt thành quy định chính thức của trường.
+
+## 2.2. Chỉnh sửa hạn trả của từng giao dịch
+
+Đây là tính năng bắt buộc.
+
+Trong danh sách sách đang được mượn, mỗi giao dịch phải có thao tác:
+
+**Chỉnh sửa hạn trả**
+
+Khi mở, hiển thị:
+- Tên sách.
+- Người mượn.
+- Ngày mượn.
+- Hạn trả hiện tại.
+- Hạn trả mới.
+- Lý do điều chỉnh.
+- Người thực hiện.
+
+Cho phép chọn ngày trả mới bằng Date Picker.
+
+Sau khi xác nhận:
+- Cập nhật hạn trả.
+- Cập nhật trạng thái quá hạn nếu cần.
+- Cập nhật thông báo nhắc trả sách.
+- Cập nhật thời gian còn lại.
+- Ghi lại lịch sử thay đổi.
+
+Không được xóa hạn trả cũ khỏi lịch sử.
+
+Mỗi lần thay đổi phải lưu:
+- Hạn trả cũ.
+- Hạn trả mới.
+- Người thực hiện.
+- Thời gian.
+- Lý do.
+
+Chỉ thủ thư hoặc người được cấp quyền mới được thực hiện.
+
+BGH hoặc Admin chỉ được thực hiện nếu được cấp quyền cụ thể.
+
+## 2.3. Gia hạn sách
+
+Phân biệt rõ hai thao tác:
+
+**Gia hạn bởi người mượn**
+- Học sinh gửi yêu cầu gia hạn.
+- Hệ thống kiểm tra điều kiện.
+- Thủ thư hoặc người có quyền phê duyệt.
+- Nếu được duyệt, cập nhật hạn trả.
+
+**Điều chỉnh trực tiếp bởi thủ thư**
+- Thủ thư có thể điều chỉnh hạn trả theo tình huống thực tế.
+- Phải ghi lý do.
+- Có lịch sử thao tác.
+
+Không cho phép gia hạn nếu sách đã có người khác đặt trước hoặc đang có điều kiện nghiệp vụ không cho phép, trừ khi người có quyền xử lý theo chính sách của thư viện.
+
+## 2.4. Nâng cấp giao diện thư viện
+
+Trong cửa sổ ứng dụng Thư viện, tổ chức các khu vực:
+
+- Tổng quan.
+- Danh mục sách.
+- Bản sao sách.
+- Mượn sách.
+- Trả sách.
+- Gia hạn.
+- Đặt trước.
+- Sách quá hạn.
+- Lịch sử giao dịch.
+- Cài đặt chính sách.
+
+Dùng thanh chuyển đổi tính năng phía trên cùng cửa sổ ứng dụng, đúng với thiết kế 8 app chính của SchoolHub.
+
+Không tạo thêm app riêng trên màn hình Desktop chỉ vì có thêm chức năng.
+
+---
+
+# PHẦN 3. XÂY DỰNG HỆ THỐNG THI ĐUA – NỘI QUY
+
+Đây là một module quan trọng, cần được xây dựng thành hệ thống hoàn chỉnh chứ không chỉ là bảng cộng trừ điểm.
+
+Mục tiêu:
+
+- Quản lý nội quy nhà trường.
+- Quản lý tiêu chí thi đua.
+- Ghi nhận vi phạm.
+- Ghi nhận thành tích.
+- Cộng/trừ điểm.
+- Theo dõi điểm cá nhân.
+- Theo dõi điểm lớp.
+- Xếp hạng thi đua.
+- Tạo các phong trào thi đua theo từng khoảng thời gian.
+- Tổng hợp điểm phong trào vào hệ thống thi đua chung.
+- Xuất báo cáo và tổng kết.
+
+Thiết kế module này bên trong ứng dụng phù hợp hiện có, ưu tiên tích hợp vào ứng dụng Nhà trường hoặc ứng dụng Học tập & Giảng dạy tùy kiến trúc thực tế.
+
+Không tạo thêm app thứ 9 trên màn hình Desktop.
+
+## 3.1. Quản lý nội quy nhà trường
+
+Xây dựng khu vực **Nội quy & Quy định**.
+
+Người có quyền có thể:
+
+- Tải file Word `.docx` lên.
+- Tải file PDF lên.
+- Xem trước tài liệu.
+- Quản lý nhiều phiên bản nội quy.
+- Đặt tên tài liệu.
+- Chọn ngày bắt đầu áp dụng.
+- Chọn trạng thái.
+- Ghi chú.
+- Thay thế hoặc lưu trữ phiên bản cũ.
+
+### Đọc và phân tích file nội quy bằng AI
+
+Khi người dùng tải file Word/PDF lên:
+
+1. Hệ thống đọc nội dung tài liệu.
+2. AI phân tích và nhận diện các điều khoản.
+3. AI đề xuất phân loại nội quy.
+4. AI trích xuất tiêu chí, hành vi, mức điểm hoặc hình thức xử lý nếu tài liệu có quy định.
+5. AI tạo bản nháp bảng nội quy có cấu trúc.
+6. Người quản lý xem lại và chỉnh sửa.
+7. Người có thẩm quyền xác nhận.
+8. Sau khi phê duyệt, nội quy mới được áp dụng.
+
+**Quan trọng:**
+- AI không được tự đặt mức điểm khi tài liệu không quy định.
+- AI không được tự tạo ra vi phạm hoặc hình phạt.
+- Không tự động áp dụng nội quy ngay sau khi upload.
+- Phải có bước kiểm duyệt của người có thẩm quyền.
+- Giữ lại file gốc để đối chiếu.
+- Lưu nguồn trích dẫn hoặc vị trí điều khoản tương ứng trong tài liệu khi có thể.
+
+### 3.2. Bảng nội quy chi tiết
+
+Sau khi nội quy được duyệt, hệ thống tạo bảng nội quy có cấu trúc.
+
+Các trường:
+
+| Trường | Nội dung |
+|---|---|
+| Mã tiêu chí | ID nội bộ |
+| Nhóm nội quy | Học tập, nền nếp, trang phục... |
+| Tên tiêu chí | Tên hành vi hoặc quy định |
+| Mô tả | Nội dung chi tiết |
+| Hành vi | Hành vi được quy định |
+| Loại | Vi phạm hoặc thành tích |
+| Điểm | Mức cộng/trừ theo quy định |
+| Đối tượng | Cá nhân, lớp hoặc nhóm |
+| Điều kiện áp dụng | Trường hợp được tính |
+| Nguồn | Điều khoản trong tài liệu |
+| Trạng thái | Đang áp dụng, tạm ngừng, hết hiệu lực |
+
+Cho phép:
+- Thêm tiêu chí thủ công.
+- Sửa tiêu chí.
+- Xóa hoặc ngừng áp dụng theo quyền.
+- Tìm kiếm.
+- Lọc theo nhóm.
+- Sắp xếp.
+- Xem lịch sử thay đổi.
+- Nhập/xuất Excel nếu cần.
+
+Các tiêu chí đã được dùng trong bản ghi lịch sử không được xóa mất dấu vết.
+
+Nếu cần sửa quy định, phải quản lý phiên bản và thời gian hiệu lực.
+
+## 3.3. Nhóm nội quy và tiêu chí thi đua
+
+Hệ thống cần cho phép nhà trường tự cấu hình các nhóm.
+
+Ví dụ:
+
+**Nền nếp**
+- Đi học đúng giờ.
+- Thực hiện xếp hàng.
+- Giữ trật tự.
+- Thực hiện đúng quy định trong giờ học.
+
+**Học tập**
+- Chuẩn bị bài.
+- Hoàn thành nhiệm vụ học tập.
+- Có thành tích học tập.
+- Tích cực tham gia xây dựng bài.
+
+**Trang phục và tác phong**
+- Thực hiện quy định đồng phục.
+- Đeo thẻ học sinh nếu trường có quy định.
+- Giữ gìn tác phong.
+
+**Vệ sinh và môi trường**
+- Giữ vệ sinh lớp học.
+- Bảo vệ tài sản.
+- Thực hiện phân loại rác nếu có.
+
+**Hoạt động tập thể**
+- Tham gia hoạt động.
+- Tham gia phong trào.
+- Có đóng góp tích cực cho tập thể.
+
+**Thành tích và khen thưởng**
+- Đạt giải cuộc thi.
+- Có thành tích nổi bật.
+- Được biểu dương.
+- Có đóng góp cho trường/lớp.
+
+Đây chỉ là các nhóm tham khảo. Nội dung, mức điểm và quy tắc áp dụng phải do nhà trường cấu hình theo nội quy chính thức.
+
+---
+
+# PHẦN 4. GHI NHẬN VI PHẠM VÀ THÀNH TÍCH
+
+## 4.1. Ghi nhận vi phạm
+
+Cho phép giáo viên, GVCN, BGH hoặc người được cấp quyền ghi nhận sự việc.
+
+Form ghi nhận gồm:
+
+- Học sinh hoặc lớp liên quan.
+- Thời gian xảy ra.
+- Địa điểm.
+- Nhóm nội quy.
+- Tiêu chí liên quan.
+- Mô tả sự việc.
+- Người ghi nhận.
+- Minh chứng nếu có.
+- Ghi chú.
+- Trạng thái xử lý.
+
+Sau khi chọn tiêu chí nội quy, hệ thống tự đề xuất mức điểm tương ứng.
+
+Người ghi nhận không được tùy tiện thay đổi mức điểm ngoài quy định.
+
+Nếu cần điều chỉnh, phải có quyền phù hợp và ghi rõ lý do.
+
+### Trạng thái ghi nhận
+
+- Bản nháp.
+- Chờ xác minh.
+- Đã xác minh.
+- Chờ phê duyệt.
+- Đã ghi nhận điểm.
+- Không đủ căn cứ.
+- Đã hủy.
+
+Tùy mức độ và quy trình của trường, có thể đơn giản hóa trạng thái.
+
+Không phải mọi phản ánh đều mặc nhiên là vi phạm đã được xác nhận.
+
+**Nguyên tắc công bằng:**
+- Phân biệt phản ánh với vi phạm đã xác minh.
+- Cho phép bổ sung giải trình.
+- Không cộng/trừ điểm tự động chỉ từ nội dung tố cáo chưa được xác minh.
+- Hạn chế người không liên quan xem thông tin cá nhân.
+- Không công khai nội dung nhạy cảm trong bảng xếp hạng.
+- Có quy trình yêu cầu xem xét lại khi ghi nhận sai.
+
+## 4.2. Ghi nhận thành tích
+
+Ngoài vi phạm, cần có tính năng ghi nhận thành tích và hành động tích cực.
+
+Ví dụ:
+- Giúp đỡ bạn bè.
+- Có thành tích học tập.
+- Đạt giải trong cuộc thi.
+- Tham gia hoạt động tình nguyện.
+- Có đóng góp tích cực cho lớp.
+- Giữ gìn vệ sinh và tài sản chung.
+
+Form ghi nhận:
+- Học sinh/lớp.
+- Thời gian.
+- Loại thành tích.
+- Mô tả.
+- Minh chứng.
+- Tiêu chí điểm.
+- Người ghi nhận.
+- Trạng thái xác nhận.
+
+Khi được xác nhận, hệ thống cộng điểm tương ứng.
+
+## 4.3. Ghi nhận theo cá nhân và tập thể
+
+Một sự kiện có thể áp dụng cho:
+
+- Một học sinh.
+- Nhiều học sinh.
+- Một lớp.
+- Nhiều lớp.
+- Một nhóm tham gia hoạt động.
+
+Cần xác định rõ đối tượng được cộng/trừ điểm để không tính nhầm hoặc nhân đôi điểm.
+
+Ví dụ: một vi phạm của cá nhân không mặc nhiên trừ điểm cả lớp, trừ khi quy định chính thức có nêu rõ.
+
+---
+
+# PHẦN 5. HỆ THỐNG TÍNH ĐIỂM THI ĐUA CHUNG
+
+## 5.1. Cấu hình điểm
+
+Cho phép nhà trường thiết lập:
+
+- Điểm khởi đầu.
+- Điểm cộng.
+- Điểm trừ.
+- Giới hạn điểm nếu có.
+- Quy tắc cộng/trừ.
+- Chu kỳ tổng hợp.
+- Điều kiện xếp hạng.
+- Cơ chế phê duyệt.
+
+Không hardcode mức điểm trong source code.
+
+Tất cả mức điểm phải lấy từ bảng tiêu chí và cấu hình đã được phê duyệt.
+
+## 5.2. Điểm cá nhân
+
+Mỗi học sinh có một hồ sơ thi đua riêng.
+
+Hiển thị:
+- Điểm hiện tại.
+- Điểm cộng.
+- Điểm trừ.
+- Điểm theo từng tháng.
+- Lịch sử ghi nhận.
+- Thành tích.
+- Vi phạm đã xác minh.
+- Các phong trào đã tham gia.
+- Xếp hạng nếu nhà trường cho phép.
+
+Cho phép lọc theo năm học, học kỳ, tháng và lớp.
+
+## 5.3. Điểm lớp
+
+Mỗi lớp có bảng tổng hợp riêng.
+
+Hiển thị:
+- Điểm khởi đầu.
+- Tổng điểm cộng.
+- Tổng điểm trừ.
+- Điểm hiện tại.
+- Số lượt ghi nhận.
+- Thành tích nổi bật.
+- Xếp hạng.
+
+Cần cho phép cấu hình cách tính điểm lớp.
+
+Ví dụ:
+- Tổng điểm của các học sinh.
+- Điểm tập thể.
+- Điểm bình quân.
+- Công thức kết hợp.
+
+Không tự ý cộng toàn bộ điểm cá nhân thành điểm lớp nếu nhà trường chưa chọn phương pháp đó.
+
+## 5.4. Bảng xếp hạng
+
+Xây dựng bảng xếp hạng:
+
+- Học sinh.
+- Lớp.
+- Khối.
+- Toàn trường.
+
+Có bộ lọc:
+- Hôm nay.
+- Tuần.
+- Tháng.
+- Học kỳ.
+- Năm học.
+- Khoảng thời gian tùy chọn.
+
+Cho phép xem:
+- Thứ hạng.
+- Điểm.
+- Mức thay đổi thứ hạng.
+- Xu hướng điểm.
+- Thành tích nổi bật.
+
+Bảng xếp hạng cần trực quan, dễ đọc, có biểu đồ và hiệu ứng nhẹ.
+
+Không công khai các thông tin vi phạm nhạy cảm hoặc nội dung giải trình của học sinh.
+
+---
+
+# PHẦN 6. THI ĐUA THEO ĐỢT – PHONG TRÀO – CUỘC THI
+
+Đây là tính năng quan trọng cần tách biệt với hệ thống thi đua chung.
+
+Mục đích: Cho phép nhà trường tạo một chương trình thi đua riêng theo khoảng thời gian, ví dụ:
+
+- Thi đua tháng 11.
+- Tuần học tốt.
+- Lớp học xanh – sạch – đẹp.
+- Phong trào đọc sách.
+- Cuộc thi học tập.
+- Thi đua chào mừng ngày Nhà giáo Việt Nam.
+- Cuộc thi sáng tạo khoa học kỹ thuật.
+- Thi đua theo học kỳ.
+
+## 6.1. Tạo phong trào mới
+
+Nút `+ Tạo phong trào`.
+
+Form tạo phong trào gồm:
+
+**Thông tin chung**
+- Tên phong trào.
+- Hình ảnh/biểu tượng.
+- Mô tả.
+- Chủ đề.
+- Người phụ trách.
+- Đơn vị tổ chức.
+
+**Thời gian**
+- Ngày bắt đầu.
+- Ngày kết thúc.
+- Thời gian chấm điểm.
+- Ngày công bố kết quả.
+
+**Đối tượng**
+- Toàn trường.
+- Một số khối.
+- Một số lớp.
+- Cá nhân.
+- Nhóm học sinh.
+
+**Hình thức**
+- Thi đua theo điểm.
+- Thi đua theo nhiệm vụ.
+- Cuộc thi có tiêu chí chấm.
+- Thi đua theo thành tích.
+- Thi đua theo mức độ hoàn thành.
+
+**Cách tính điểm**
+- Điểm cố định.
+- Điểm theo tiêu chí.
+- Điểm do ban tổ chức chấm.
+- Điểm theo nhiệm vụ.
+- Điểm theo thành tích.
+- Công thức tổng hợp tùy chỉnh.
+
+**Cấu hình kết quả**
+- Xếp hạng.
+- Giải thưởng.
+- Danh hiệu.
+- Chứng nhận nếu có.
+- Công bố kết quả.
+
+## 6.2. Bộ tiêu chí riêng cho từng phong trào
+
+Mỗi phong trào có bộ tiêu chí độc lập.
+
+Ví dụ: Phong trào `Lớp học xanh – sạch – đẹp`.
+
+| Tiêu chí | Điểm tối đa |
+|---|---:|
+| Vệ sinh lớp học | Theo cấu hình |
+| Trang trí lớp | Theo cấu hình |
+| Chăm sóc cây xanh | Theo cấu hình |
+| Bảo quản tài sản | Theo cấu hình |
+| Duy trì thực hiện | Theo cấu hình |
+
+Ví dụ: Phong trào `Tháng học tốt`.
+
+| Tiêu chí | Điểm tối đa |
+|---|---:|
+| Hoàn thành nhiệm vụ | Theo cấu hình |
+| Tích cực học tập | Theo cấu hình |
+| Tiến bộ trong học tập | Theo cấu hình |
+| Tham gia hoạt động | Theo cấu hình |
+
+Các tiêu chí, trọng số và mức điểm phải được cấu hình theo từng phong trào.
+
+Không sử dụng một công thức duy nhất cho mọi cuộc thi.
+
+## 6.3. Ghi nhận điểm trong phong trào
+
+Trong trang chi tiết phong trào, có các khu vực:
+
+- Tổng quan.
+- Đối tượng tham gia.
+- Tiêu chí.
+- Ghi nhận điểm.
+- Bảng xếp hạng.
+- Kết quả.
+- Báo cáo.
+- Cài đặt.
+
+Cho phép:
+- Cộng điểm.
+- Trừ điểm.
+- Ghi nhận thành tích.
+- Chấm điểm theo tiêu chí.
+- Nhập kết quả theo danh sách.
+- Duyệt kết quả.
+- Xem lịch sử chấm.
+
+Tất cả thay đổi phải có người thực hiện, thời gian và lý do.
+
+## 6.4. Liên kết điểm phong trào với thi đua chung
+
+Đây là yêu cầu đặc biệt quan trọng.
+
+Mỗi phong trào có thể được cấu hình một trong các chế độ:
+
+**Chế độ 1 – Chỉ xếp hạng riêng**
+
+Điểm chỉ có tác dụng trong phong trào.
+
+Không ảnh hưởng đến thi đua chung.
+
+**Chế độ 2 – Cộng vào thi đua chung**
+
+Điểm của phong trào được chuyển vào hệ thống thi đua chung sau khi kết thúc hoặc được phê duyệt.
+
+**Chế độ 3 – Cộng trực tiếp**
+
+Người có quyền có thể ghi nhận một thành tích trong phong trào và đồng thời cộng điểm vào thi đua chung.
+
+**Chế độ 4 – Chuyển đổi theo tỷ lệ**
+
+Ví dụ phong trào có thang điểm riêng, nhưng khi kết thúc chỉ chuyển một phần điểm sang thi đua chung.
+
+Cho phép cấu hình tỷ lệ chuyển đổi.
+
+### Chống tính điểm hai lần
+
+Đây là yêu cầu bắt buộc.
+
+Mỗi bản ghi điểm phải có:
+- ID nguồn.
+- ID phong trào nếu có.
+- ID bản ghi thi đua chung liên quan.
+- Trạng thái đồng bộ.
+- Thời gian đồng bộ.
+- Người phê duyệt.
+
+Nếu điểm đã được cộng vào thi đua chung thì không được tự động cộng thêm lần nữa khi người dùng đồng bộ lại hoặc xuất/nhập dữ liệu.
+
+Cho phép người có quyền điều chỉnh hoặc hủy đồng bộ theo quy trình có lưu lịch sử.
+
+## 6.5. Theo dõi thời gian và trạng thái phong trào
+
+Các trạng thái:
+
+- Bản nháp.
+- Chờ phê duyệt.
+- Sắp diễn ra.
+- Đang diễn ra.
+- Đang chấm điểm.
+- Đã kết thúc.
+- Đã công bố kết quả.
+- Đã lưu trữ.
+- Đã hủy.
+
+Tự động cập nhật trạng thái theo thời gian, nhưng cho phép người có quyền điều chỉnh theo quy trình.
+
+## 6.6. Tổng kết phong trào
+
+Khi kết thúc:
+- Tổng hợp điểm.
+- Xếp hạng.
+- Xác định người/lớp đạt giải.
+- Hiển thị thống kê.
+- Tạo báo cáo tổng kết.
+- Xuất Excel.
+- Tạo bản báo cáo Word hoặc PDF.
+- Công bố kết quả nếu được phê duyệt.
+
+Cho phép lưu trữ phong trào cũ và xem lại lịch sử các năm học trước.
+
+---
+
+# PHẦN 7. CÁC TÍNH NĂNG THI ĐUA MỞ RỘNG
+
+Hãy phát triển thêm những tính năng có giá trị thực tế.
+
+## 7.1. Bảng theo dõi thi đua trực quan
+
+Dashboard có:
+- Điểm thi đua toàn trường.
+- Top lớp.
+- Top học sinh nếu được phép hiển thị.
+- Thành tích nổi bật.
+- Các vi phạm đã xác minh.
+- Phong trào đang diễn ra.
+- Phong trào sắp bắt đầu.
+- Biểu đồ điểm theo thời gian.
+- Biến động thứ hạng.
+
+## 7.2. Lịch sử thi đua
+
+Mỗi học sinh và lớp có timeline ghi nhận.
+
+Ví dụ:
+- Ngày ghi nhận.
+- Nội dung.
+- Tiêu chí.
+- Điểm cộng/trừ.
+- Người ghi nhận.
+- Trạng thái xác minh.
+- Lý do điều chỉnh nếu có.
+
+Cho phép tìm kiếm và lọc.
+
+## 7.3. Đơn đề nghị xem xét lại
+
+Học sinh có thể gửi yêu cầu xem xét khi:
+- Ghi nhận nhầm.
+- Sai đối tượng.
+- Sai tiêu chí.
+- Sai mức điểm.
+- Thiếu ghi nhận thành tích.
+
+Yêu cầu được gửi tới GVCN hoặc người phụ trách theo quy trình.
+
+Có trạng thái:
+- Đã gửi.
+- Đang xem xét.
+- Cần bổ sung thông tin.
+- Được chấp nhận.
+- Không được chấp nhận.
+
+Phải lưu lịch sử xử lý.
+
+## 7.4. Ghi nhận theo lớp hàng loạt
+
+GVCN có thể:
+- Ghi nhận thành tích cho nhiều học sinh.
+- Ghi nhận hoạt động tập thể.
+- Ghi nhận điểm theo tiêu chí.
+- Xem lại danh sách trước khi xác nhận.
+
+Phải kiểm tra tránh ghi nhận trùng.
+
+## 7.5. Thi đua theo tuần và tháng
+
+Hệ thống hỗ trợ:
+- Tổng hợp theo tuần.
+- Tổng hợp theo tháng.
+- Tổng hợp theo học kỳ.
+- Tổng hợp theo năm học.
+
+Cho phép cấu hình thời điểm chốt điểm.
+
+Khi chốt điểm, lưu snapshot để bảo đảm có thể xem lại kết quả lịch sử chính xác.
+
+## 7.6. Danh hiệu và khen thưởng
+
+Cho phép tạo danh hiệu theo điều kiện.
+
+Ví dụ:
+- Lớp tiêu biểu.
+- Lớp học tốt.
+- Cá nhân tích cực.
+- Thành tích nổi bật.
+- Tập thể xuất sắc.
+
+Điều kiện đạt danh hiệu phải do nhà trường cấu hình và được phê duyệt.
+
+Có thể tạo giấy khen/chứng nhận từ mẫu Word hoặc PDF.
+
+## 7.7. AI hỗ trợ thi đua
+
+AI có thể:
+- Tóm tắt tình hình thi đua.
+- Phân tích xu hướng điểm.
+- Tổng hợp thành tích.
+- Soạn báo cáo tháng.
+- Phát hiện dữ liệu bất thường để người quản lý kiểm tra.
+- Đề xuất nội dung phong trào.
+- Hỗ trợ tạo tiêu chí dự thảo.
+
+AI không được:
+- Tự xác định học sinh có lỗi.
+- Tự kết luận vi phạm.
+- Tự cộng hoặc trừ điểm.
+- Tự công bố xếp hạng chính thức.
+- Tự tạo hình thức xử lý ngoài nội quy.
+
+Mọi kết quả AI tạo ra phải là bản đề xuất để người có thẩm quyền kiểm duyệt.
+
+---
+
+# PHẦN 8. PHÂN QUYỀN CHO HỆ THỐNG THI ĐUA
+
+## Admin
+- Quản trị cấu hình kỹ thuật.
+- Quản lý quyền truy cập.
+- Không mặc nhiên có quyền xem nội dung nhạy cảm chỉ vì là Admin.
+
+## BGH
+- Quản lý thi đua toàn trường theo quyền.
+- Duyệt nội quy.
+- Duyệt phong trào.
+- Phê duyệt điều chỉnh điểm.
+- Xem báo cáo toàn trường.
+- Công bố kết quả.
+- Chốt kỳ thi đua.
+
+## GVCN
+- Theo dõi thi đua lớp được phân công.
+- Ghi nhận thành tích và sự việc.
+- Xem điểm học sinh trong lớp.
+- Xem lịch sử thi đua.
+- Xử lý yêu cầu xem xét trong phạm vi được giao.
+- Đề xuất phong trào cho lớp.
+
+## GVBM
+- Ghi nhận thành tích hoặc sự việc trong phạm vi giảng dạy được phân công.
+- Theo dõi các ghi nhận liên quan đến lớp/môn được giao.
+- Không tự ý chỉnh sửa điểm thi đua đã được phê duyệt.
+
+## Nhân viên phụ trách
+- Được cấp quyền theo nhóm công việc.
+- Có thể ghi nhận sự việc thuộc phạm vi phụ trách.
+- Không tự động có quyền xem hoặc sửa toàn bộ dữ liệu.
+
+## Học sinh
+- Xem điểm thi đua của bản thân.
+- Xem các phong trào đang diễn ra.
+- Xem kết quả công khai.
+- Xem lịch sử được phép truy cập.
+- Gửi giải trình hoặc yêu cầu xem xét.
+- Theo dõi thành tích của bản thân.
+
+Mọi quyền phải được kiểm soát tại backend và database rules, không chỉ ẩn nút trên giao diện.
+
+---
+
+# PHẦN 9. EXCEL – WORD – PDF
+
+Hệ thống thi đua cần hỗ trợ các định dạng tài liệu sau:
+
+## Word
+
+Cho phép tải lên:
+- Nội quy nhà trường.
+- Quy chế thi đua.
+- Kế hoạch phong trào.
+- Văn bản hướng dẫn.
+- Mẫu giấy khen.
+
+Cho phép xuất:
+- Báo cáo thi đua.
+- Tổng kết phong trào.
+- Danh sách khen thưởng.
+- Biên bản tổng hợp.
+- Danh sách xếp hạng.
+- Văn bản tổng kết theo mẫu.
+
+## Excel
+
+Cho phép:
+- Tải danh sách tiêu chí.
+- Import danh sách tiêu chí nếu phù hợp.
+- Export điểm thi đua.
+- Export danh sách ghi nhận.
+- Export bảng xếp hạng.
+- Export kết quả phong trào.
+- Export thống kê theo lớp, khối, thời gian.
+
+## PDF
+
+Cho phép:
+- Xuất nội quy đã phê duyệt.
+- Xuất báo cáo.
+- Xuất bảng tổng kết.
+- Xuất kết quả phong trào.
+- Xuất giấy khen/chứng nhận.
+
+Các tài liệu phải sử dụng dữ liệu thực tế, đúng quyền và có định dạng chuyên nghiệp.
+
+---
+
+# PHẦN 10. DATABASE VÀ LOGIC NGHIỆP VỤ
+
+Rà soát database hiện tại và bổ sung các collection/bảng cần thiết.
+
+Các thực thể gợi ý:
+
+- schoolRules.
+- schoolRuleVersions.
+- ruleCategories.
+- ruleCriteria.
+- emulationPolicies.
+- emulationRecords.
+- emulationRecordEvidence.
+- emulationAppeals.
+- emulationPeriods.
+- emulationSnapshots.
+- competitions.
+- competitionParticipants.
+- competitionCriteria.
+- competitionScores.
+- competitionAwards.
+- scoreTransferRecords.
+- libraryPolicies.
+- libraryTransactions.
+- libraryTransactionHistory.
+
+Đây là danh sách định hướng, cần điều chỉnh để tránh tạo các collection trùng lặp với cấu trúc hiện tại.
+
+### Yêu cầu dữ liệu
+
+- Mỗi bản ghi có ID ổn định.
+- Có thời gian tạo và cập nhật.
+- Có người tạo và người cập nhật.
+- Có trạng thái.
+- Có nguồn phát sinh.
+- Có lịch sử thay đổi.
+- Có năm học và kỳ áp dụng khi phù hợp.
+- Có kiểm tra quyền.
+- Có khả năng truy xuất lịch sử.
+
+### Nguyên tắc tính điểm
+
+Không chỉ lưu một trường tổng điểm rồi ghi đè liên tục.
+
+Hãy lưu từng sự kiện cộng/trừ điểm dưới dạng bản ghi riêng.
+
+Điểm tổng hợp được tính từ các bản ghi hợp lệ đã được xác nhận.
+
+Điều này giúp:
+- Truy xuất nguồn gốc điểm.
+- Kiểm tra sai sót.
+- Điều chỉnh có lịch sử.
+- Tính lại kết quả khi chính sách thay đổi.
+- Tránh mất dữ liệu.
+
+Khi chốt một kỳ thi đua, lưu snapshot để bảo đảm kết quả đã công bố không thay đổi ngoài ý muốn.
+
+---
+
+# PHẦN 11. THIẾT KẾ GIAO DIỆN
+
+Tiếp tục sử dụng thiết kế Windows 11 đã thống nhất.
+
+Trong ứng dụng có thanh chuyển đổi tính năng phía trên cùng.
+
+Ví dụ:
+
+`Tổng quan | Nội quy | Ghi nhận | Điểm thi đua | Xếp hạng | Phong trào | Báo cáo`
+
+Không tạo thêm nhiều ứng dụng riêng trên Desktop.
+
+### Giao diện nội quy
+
+- Bảng tiêu chí gọn.
+- Bộ lọc theo nhóm.
+- Tìm kiếm nhanh.
+- Trạng thái hiệu lực.
+- Nút xem tài liệu gốc.
+- Nút chỉnh sửa.
+- Nút thêm tiêu chí.
+
+### Giao diện ghi nhận
+
+- Form gọn.
+- Chọn học sinh/lớp.
+- Chọn tiêu chí.
+- Tự hiển thị mức điểm theo quy định.
+- Thêm minh chứng.
+- Xem trước.
+- Xác nhận.
+
+### Giao diện xếp hạng
+
+- Bảng xếp hạng trực quan.
+- Biểu đồ biến động.
+- Bộ lọc thời gian.
+- Bộ lọc lớp/khối.
+- Thẻ thống kê compact.
+
+### Giao diện phong trào
+
+- Danh sách phong trào dạng card nhỏ.
+- Mỗi card hiển thị tên, thời gian, trạng thái, đối tượng.
+- Có tiến độ.
+- Có nút xem chi tiết.
+- Có thao tác tạo mới.
+
+### Phong cách
+
+- Windows 11 Desktop.
+- Liquid Glass.
+- Glassmorphism.
+- Blur.
+- Aurora Gradient.
+- Màu sáng, tươi mát.
+- Card bo góc vừa phải.
+- Animation mượt.
+- Bảng dữ liệu compact.
+- Giảm chữ không cần thiết.
+- Không để người dùng phải cuộn quá nhiều.
+
+---
+
+# PHẦN 12. KIỂM THỬ VÀ NGHIỆM THU
+
+Hãy kiểm thử thực tế các trường hợp sau:
+
+1. BGH đăng nhập và xem được dữ liệu toàn trường theo quyền.
+2. BGH không có quyền Admin ngoài phạm vi được cấp.
+3. Không còn trường Mã giáo viên thừa trong form và file Excel.
+4. Thủ thư thay đổi được hạn trả sách.
+5. Hạn trả mới được lưu và hiển thị chính xác.
+6. Lịch sử hạn trả cũ vẫn còn.
+7. Tải được file Word/PDF nội quy.
+8. AI trích xuất nội quy thành bản nháp.
+9. Người quản lý chỉnh sửa và phê duyệt nội quy.
+10. Tạo được tiêu chí cộng/trừ điểm.
+11. Ghi nhận được sự việc cho học sinh và lớp.
+12. Chỉ sự việc được xác minh theo quy trình mới được tính điểm.
+13. Ghi nhận được thành tích.
+14. Điểm cá nhân được tính đúng.
+15. Điểm lớp được tính theo công thức đã cấu hình.
+16. Tạo được phong trào theo tháng.
+17. Cấu hình được đối tượng tham gia.
+18. Tạo được tiêu chí riêng cho phong trào.
+19. Chấm điểm và xếp hạng phong trào.
+20. Chuyển điểm phong trào vào thi đua chung.
+21. Không bị cộng điểm hai lần.
+22. Xem được lịch sử thay đổi.
+23. Xuất được Excel, Word và PDF.
+24. Phân quyền chính xác giữa BGH, GVCN, GVBM, nhân viên và học sinh.
+25. Giao diện hoạt động tốt trong cửa sổ Windows 11 của SchoolHub.
+
+## LỆNH THỰC HIỆN
+
+Hãy bắt đầu bằng việc rà soát source code và database hiện tại.
+
+Sau đó:
+1. Lập danh sách các phần cần sửa.
+2. Xác định các thành phần có thể tái sử dụng.
+3. Nâng cấp phân quyền.
+4. Nâng cấp thư viện.
+5. Xây dựng hệ thống nội quy.
+6. Xây dựng hệ thống ghi nhận và tính điểm.
+7. Xây dựng phong trào thi đua theo đợt.
+8. Tích hợp dữ liệu và dashboard.
+9. Hoàn thiện Import/Export tài liệu.
+10. Kiểm thử toàn bộ luồng nghiệp vụ.
+
+Không chỉ tạo giao diện minh họa. Hãy triển khai chức năng thực tế, kết nối database, kiểm tra phân quyền, xử lý lỗi và bảo đảm mọi thao tác hoạt động chính xác.
+
+Nếu một tính năng chưa thể kết nối với dịch vụ hoặc thiết bị thực tế, phải ghi rõ trạng thái và không giả vờ rằng tính năng đã hoạt động.
+
+Không tự tạo dữ liệu giả để làm đẹp dashboard.

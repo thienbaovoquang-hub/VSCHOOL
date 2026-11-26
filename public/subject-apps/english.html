@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>English Studio — Tiếng Anh THPT Tương Tác</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --surface-muted: #eef3f9;
+      --border: #dbe4f0;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --primary: #0284c7;
+      --primary-strong: #0369a1;
+      --primary-soft: rgba(2, 132, 199, 0.1);
+      --indigo: #4f46e5;
+      --ok: #059669;
+      --ok-soft: rgba(5, 150, 105, 0.12);
+      --err: #dc2626;
+      --err-soft: rgba(220, 38, 38, 0.1);
+      --warn: #d97706;
+      --warn-soft: rgba(217, 119, 6, 0.12);
+      --shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.1);
+      --radius: 16px;
+    }
+
+    html.dark {
+      --bg: #0b1220;
+      --surface: #111b2e;
+      --surface-soft: #17233a;
+      --surface-muted: #1e2d48;
+      --border: #263652;
+      --text: #f1f5f9;
+      --text-muted: #cbd5e1;
+      --text-subtle: #94a3b8;
+      --primary: #38bdf8;
+      --primary-strong: #0ea5e9;
+      --primary-soft: rgba(56, 189, 248, 0.14);
+      --indigo: #818cf8;
+      --ok: #34d399;
+      --ok-soft: rgba(52, 211, 153, 0.14);
+      --err: #f87171;
+      --err-soft: rgba(248, 113, 113, 0.14);
+      --warn: #fbbf24;
+      --warn-soft: rgba(251, 191, 36, 0.14);
+      --shadow: 0 14px 34px -14px rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-shell {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-subtle);
+      margin: 2px 0 0;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stat-item {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-subtle);
+    }
+
+    .stat-value {
+      font-size: 13px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 11px;
+      padding: 8px 13px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--surface-muted);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+      color: #ffffff;
+      border-color: transparent;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0369a1 0%, #4338ca 100%);
+    }
+
+    .btn-ok {
+      background: var(--ok-soft);
+      color: var(--ok);
+      border-color: rgba(5, 150, 105, 0.35);
+    }
+
+    .mode-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6px;
+    }
+
+    .mode-tab {
+      flex: 1 1 130px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .mode-tab:hover {
+      background: var(--surface-muted);
+      color: var(--text);
+    }
+
+    .mode-tab[aria-selected="true"] {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .filter-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text-muted);
+      border-radius: 9px;
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    /* Flashcards */
+    .vocab-layout {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 780px) {
+      .vocab-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .flashcard {
+      min-height: 270px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, var(--surface-soft), var(--surface));
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .flashcard:hover {
+      border-color: var(--primary);
+    }
+
+    .flashcard-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-subtle);
+    }
+
+    .flashcard-word {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .flashcard-ipa {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 14px;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+
+    .flashcard-meaning {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ok);
+      margin: 0 0 8px;
+    }
+
+    .flashcard-example {
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--surface-muted);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 0;
+    }
+
+    .vocab-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .vocab-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 330px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .vocab-item {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text);
+      border-radius: 11px;
+      padding: 9px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-family: inherit;
+    }
+
+    .vocab-item.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .vocab-item-word {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .vocab-item-sub {
+      font-size: 11px;
+      color: var(--text-subtle);
+    }
+
+    .status-text-ok {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--ok);
+    }
+
+    /* Grammar Lab */
+    .grammar-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 780px) {
+      .grammar-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .grammar-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .grammar-nav-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text);
+      border-radius: 11px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .grammar-nav-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .formula-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .formula-code {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 6px 0;
+    }
+
+    .drill-card {
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 10px;
+    }
+
+    .option-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .option-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-btn {
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+    }
+
+    .option-btn.correct {
+      background: var(--ok-soft);
+      border-color: var(--ok);
+      color: var(--ok);
+    }
+
+    .option-btn.wrong {
+      background: var(--err-soft);
+      border-color: var(--err);
+      color: var(--err);
+    }
+
+    .feedback-box {
+      margin-top: 10px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .feedback-box.ok {
+      background: var(--ok-soft);
+      color: var(--ok);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+    }
+
+    .feedback-box.err {
+      background: var(--err-soft);
+      color: var(--err);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+
+    /* Sentence Builder */
+    .builder-tray {
+      min-height: 62px;
+      border: 2px dashed var(--border);
+      background: var(--surface-soft);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 12px 0;
+    }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .word-tile {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+    }
+
+    .word-tile:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .word-tile.placed {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 7px;
+      background: var(--surface-muted);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #4f46e5);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">EN</div>
+        <div>
+          <h1 class="brand-title">English Studio — Tiếng Anh Tương Tác</h1>
+          <p class="brand-sub">Ứng dụng học môn Tiếng Anh chạy từ tệp HTML độc lập (english.html)</p>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Từ vựng</span>
+          <span class="stat-value" id="stat-vocab">0/12 đã thuộc</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Điểm Quiz</span>
+          <span class="stat-value" id="stat-quiz">Chưa làm</span>
+        </div>
+        <button type="button" class="btn" id="btn-reset-progress" title="Đặt lại tiến độ học">
+          Đặt lại
+        </button>
+      </div>
+    </header>
+
+    <nav class="mode-nav" role="tablist" aria-label="Chế độ học Tiếng Anh">
+      <button type="button" class="mode-tab" role="tab" aria-selected="true" data-mode="vocab">
+        1. Từ vựng Flashcards
+      </button>
+      <button type="button" class="mode-tab" role="tab" aria-selected="false" data-mode="grammar">
+        2. Ngữ pháp trọng tâm
+      </button>
+      <button type="button" class="mode-tab" role="tab" aria-selected="false" data-mode="builder">
+        3. Luyện ghép câu
+      </button>
+      <button type="button" class="mode-tab" role="tab" aria-selected="false" data-mode="quiz">
+        4. Kiểm tra trắc nghiệm
+      </button>
+    </nav>
+
+    <main id="stage" class="panel"></main>
+  </div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = 'schoolhub_english_html_progress_v1';
+
+      // Sync dark theme from URL (?theme=dark) or host postMessage
+      function applyTheme(isDark) {
+        document.documentElement.classList.toggle('dark', Boolean(isDark));
+      }
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('theme') === 'dark') {
+        applyTheme(true);
+      }
+      window.addEventListener('message', function (ev) {
+        if (ev && ev.data && ev.data.type === 'schoolhub-theme') {
+          applyTheme(ev.data.dark);
+        }
+      });
+
+      const VOCAB_DECK = [
+        {
+          id: 'v1',
+          topic: 'Mindset',
+          topicLabel: 'Tư duy',
+          word: 'resilient',
+          ipa: '/rɪˈzɪliənt/',
+          pos: 'adj',
+          meaning: 'Kiên cường, mau phục hồi sau khó khăn',
+          example: 'Students who stay resilient often turn setbacks into learning opportunities.',
+          collocation: 'resilient learner · stay resilient',
+        },
+        {
+          id: 'v2',
+          topic: 'Environment',
+          topicLabel: 'Môi trường',
+          word: 'sustainable',
+          ipa: '/səˈsteɪnəbl/',
+          pos: 'adj',
+          meaning: 'Bền vững, thân thiện với tài nguyên lâu dài',
+          example: 'Solar energy provides a sustainable solution for rural schools.',
+          collocation: 'sustainable development · sustainable energy',
+        },
+        {
+          id: 'v3',
+          topic: 'Education',
+          topicLabel: 'Giáo dục',
+          word: 'proficient',
+          ipa: '/prəˈfɪʃnt/',
+          pos: 'adj',
+          meaning: 'Thành thạo, thông thạo kỹ năng',
+          example: 'Daily speaking practice helps learners become proficient in English.',
+          collocation: 'proficient in English · proficient user',
+        },
+        {
+          id: 'v4',
+          topic: 'Technology',
+          topicLabel: 'Công nghệ',
+          word: 'innovative',
+          ipa: '/ˈɪnəveɪtɪv/',
+          pos: 'adj',
+          meaning: 'Sáng tạo, mang tính đổi mới',
+          example: 'Our school adopted an innovative digital library platform this semester.',
+          collocation: 'innovative approach · innovative technology',
+        },
+        {
+          id: 'v5',
+          topic: 'Education',
+          topicLabel: 'Giáo dục',
+          word: 'collaborate',
+          ipa: '/kəˈlæbəreɪt/',
+          pos: 'verb',
+          meaning: 'Hợp tác, cùng làm việc nhóm',
+          example: 'Four classes collaborated to organize the English Speaking Festival.',
+          collocation: 'collaborate with peers · collaborate on a project',
+        },
+        {
+          id: 'v6',
+          topic: 'Education',
+          topicLabel: 'Giáo dục',
+          word: 'curriculum',
+          ipa: '/kəˈrɪkjələm/',
+          pos: 'noun',
+          meaning: 'Chương trình giảng dạy',
+          example: 'Critical thinking has been integrated into the new national curriculum.',
+          collocation: 'school curriculum · core curriculum',
+        },
+        {
+          id: 'v7',
+          topic: 'Education',
+          topicLabel: 'Giáo dục',
+          word: 'comprehension',
+          ipa: '/ˌkɒmprɪˈhenʃn/',
+          pos: 'noun',
+          meaning: 'Khả năng đọc hiểu, lĩnh hội',
+          example: 'Skimming key paragraphs improves reading comprehension speed.',
+          collocation: 'reading comprehension · listening comprehension',
+        },
+        {
+          id: 'v8',
+          topic: 'Technology',
+          topicLabel: 'Công nghệ',
+          word: 'breakthrough',
+          ipa: '/ˈbreɪkθruː/',
+          pos: 'noun',
+          meaning: 'Bước đột phá quan trọng',
+          example: 'Renewable battery storage is a major scientific breakthrough.',
+          collocation: 'major breakthrough · scientific breakthrough',
+        },
+        {
+          id: 'v9',
+          topic: 'Mindset',
+          topicLabel: 'Tư duy',
+          word: 'authentic',
+          ipa: '/ɔːˈθentɪk/',
+          pos: 'adj',
+          meaning: 'Chân thực, nguyên bản, đáng tin cậy',
+          example: 'Reading authentic news articles expands natural vocabulary.',
+          collocation: 'authentic materials · authentic voice',
+        },
+        {
+          id: 'v10',
+          topic: 'Mindset',
+          topicLabel: 'Tư duy',
+          word: 'persevere',
+          ipa: '/ˌpɜːsɪˈvɪə(r)/',
+          pos: 'verb',
+          meaning: 'Kiên trì, bền bỉ theo đuổi mục tiêu',
+          example: 'Even when grammar rules feel tricky, persevere and review regularly.',
+          collocation: 'persevere with · persevere despite challenges',
+        },
+        {
+          id: 'v11',
+          topic: 'Environment',
+          topicLabel: 'Môi trường',
+          word: 'conservation',
+          ipa: '/ˌkɒnsəˈveɪʃn/',
+          pos: 'noun',
+          meaning: 'Sự bảo tồn thiên nhiên và tài nguyên',
+          example: 'Youth volunteers launched a local water conservation campaign.',
+          collocation: 'wildlife conservation · energy conservation',
+        },
+        {
+          id: 'v12',
+          topic: 'Technology',
+          topicLabel: 'Công nghệ',
+          word: 'streamline',
+          ipa: '/ˈstriːmlaɪn/',
+          pos: 'verb',
+          meaning: 'Tinh gọn, tối ưu hóa quy trình',
+          example: 'Interactive flashcards streamline vocabulary revision before exams.',
+          collocation: 'streamline workflow · streamline revision',
+        },
+      ];
+
+      const GRAMMAR_UNITS = [
+        {
+          id: 'tenses',
+          title: 'Present Perfect vs Past Simple',
+          viTitle: 'Hiện tại hoàn thành & Quá khứ đơn',
+          formula: 'S + have/has + V3/ed  (hành động kéo dài / chưa rõ thời gian)  |  S + V2/ed  (thời điểm xác định trong quá khứ)',
+          signals: 'HTHT: since, for, already, yet, ever, so far  ·  QKĐ: yesterday, last week, in 2024, ago',
+          drills: [
+            {
+              prompt: 'Lan ______ three English books since the beginning of this semester.',
+              options: ['read', 'has read', 'is reading', 'reads'],
+              answer: 1,
+              explanation: 'Có dấu hiệu "since the beginning of this semester" -> dùng Hiện tại hoàn thành (has read).',
+            },
+            {
+              prompt: 'Our class ______ the British Museum during our virtual tour last Friday.',
+              options: ['visited', 'has visited', 'visits', 'will visit'],
+              answer: 0,
+              explanation: 'Có mốc thời gian xác định trong quá khứ "last Friday" -> dùng Quá khứ đơn (visited).',
+            },
+          ],
+        },
+        {
+          id: 'conditionals',
+          title: 'Conditionals Type 1 & Type 2',
+          viTitle: 'Câu điều kiện loại 1 & loại 2',
+          formula: 'Loại 1 (có thật): If + S + V(s/es), S + will/can + V  |  Loại 2 (giả định hiện tại): If + S + V2/ed (were), S + would/could + V',
+          signals: 'Loại 1 diễn tả khả năng có thể xảy ra ở hiện tại/tương lai; Loại 2 diễn tả điều không có thật ở hiện tại.',
+          drills: [
+            {
+              prompt: 'If students practice speaking for 15 minutes every day, they ______ more confident.',
+              options: ['would become', 'will become', 'became', 'had become'],
+              answer: 1,
+              explanation: 'Mệnh đề If chia hiện tại đơn ("practice") -> Câu điều kiện loại 1 dùng "will become".',
+            },
+            {
+              prompt: 'If I ______ fluent in five languages, I would work as an international conference interpreter.',
+              options: ['am', 'was been', 'were', 'will be'],
+              answer: 2,
+              explanation: 'Mệnh đề chính dùng "would work" -> Điều kiện loại 2, dùng "were" cho mọi ngôi.',
+            },
+          ],
+        },
+        {
+          id: 'passive',
+          title: 'Passive Voice (Câu bị động)',
+          viTitle: 'Cấu trúc Câu bị động chuẩn',
+          formula: 'S + be (chia theo thì) + V3/ed (+ by O)',
+          signals: 'Nhấn mạnh đối tượng chịu tác động của hành động. Động từ "be" luôn giữ đúng thì của câu chủ động.',
+          drills: [
+            {
+              prompt: 'New interactive lessons ______ to the school portal every Monday morning.',
+              options: ['upload', 'are uploaded', 'are uploading', 'uploaded'],
+              answer: 1,
+              explanation: 'Chủ ngữ "New interactive lessons" là vật (bị động) + "every Monday" (hiện tại đơn) -> are uploaded.',
+            },
+            {
+              prompt: 'This grammar workbook ______ by two experienced English teachers last year.',
+              options: ['was written', 'wrote', 'is written', 'has written'],
+              answer: 0,
+              explanation: 'Có "by two experienced English teachers" và "last year" -> Bị động quá khứ đơn: was written.',
+            },
+          ],
+        },
+        {
+          id: 'relative',
+          title: 'Relative Clauses (Mệnh đề quan hệ)',
+          viTitle: 'Đại từ quan hệ who, which, whose, where',
+          formula: 'N (người) + who/whom/whose  |  N (vật) + which/that  |  N (nơi chốn) + where',
+          signals: 'Lưu ý: không dùng "that" sau dấu phẩy trong mệnh đề quan hệ không xác định.',
+          drills: [
+            {
+              prompt: 'The dictionary ______ you lent me yesterday has very clear phonetic transcriptions.',
+              options: ['who', 'which', 'where', 'whose'],
+              answer: 1,
+              explanation: '"The dictionary" là danh từ chỉ vật đóng vai trò tân ngữ -> dùng "which".',
+            },
+            {
+              prompt: 'Minh is the student ______ presentation won first prize at the English club.',
+              options: ['who', 'which', 'whose', 'whom'],
+              answer: 2,
+              explanation: 'Chỉ sự sở hữu ("bài thuyết trình của bạn học sinh") -> dùng "whose".',
+            },
+          ],
+        },
+      ];
+
+      const SENTENCE_BUILDERS = [
+        {
+          id: 'sb1',
+          viHint: 'Luyện nghe mỗi ngày giúp học sinh cải thiện phát âm một cách tự nhiên.',
+          words: ['Listening', 'every', 'day', 'helps', 'students', 'improve', 'pronunciation', 'naturally.'],
+          answer: 'Listening every day helps students improve pronunciation naturally.',
+        },
+        {
+          id: 'sb2',
+          viHint: 'Nếu chúng ta bảo vệ môi trường hôm nay, tương lai sẽ xanh hơn.',
+          words: ['If', 'we', 'protect', 'the', 'environment', 'today,', 'our', 'future', 'will', 'be', 'greener.'],
+          answer: 'If we protect the environment today, our future will be greener.',
+        },
+        {
+          id: 'sb3',
+          viHint: 'Quyển sách mà cô giáo giới thiệu rất hữu ích cho kỳ thi.',
+          words: ['The', 'book', 'which', 'our', 'teacher', 'recommended', 'is', 'helpful', 'for', 'exams.'],
+          answer: 'The book which our teacher recommended is helpful for exams.',
+        },
+        {
+          id: 'sb4',
+          viHint: 'Trường chúng tôi đã tổ chức hội thảo Tiếng Anh vào tuần trước.',
+          words: ['Our', 'school', 'organized', 'an', 'English', 'workshop', 'last', 'week.'],
+          answer: 'Our school organized an English workshop last week.',
+        },
+        {
+          id: 'sb5',
+          viHint: 'Những bài học tương tác được thiết kế để tạo hứng thú học tập.',
+          words: ['Interactive', 'lessons', 'are', 'designed', 'to', 'inspire', 'active', 'learning.'],
+          answer: 'Interactive lessons are designed to inspire active learning.',
+        },
+      ];
+
+      const QUIZ_QUESTIONS = [
+        {
+          q: 'Choose the word closest in meaning to "resilient":',
+          options: ['fragile', 'adaptable and strong', 'forgetful', 'hesitant'],
+          answer: 1,
+          explanation: '"Resilient" nghĩa là kiên cường, nhanh phục hồi và thích nghi tốt (adaptable and strong).',
+        },
+        {
+          q: 'She has been studying English ______ she was ten years old.',
+          options: ['for', 'since', 'during', 'from'],
+          answer: 1,
+          explanation: 'Theo sau là một mệnh đề mốc thời gian quá khứ ("she was ten years old") -> dùng "since".',
+        },
+        {
+          q: 'Which sentence is grammatically correct?',
+          options: [
+            'If I would have time, I will visit London.',
+            'If I had more time, I would read more novels.',
+            'If I have more time, I would travel abroad.',
+            'If I am you, I will accept the scholarship.',
+          ],
+          answer: 1,
+          explanation: 'Câu điều kiện loại 2 chuẩn: If + S + V2/ed ("had"), S + would + V ("would read").',
+        },
+        {
+          q: 'The annual English festival ______ in the main auditorium next Saturday.',
+          options: ['will hold', 'will be held', 'is holding', 'held'],
+          answer: 1,
+          explanation: '"The annual English festival" được tổ chức (bị động) trong tương lai -> will be held.',
+        },
+        {
+          q: 'Using renewable energy is essential for ______ urban development.',
+          options: ['sustainable', 'sustainably', 'sustain', 'sustainability'],
+          answer: 0,
+          explanation: 'Trước cụm danh từ "urban development" cần một tính từ -> "sustainable".',
+        },
+        {
+          q: 'The mentor ______ guided our debate team has ten years of teaching experience.',
+          options: ['which', 'whose', 'who', 'where'],
+          answer: 2,
+          explanation: '"The mentor" là danh từ chỉ người đóng vai trò chủ ngữ trong mệnh đề quan hệ -> dùng "who".',
+        },
+        {
+          q: 'Neither the teacher nor the students ______ satisfied with the old audio equipment.',
+          options: ['is', 'was', 'were', 'has been'],
+          answer: 2,
+          explanation: 'Với "Neither A nor B", động từ chia theo chủ ngữ gần nhất B ("the students" - số nhiều) -> "were".',
+        },
+        {
+          q: 'Not only ______ fluent in English, but Minh also speaks basic Japanese.',
+          options: ['he is', 'is he', 'does he', 'he does'],
+          answer: 1,
+          explanation: 'Đảo ngữ với "Not only" đứng đầu câu + tính từ "fluent" -> đảo "is" lên trước "he" ("is he").',
+        },
+      ];
+
+      function loadProgress() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return { masteredIds: [], quizBestScore: null, grammarSolved: {} };
+          const parsed = JSON.parse(raw);
+          return {
+            masteredIds: Array.isArray(parsed.masteredIds) ? parsed.masteredIds : [],
+            quizBestScore: typeof parsed.quizBestScore === 'number' ? parsed.quizBestScore : null,
+            grammarSolved: parsed.grammarSolved && typeof parsed.grammarSolved === 'object' ? parsed.grammarSolved : {},
+          };
+        } catch {
+          return { masteredIds: [], quizBestScore: null, grammarSolved: {} };
+        }
+      }
+
+      let progress = loadProgress();
+      let state = {
+        mode: 'vocab',
+        vocabTopic: 'All',
+        vocabIndex: 0,
+        isFlipped: false,
+        speechStatus: '',
+        grammarUnitId: GRAMMAR_UNITS[0].id,
+        grammarSelections: {},
+        builderIndex: 0,
+        builderPlacedIndices: [],
+        builderStatus: null,
+        quizIndex: 0,
+        quizAnswers: {},
+        quizFinished: false,
+      };
+
+      function syncHostProgress() {
+        const vocabEl = document.getElementById('stat-vocab');
+        const quizEl = document.getElementById('stat-quiz');
+        if (vocabEl) {
+          vocabEl.textContent = progress.masteredIds.length + '/' + VOCAB_DECK.length + ' đã thuộc';
+        }
+        if (quizEl) {
+          quizEl.textContent =
+            progress.quizBestScore !== null
+              ? progress.quizBestScore + '/' + QUIZ_QUESTIONS.length + ' điểm cao nhất'
+              : 'Chưa làm';
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        } catch {
+          // ignore
+        }
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(
+            {
+              type: 'schoolhub-subject-progress',
+              subjectId: 'english',
+              masteredCount: progress.masteredIds.length,
+              masteredTotal: VOCAB_DECK.length,
+              quizScore: progress.quizBestScore !== null ? progress.quizBestScore : undefined,
+              quizTotal: QUIZ_QUESTIONS.length,
+              activeSection: state.mode,
+              updatedAt: new Date().toISOString(),
+            },
+            '*'
+          );
+        }
+      }
+
+      function speakWord(word) {
+        if (!('speechSynthesis' in window)) {
+          state.speechStatus = 'Trình duyệt không hỗ trợ Web Speech.';
+          render();
+          return;
+        }
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(word);
+          utter.lang = 'en-US';
+          utter.rate = 0.92;
+          window.speechSynthesis.speak(utter);
+          state.speechStatus = 'Đang phát âm "' + word + '"';
+          render();
+        } catch {
+          state.speechStatus = 'Không thể phát âm thanh lúc này.';
+          render();
+        }
+      }
+
+      function shuffleWords(words) {
+        const arr = words.map(function (w, idx) {
+          return { word: w, origIdx: idx };
+        });
+        // Deterministic rotation/interleave so order differs cleanly from answer without Math.random instability
+        return arr.sort(function (a, b) {
+          return a.word.toLowerCase().localeCompare(b.word.toLowerCase());
+        });
+      }
+
+      function renderVocab(stage) {
+        const filtered =
+          state.vocabTopic === 'All'
+            ? VOCAB_DECK
+            : VOCAB_DECK.filter(function (v) {
+                return v.topic === state.vocabTopic;
+              });
+        const safeIdx = Math.min(state.vocabIndex, Math.max(0, filtered.length - 1));
+        const card = filtered[safeIdx];
+        const isMastered = progress.masteredIds.includes(card.id);
+        const pct = Math.round((progress.masteredIds.length / VOCAB_DECK.length) * 100);
+
+        const topics = [
+          { key: 'All', label: 'Tất cả (12)' },
+          { key: 'Education', label: 'Giáo dục' },
+          { key: 'Technology', label: 'Công nghệ' },
+          { key: 'Environment', label: 'Môi trường' },
+          { key: 'Mindset', label: 'Tư duy' },
+        ];
+
+        stage.innerHTML = '';
+
+        const head = document.createElement('div');
+        head.className = 'section-head';
+        head.innerHTML =
+          '<div><h2 class="section-title">Thẻ ghi nhớ Từ vựng Tiếng Anh</h2>' +
+          '<p class="brand-sub">Nhấp vào thẻ để lật xem nghĩa tiếng Việt, collocation và ví dụ thực tế.</p></div>';
+
+        const filterRow = document.createElement('div');
+        filterRow.className = 'filter-row';
+        topics.forEach(function (t) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'filter-btn' + (state.vocabTopic === t.key ? ' active' : '');
+          btn.textContent = t.label;
+          btn.onclick = function () {
+            state.vocabTopic = t.key;
+            state.vocabIndex = 0;
+            state.isFlipped = false;
+            state.speechStatus = '';
+            render();
+          };
+          filterRow.appendChild(btn);
+        });
+        head.appendChild(filterRow);
+        stage.appendChild(head);
+
+        const track = document.createElement('div');
+        track.className = 'progress-bar-track';
+        track.innerHTML = '<div class="progress-bar-fill" style="width:' + pct + '%"></div>';
+        stage.appendChild(track);
+
+        const layout = document.createElement('div');
+        layout.className = 'vocab-layout';
+
+        const left = document.createElement('div');
+        const flashcard = document.createElement('div');
+        flashcard.className = 'flashcard';
+        flashcard.setAttribute('role', 'button');
+        flashcard.setAttribute('tabindex', '0');
+        flashcard.setAttribute('aria-label', 'Lật thẻ từ vựng ' + card.word);
+        flashcard.onclick = function () {
+          state.isFlipped = !state.isFlipped;
+          render();
+        };
+        flashcard.onkeydown = function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            state.isFlipped = !state.isFlipped;
+            render();
+          }
+        };
+
+        const metaLine =
+          '<div class="flashcard-meta">' +
+          '<span>' + card.topicLabel + ' · ' + card.pos + ' · Thẻ ' + (safeIdx + 1) + '/' + filtered.length + '</span>' +
+          '<span>' + (isMastered ? '✓ Đã thuộc' : 'Nhấp để lật mặt sau') + '</span>' +
+          '</div>';
+
+        if (!state.isFlipped) {
+          flashcard.innerHTML =
+            metaLine +
+            '<div>' +
+            '<h3 class="flashcard-word">' + card.word + '</h3>' +
+            '<div class="flashcard-ipa">' + card.ipa + '</div>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">' +
+            '<span class="brand-sub">Mặt trước · Nhấp thẻ để xem nghĩa</span>' +
+            '<span class="brand-sub">' + card.collocation + '</span>' +
+            '</div>';
+        } else {
+          flashcard.innerHTML =
+            metaLine +
+            '<div>' +
+            '<p class="flashcard-meaning">' + card.meaning + '</p>' +
+            '<p class="flashcard-example">“' + card.example + '”</p>' +
+            '</div>' +
+            '<div class="brand-sub">Cụm từ hay dùng: <strong>' + card.collocation + '</strong></div>';
+        }
+
+        const controls = document.createElement('div');
+        controls.className = 'vocab-controls';
+
+        const navGroup = document.createElement('div');
+        navGroup.style.display = 'flex';
+        navGroup.style.gap = '8px';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.className = 'btn';
+        prevBtn.textContent = '← Trước';
+        prevBtn.onclick = function () {
+          state.vocabIndex = (safeIdx - 1 + filtered.length) % filtered.length;
+          state.isFlipped = false;
+          state.speechStatus = '';
+          render();
+        };
+
+        const flipBtn = document.createElement('button');
+        flipBtn.type = 'button';
+        flipBtn.className = 'btn';
+        flipBtn.textContent = state.isFlipped ? 'Xem mặt trước' : 'Lật xem nghĩa';
+        flipBtn.onclick = function () {
+          state.isFlipped = !state.isFlipped;
+          render();
+        };
+
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.className = 'btn';
+        nextBtn.textContent = 'Tiếp →';
+        nextBtn.onclick = function () {
+          state.vocabIndex = (safeIdx + 1) % filtered.length;
+          state.isFlipped = false;
+          state.speechStatus = '';
+          render();
+        };
+
+        navGroup.appendChild(prevBtn);
+        navGroup.appendChild(flipBtn);
+        navGroup.appendChild(nextBtn);
+
+        const actionGroup = document.createElement('div');
+        actionGroup.style.display = 'flex';
+        actionGroup.style.gap = '8px';
+
+        const speakBtn = document.createElement('button');
+        speakBtn.type = 'button';
+        speakBtn.className = 'btn';
+        speakBtn.textContent = '🔊 Phát âm';
+        speakBtn.onclick = function () {
+          speakWord(card.word);
+        };
+
+        const masterBtn = document.createElement('button');
+        masterBtn.type = 'button';
+        masterBtn.className = 'btn ' + (isMastered ? 'btn-ok' : 'btn-primary');
+        masterBtn.textContent = isMastered ? '✓ Đã thuộc từ này' : 'Đánh dấu đã thuộc';
+        masterBtn.onclick = function () {
+          if (isMastered) {
+            progress.masteredIds = progress.masteredIds.filter(function (id) {
+              return id !== card.id;
+            });
+          } else {
+            progress.masteredIds = progress.masteredIds.concat([card.id]);
+          }
+          syncHostProgress();
+          render();
+        };
+
+        actionGroup.appendChild(speakBtn);
+        actionGroup.appendChild(masterBtn);
+        controls.appendChild(navGroup);
+        controls.appendChild(actionGroup);
+
+        left.appendChild(flashcard);
+        left.appendChild(controls);
+        if (state.speechStatus) {
+          const note = document.createElement('p');
+          note.className = 'brand-sub';
+          note.style.marginTop = '8px';
+          note.textContent = state.speechStatus;
+          left.appendChild(note);
+        }
+
+        const right = document.createElement('div');
+        right.innerHTML = '<div class="stat-label" style="margin-bottom:8px">Danh sách từ (' + filtered.length + ')</div>';
+        const list = document.createElement('div');
+        list.className = 'vocab-list';
+        filtered.forEach(function (item, idx) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'vocab-item' + (idx === safeIdx ? ' active' : '');
+          const done = progress.masteredIds.includes(item.id);
+          b.innerHTML =
+            '<div><div class="vocab-item-word">' + item.word + '</div>' +
+            '<div class="vocab-item-sub">' + item.ipa + ' · ' + item.topicLabel + '</div></div>' +
+            (done ? '<span class="status-text-ok">Đã thuộc</span>' : '<span class="vocab-item-sub">Chưa thuộc</span>');
+          b.onclick = function () {
+            state.vocabIndex = idx;
+            state.isFlipped = false;
+            state.speechStatus = '';
+            render();
+          };
+          list.appendChild(b);
+        });
+        right.appendChild(list);
+
+        layout.appendChild(left);
+        layout.appendChild(right);
+        stage.appendChild(layout);
+      }
+
+      function renderGrammar(stage) {
+        const unit =
+          GRAMMAR_UNITS.find(function (u) {
+            return u.id === state.grammarUnitId;
+          }) || GRAMMAR_UNITS[0];
+
+        stage.innerHTML =
+          '<div class="section-head"><div><h2 class="section-title">Phòng thực hành Ngữ pháp Tiếng Anh</h2>' +
+          '<p class="brand-sub">Chọn chuyên đề để ôn công thức chuẩn và làm bài tập vận dụng có giải thích chi tiết.</p></div></div>';
+
+        const grid = document.createElement('div');
+        grid.className = 'grammar-grid';
+
+        const sidebar = document.createElement('div');
+        sidebar.className = 'grammar-sidebar';
+        GRAMMAR_UNITS.forEach(function (u, i) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'grammar-nav-btn' + (u.id === unit.id ? ' active' : '');
+          btn.textContent = i + 1 + '. ' + u.viTitle;
+          btn.onclick = function () {
+            state.grammarUnitId = u.id;
+            render();
+          };
+          sidebar.appendChild(btn);
+        });
+
+        const content = document.createElement('div');
+        const box = document.createElement('div');
+        box.className = 'formula-box';
+        box.innerHTML =
+          '<div class="stat-label">' + unit.title + '</div>' +
+          '<h3 style="margin:4px 0 6px;font-size:16px">' + unit.viTitle + '</h3>' +
+          '<div class="formula-code">' + unit.formula + '</div>' +
+          '<p class="brand-sub" style="margin:6px 0 0">' + unit.signals + '</p>';
+        content.appendChild(box);
+
+        unit.drills.forEach(function (drill, dIdx) {
+          const key = unit.id + '-' + dIdx;
+          const selected = state.grammarSelections[key];
+          const card = document.createElement('div');
+          card.className = 'drill-card';
+
+          const prompt = document.createElement('div');
+          prompt.style.fontWeight = '700';
+          prompt.style.fontSize = '13px';
+          prompt.textContent = 'Câu ' + (dIdx + 1) + ': ' + drill.prompt;
+          card.appendChild(prompt);
+
+          const optGrid = document.createElement('div');
+          optGrid.className = 'option-list';
+          drill.options.forEach(function (opt, oIdx) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            let cls = 'option-btn';
+            if (typeof selected === 'number') {
+              if (oIdx === drill.answer) cls += ' correct';
+              else if (oIdx === selected) cls += ' wrong';
+            }
+            btn.className = cls;
+            btn.textContent = String.fromCharCode(65 + oIdx) + '. ' + opt;
+            btn.onclick = function () {
+              state.grammarSelections[key] = oIdx;
+              if (oIdx === drill.answer) {
+                progress.grammarSolved[key] = true;
+                syncHostProgress();
+              }
+              render();
+            };
+            optGrid.appendChild(btn);
+          });
+          card.appendChild(optGrid);
+
+          if (typeof selected === 'number') {
+            const isCorrect = selected === drill.answer;
+            const fb = document.createElement('div');
+            fb.className = 'feedback-box ' + (isCorrect ? 'ok' : 'err');
+            fb.textContent = (isCorrect ? '✓ Chính xác: ' : '✕ Chưa đúng: ') + drill.explanation;
+            card.appendChild(fb);
+          }
+
+          content.appendChild(card);
+        });
+
+        grid.appendChild(sidebar);
+        grid.appendChild(content);
+        stage.appendChild(grid);
+      }
+
+      function renderBuilder(stage) {
+        const challenge = SENTENCE_BUILDERS[state.builderIndex];
+        const bank = shuffleWords(challenge.words);
+
+        stage.innerHTML =
+          '<div class="section-head"><div><h2 class="section-title">Luyện ghép câu Tiếng Anh (' +
+          (state.builderIndex + 1) + '/' + SENTENCE_BUILDERS.length + ')</h2>' +
+          '<p class="brand-sub">Gợi ý nghĩa tiếng Việt: <strong>' + challenge.viHint + '</strong></p></div></div>';
+
+        const tray = document.createElement('div');
+        tray.className = 'builder-tray';
+        if (state.builderPlacedIndices.length === 0) {
+          const placeholder = document.createElement('span');
+          placeholder.className = 'brand-sub';
+          placeholder.textContent = 'Nhấp vào các từ bên dưới để xếp thành câu hoàn chỉnh...';
+          tray.appendChild(placeholder);
+        } else {
+          state.builderPlacedIndices.forEach(function (bankPos, trayIdx) {
+            const tile = document.createElement('button');
+            tile.type = 'button';
+            tile.className = 'word-tile placed';
+            tile.textContent = bank[bankPos].word;
+            tile.title = 'Nhấp để bỏ từ này khỏi câu';
+            tile.onclick = function () {
+              state.builderPlacedIndices.splice(trayIdx, 1);
+              state.builderStatus = null;
+              render();
+            };
+            tray.appendChild(tile);
+          });
+        }
+        stage.appendChild(tray);
+
+        const bankWrap = document.createElement('div');
+        bankWrap.className = 'word-bank';
+        bank.forEach(function (item, bIdx) {
+          if (state.builderPlacedIndices.includes(bIdx)) return;
+          const tile = document.createElement('button');
+          tile.type = 'button';
+          tile.className = 'word-tile';
+          tile.textContent = item.word;
+          tile.onclick = function () {
+            state.builderPlacedIndices.push(bIdx);
+            state.builderStatus = null;
+            render();
+          };
+          bankWrap.appendChild(tile);
+        });
+        stage.appendChild(bankWrap);
+
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.flexWrap = 'wrap';
+        actions.style.gap = '8px';
+        actions.style.marginTop = '12px';
+
+        const checkBtn = document.createElement('button');
+        checkBtn.type = 'button';
+        checkBtn.className = 'btn btn-primary';
+        checkBtn.textContent = 'Kiểm tra câu';
+        checkBtn.disabled = state.builderPlacedIndices.length === 0;
+        checkBtn.onclick = function () {
+          const built = state.builderPlacedIndices
+            .map(function (bIdx) {
+              return bank[bIdx].word;
+            })
+            .join(' ');
+          if (built === challenge.answer) {
+            state.builderStatus = { ok: true, msg: '✓ Xuất sắc! Câu hoàn chỉnh: "' + challenge.answer + '"' };
+          } else {
+            state.builderStatus = {
+              ok: false,
+              msg: '✕ Thứ tự chưa chuẩn. Câu của bạn: "' + built + '" — Hãy thử sắp xếp lại hoặc xem gợi ý.',
+            };
+          }
+          render();
+        };
+
+        const hintBtn = document.createElement('button');
+        hintBtn.type = 'button';
+        hintBtn.className = 'btn';
+        hintBtn.textContent = 'Xem đáp án mẫu';
+        hintBtn.onclick = function () {
+          state.builderStatus = { ok: true, msg: 'Đáp án mẫu: "' + challenge.answer + '"' };
+          render();
+        };
+
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'btn';
+        clearBtn.textContent = 'Xếp lại';
+        clearBtn.onclick = function () {
+          state.builderPlacedIndices = [];
+          state.builderStatus = null;
+          render();
+        };
+
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.className = 'btn';
+        nextBtn.textContent = 'Câu tiếp theo →';
+        nextBtn.onclick = function () {
+          state.builderIndex = (state.builderIndex + 1) % SENTENCE_BUILDERS.length;
+          state.builderPlacedIndices = [];
+          state.builderStatus = null;
+          render();
+        };
+
+        actions.appendChild(checkBtn);
+        actions.appendChild(hintBtn);
+        actions.appendChild(clearBtn);
+        actions.appendChild(nextBtn);
+        stage.appendChild(actions);
+
+        if (state.builderStatus) {
+          const fb = document.createElement('div');
+          fb.className = 'feedback-box ' + (state.builderStatus.ok ? 'ok' : 'err');
+          fb.textContent = state.builderStatus.msg;
+          stage.appendChild(fb);
+        }
+      }
+
+      function renderQuiz(stage) {
+        if (state.quizFinished) {
+          let score = 0;
+          QUIZ_QUESTIONS.forEach(function (q, idx) {
+            if (state.quizAnswers[idx] === q.answer) score += 1;
+          });
+          const pct = Math.round((score / QUIZ_QUESTIONS.length) * 100);
+          const level =
+            pct >= 85 ? 'B2 Upper-Intermediate' : pct >= 60 ? 'B1 Intermediate' : 'A2 Pre-Intermediate';
+
+          stage.innerHTML =
+            '<div class="section-head"><div><h2 class="section-title">Kết quả Kiểm tra Trắc nghiệm Tiếng Anh</h2>' +
+            '<p class="brand-sub">Đánh giá tổng hợp Từ vựng, Ngữ pháp & Đọc hiểu</p></div></div>' +
+            '<div class="formula-box" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">' +
+            '<div><div class="stat-label">Điểm số đạt được</div>' +
+            '<div style="font-size:28px;font-weight:800;font-variant-numeric:tabular-nums">' + score + ' / ' + QUIZ_QUESTIONS.length + ' (' + pct + '%)</div>' +
+            '<div class="brand-sub">Mức năng lực ước tính: <strong>' + level + '</strong></div></div>' +
+            '<button type="button" class="btn btn-primary" id="btn-retry-quiz">Làm lại bài kiểm tra</button>' +
+            '</div>';
+
+          QUIZ_QUESTIONS.forEach(function (q, idx) {
+            const chosen = state.quizAnswers[idx];
+            const ok = chosen === q.answer;
+            const row = document.createElement('div');
+            row.className = 'drill-card';
+            row.innerHTML =
+              '<div style="font-weight:700;font-size:13px">' + (idx + 1) + '. ' + q.q + '</div>' +
+              '<div class="feedback-box ' + (ok ? 'ok' : 'err') + '" style="margin-top:8px">' +
+              (ok ? '✓ Đúng' : '✕ Chọn: ' + (q.options[chosen] || 'Chưa chọn') + ' · Đáp án: ' + q.options[q.answer]) +
+              ' — ' + q.explanation +
+              '</div>';
+            stage.appendChild(row);
+          });
+
+          const retryBtn = document.getElementById('btn-retry-quiz');
+          if (retryBtn) {
+            retryBtn.onclick = function () {
+              state.quizIndex = 0;
+              state.quizAnswers = {};
+              state.quizFinished = false;
+              render();
+            };
+          }
+          return;
+        }
+
+        const q = QUIZ_QUESTIONS[state.quizIndex];
+        const chosen = state.quizAnswers[state.quizIndex];
+        const pct = Math.round(((state.quizIndex + 1) / QUIZ_QUESTIONS.length) * 100);
+
+        stage.innerHTML =
+          '<div class="section-head"><div><h2 class="section-title">Kiểm tra Trắc nghiệm Tiếng Anh</h2>' +
+          '<p class="brand-sub">Câu ' + (state.quizIndex + 1) + ' / ' + QUIZ_QUESTIONS.length + '</p></div></div>';
+
+        const track = document.createElement('div');
+        track.className = 'progress-bar-track';
+        track.innerHTML = '<div class="progress-bar-fill" style="width:' + pct + '%"></div>';
+        stage.appendChild(track);
+
+        const card = document.createElement('div');
+        card.className = 'drill-card';
+        const qTitle = document.createElement('div');
+        qTitle.style.fontSize = '15px';
+        qTitle.style.fontWeight = '800';
+        qTitle.textContent = q.q;
+        card.appendChild(qTitle);
+
+        const optGrid = document.createElement('div');
+        optGrid.className = 'option-list';
+        q.options.forEach(function (opt, oIdx) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          let cls = 'option-btn';
+          if (typeof chosen === 'number') {
+            if (oIdx === q.answer) cls += ' correct';
+            else if (oIdx === chosen) cls += ' wrong';
+          }
+          btn.className = cls;
+          btn.textContent = String.fromCharCode(65 + oIdx) + '. ' + opt;
+          btn.onclick = function () {
+            if (typeof chosen === 'number') return;
+            state.quizAnswers[state.quizIndex] = oIdx;
+            render();
+          };
+          optGrid.appendChild(btn);
+        });
+        card.appendChild(optGrid);
+
+        if (typeof chosen === 'number') {
+          const ok = chosen === q.answer;
+          const fb = document.createElement('div');
+          fb.className = 'feedback-box ' + (ok ? 'ok' : 'err');
+          fb.textContent = (ok ? '✓ Chính xác: ' : '✕ Chưa đúng: ') + q.explanation;
+          card.appendChild(fb);
+        }
+
+        stage.appendChild(card);
+
+        const nav = document.createElement('div');
+        nav.style.display = 'flex';
+        nav.style.justifyContent = 'space-between';
+        nav.style.marginTop = '14px';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.className = 'btn';
+        prevBtn.textContent = '← Câu trước';
+        prevBtn.disabled = state.quizIndex === 0;
+        prevBtn.onclick = function () {
+          state.quizIndex = Math.max(0, state.quizIndex - 1);
+          render();
+        };
+
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.className = 'btn btn-primary';
+        const isLast = state.quizIndex === QUIZ_QUESTIONS.length - 1;
+        nextBtn.textContent = isLast ? 'Hoàn thành & Chấm điểm' : 'Câu tiếp theo →';
+        nextBtn.disabled = typeof chosen !== 'number';
+        nextBtn.onclick = function () {
+          if (isLast) {
+            let score = 0;
+            QUIZ_QUESTIONS.forEach(function (item, idx) {
+              if (state.quizAnswers[idx] === item.answer) score += 1;
+            });
+            if (progress.quizBestScore === null || score > progress.quizBestScore) {
+              progress.quizBestScore = score;
+            }
+            state.quizFinished = true;
+            syncHostProgress();
+            render();
+          } else {
+            state.quizIndex += 1;
+            render();
+          }
+        };
+
+        nav.appendChild(prevBtn);
+        nav.appendChild(nextBtn);
+        stage.appendChild(nav);
+      }
+
+      function render() {
+        document.querySelectorAll('.mode-tab').forEach(function (tab) {
+          tab.setAttribute('aria-selected', tab.dataset.mode === state.mode ? 'true' : 'false');
+        });
+        const stage = document.getElementById('stage');
+        if (!stage) return;
+        if (state.mode === 'vocab') renderVocab(stage);
+        else if (state.mode === 'grammar') renderGrammar(stage);
+        else if (state.mode === 'builder') renderBuilder(stage);
+        else renderQuiz(stage);
+      }
+
+      document.querySelectorAll('.mode-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          state.mode = tab.dataset.mode;
+          syncHostProgress();
+          render();
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-reset-progress');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          progress = { masteredIds: [], quizBestScore: null, grammarSolved: {} };
+          state.grammarSelections = {};
+          state.quizAnswers = {};
+          state.quizIndex = 0;
+          state.quizFinished = false;
+          syncHostProgress();
+          render();
+        });
+      }
+
+      syncHostProgress();
+      render();
+    })();
+  </script>
+</body>
+</html>
